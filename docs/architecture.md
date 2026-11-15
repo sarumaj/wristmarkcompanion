@@ -1,0 +1,41 @@
+# Architecture
+
+Two parts, with no link between them but the camera image:
+
+```mermaid
+flowchart LR
+    subgraph watch["Watch: Connect IQ device app"]
+        marker["ArUco marker, ID n<br>drawn with rectangles"]
+        buttons["Buttons: next or previous ID"] --> marker
+    end
+    subgraph phone["Phone: browser, viewer"]
+        camera["getUserMedia<br>rear camera"] --> detect["js-aruco2<br>ID n and corners"]
+        detect --> pose["Coplanar POSIT<br>pose"]
+        pose --> smooth["Smoothing<br>one pose, no flips"]
+        smooth --> render["three.js<br>model for ID n"]
+    end
+    marker -- "camera image only" --> camera
+```
+
+- **The marker ID is the only data channel.** There is no Bluetooth, network or phone app.
+  Everything the viewer shows is chosen by the ID it reads.
+- **One dictionary on both sides.** The watch's table is generated from the viewer's library
+  data ([002](decisions/002-marker-dictionary.md)).
+- **Nothing leaves the browser.** The viewer is static files. Its Content-Security-Policy allows
+  connections to its own origin only (`viewer/nginx.conf`), so no camera frame or analytics can
+  be sent elsewhere.
+
+## Repository layout
+
+| Path | What |
+|---|---|
+| `watch/` | The Connect IQ project. `source/MarkerDictionary.mc` is generated |
+| `viewer/` | The static web app (`public/`), its pinned libraries (`package.json`), nginx config and Dockerfile |
+| `tools/` | `generate-dictionary.mjs` (the watch's marker table), `smoke-test.sh` (the viewer's image) |
+| `docs/` | This page, [decisions](decisions/), [CI](ci.md); later the test protocol and the store guide |
+| `.forgejo/workflows/` | CI |
+
+## Decisions
+
+- [001: Detection library: js-aruco2](decisions/001-detection-library.md)
+- [002: Marker dictionary: OpenCV DICT_4X4_50](decisions/002-marker-dictionary.md)
