@@ -2,5 +2,7 @@
   // Prose lines up to 100 characters; table rows can't be wrapped and code may be longer.
   "MD013": { "line_length": 100, "tables": false, "code_blocks": false },
   // Tables aligned, their pipes in columns, as in the homelab's documentation.
-  "MD060": { "style": "aligned" }
+  "MD060": { "style": "aligned" },
+  // The changelog repeats "### Added" under each version, as Keep a Changelog does.
+  "MD024": { "siblings_only": true }
 }

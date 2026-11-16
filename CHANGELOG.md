@@ -6,14 +6,17 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
-## 0.1.0 - 2026-11-16
-
 ### Added
 
 - Four models, all from the time alone, without a permission or the network: the moon
   in tonight's phase with the next full or new moon (marker 0), the Earth with day and night
   as they are now (1), a waving robot (2) and a snow globe (3). The placeholders move to 4-7.
   `?date=` shows the moon and the globe on another day.
+
+## 0.1.0 - 2026-11-16
+
+### Added
+
 - Repository layout, CI (viewer lint, image build and smoke test, marker table check), Renovate.
 - The watch app compiled in CI with the Connect IQ SDK installed on the runner's host
   (`tools/build-watch.sh`), with the strict type check.
@@ -44,4 +47,3 @@ All notable changes to this project are documented here. The format follows
 - The watch app: the marker as large as the D2 Mach 1's round display allows
   with its quiet zone (about 18.6 mm), next and previous ID, an automatic cycle, and the display
   held on until the system's burn-in protection refuses.
-
