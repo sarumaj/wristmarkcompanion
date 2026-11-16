@@ -156,11 +156,16 @@ jobs:
           echo "Deployment $deployment of $app at $(git rev-parse --short HEAD)"
           status=queued
           for _ in $(seq 90); do
-            status=$(api "$APPS_URL/api/v1/deployments/$deployment" | jq -r .status)
+            details=$(api "$APPS_URL/api/v1/deployments/$deployment")
+            status=$(jq -r .status <<< "$details")
             case "$status" in
               finished) break ;;
               failed | cancelled-by-user)
-                echo "::error::The deployment ended as $status; its log is in the panel"
+                # The panel keeps the log as a JSON string of entries; the hidden ones are
+                # its own commands, the rest what the panel shows.
+                jq -r '.logs // "[]" | (fromjson? // []) | .[] | select(.hidden | not) | .output' \
+                  <<< "$details" | tail -n 40
+                echo "::error::The deployment ended as $status; the end of its log is above"
                 exit 1
                 ;;
             esac

@@ -15,6 +15,10 @@ All notable changes to this project are documented here. The format follows
   as they are now (1), a waving robot (2) and a snow globe (3). The placeholders move to 4-7.
   `?date=` shows the moon and the globe on another day.
 
+### Fixed
+
+- A release whose deployment fails shows the end of the panel's log in its job.
+
 ## 0.1.0 - 2026-11-16
 
 ### Added
