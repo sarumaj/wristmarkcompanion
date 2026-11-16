@@ -38,6 +38,10 @@ jobs:
       - name: Check the watch's marker table
         run: node tools/generate-dictionary.mjs --check
 
+      # The watch shows the markers content.json gives a model, and no others.
+      - name: Check the watch's list of markers with content
+        run: node tools/generate-content-ids.mjs --check
+
       # The launcher icon is marker 0 of that table.
       - name: Check the watch's launcher icon
         run: node tools/generate-icon.mjs --check

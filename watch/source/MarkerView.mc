@@ -6,7 +6,8 @@ import Toybox.Timer;
 import Toybox.WatchUi;
 
 //! One marker of MarkerDictionary, as large as the round display allows with the
-//! quiet zone the detector needs (docs/watch.md), and its ID below it.
+//! quiet zone the detector needs (docs/watch.md), and its ID below it. Only the
+//! markers the viewer has a model for are shown (MarkerContent).
 class MarkerView extends WatchUi.View {
     //! How long each marker shows in the automatic cycle.
     private const CYCLE_MS = 5000;
@@ -15,7 +16,9 @@ class MarkerView extends WatchUi.View {
     //! after about a minute held on (Attention.backlight, docs/watch.md).
     private const KEEP_ON_MS = 5000;
 
-    private var _id as Number = 0;
+    //! Where in MarkerContent.IDS the shown marker is, and its ID.
+    private var _index as Number = 0;
+    private var _id as Number = MarkerContent.IDS[0];
     private var _cycling as Boolean = false;
     //! Whether the app still holds the display on; false after the system refused.
     private var _keepingOn as Boolean = true;
@@ -81,8 +84,9 @@ class MarkerView extends WatchUi.View {
 
     //! The next (1) or previous (-1) marker.
     function step(delta as Number) as Void {
-        var count = MarkerDictionary.CODES.size();
-        _id = (_id + delta + count) % count;
+        var count = MarkerContent.IDS.size();
+        _index = (_index + delta + count) % count;
+        _id = MarkerContent.IDS[_index];
         wake();
         WatchUi.requestUpdate();
     }
@@ -100,8 +104,9 @@ class MarkerView extends WatchUi.View {
     }
 
     function cycle() as Void {
-        var count = MarkerDictionary.CODES.size();
-        _id = (_id + 1) % count;
+        var count = MarkerContent.IDS.size();
+        _index = (_index + 1) % count;
+        _id = MarkerContent.IDS[_index];
         WatchUi.requestUpdate();
     }
 

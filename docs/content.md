@@ -21,8 +21,11 @@ the axis gizmo for any other ID. It works the same on a phone (rear camera) and 
 - **Checked on load** (`js/content.js`): an unknown key, model or field, or an ID out of range,
   stops the viewer with the reason, instead of showing nothing. `viewer/test` checks the shipped
   file and the check itself.
-- **An ID without an entry** shows the axis gizmo, and the status says "no content". That's
-  how a new watch ID shows up before it has a model.
+- **The watch shows only the mapped IDs:** `tools/generate-content-ids.mjs` writes them into
+  `watch/source/MarkerContent.mc`, which its next and previous buttons and its automatic cycle
+  step through. Run it after changing the mapping; CI fails while the watch's list is stale.
+- **An ID without an entry** shows the axis gizmo, and the status says "no content": the
+  marker page shows every ID, the watch only the mapped ones.
 - **Switching:** the model changes when the camera sees another ID (the watch's next and
   previous buttons, or its automatic cycle). The new marker's pose starts afresh, without the
   smoothing of the old one.

@@ -71,8 +71,8 @@ then (`?size=18.6` on its URL uses this one).
 
 | Input                                    | Action                                                                    |
 |------------------------------------------|---------------------------------------------------------------------------|
-| Down button, swipe up (`onNextPage`)     | Next ID (49 wraps to 0)                                                   |
-| Up button, swipe down (`onPreviousPage`) | Previous ID                                                               |
+| Down button, swipe up (`onNextPage`)     | Next ID with a model (`MarkerContent`); the last wraps to the first       |
+| Up button, swipe down (`onPreviousPage`) | Previous ID with a model                                                  |
 | Enter button, tap (`onSelect`)           | Start or stop the automatic cycle (5 s per marker); the label says `auto` |
 | Back                                     | Leave the app (the system's default)                                      |
 

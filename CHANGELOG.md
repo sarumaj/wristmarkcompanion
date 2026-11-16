@@ -25,6 +25,8 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
+- The watch shows only the markers the viewer has a model for (`MarkerContent.mc`, generated
+  from `content.json` and checked by CI), so that every marker it shows brings up a model.
 - The viewer's look: dark, with a start screen, the camera's image fitted to the screen in
   its own aspect, a status pill that shows searching or tracking, glass panels, and the same
   buttons and fields on every page.
