@@ -8,6 +8,10 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Four more models (markers 11 to 14), from the time alone: a world clock (the Earth from
+  above the North Pole with eight cities' local times), an open watch movement whose hands
+  show the time, an hourglass that runs out every minute, and a helicopter lifting off from a
+  helipad on the watch.
 - The guided device test (`?test`): `docs/device-tests.md` step by step under the camera's
   image, spoken too, measuring detection, distance, tilt, jitter and flips, the display's
   dimming and switching off, and each model; red light (night mode) as a switch; a report

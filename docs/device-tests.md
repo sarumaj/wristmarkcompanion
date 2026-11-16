@@ -148,7 +148,7 @@ Battery before and after 10 minutes of the app (with presses to keep it on): \_\
 
 ## 4. The models
 
-On the phone, with markers 0 to 10 on the watch (its next and previous buttons). For the moon
+On the phone, with markers 0 to 14 on the watch (its next and previous buttons). For the moon
 and the globe, also: does the moon's phase match the sky, and is the day side of the Earth
 where it's day now?
 
@@ -165,6 +165,10 @@ where it's day now?
 | 8   | The planets today    |                    |         |       |
 | 9   | Landing              |                    |         |       |
 | 10  | Fireworks            |                    |         |       |
+| 11  | World clock          |                    |         |       |
+| 12  | Watch movement       |                    |         |       |
+| 13  | Hourglass            |                    |         |       |
+| 14  | Helicopter           |                    |         |       |
 
 ## 5. Anything else
 

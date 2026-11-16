@@ -10,6 +10,10 @@
     "7": { "model": "crystal", "name": "Crystal" },
     "8": { "model": "orrery", "name": "The planets today" },
     "9": { "model": "landing", "name": "Landing" },
-    "10": { "model": "fireworks", "name": "Fireworks" }
+    "10": { "model": "fireworks", "name": "Fireworks" },
+    "11": { "model": "worldClock", "name": "World clock" },
+    "12": { "model": "movement", "name": "Watch movement" },
+    "13": { "model": "hourglass", "name": "Hourglass" },
+    "14": { "model": "helicopter", "name": "Helicopter" }
   }
 }

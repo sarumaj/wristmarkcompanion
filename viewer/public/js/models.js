@@ -6,9 +6,10 @@
 // the orrery show (default: the clock).
 import * as THREE from "../vendor/three/three.module.js";
 import { standing } from "./standing.js";
-import { earth, moon, orrery } from "./sky-models.js";
+import { earth, moon, orrery, worldClock } from "./sky-models.js";
+import { hourglass, movement } from "./clock-models.js";
 import { fireworks, robot, snowglobe } from "./fun-models.js";
-import { landing } from "./aviation-models.js";
+import { helicopter, landing } from "./aviation-models.js";
 
 const MODELS = {
   moon,
@@ -18,6 +19,10 @@ const MODELS = {
   orrery,
   landing,
   fireworks,
+  worldClock,
+  movement,
+  hourglass,
+  helicopter,
 
   // A cube with a color per face, on the marker, turning slowly.
   cube(size) {

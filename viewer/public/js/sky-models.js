@@ -5,40 +5,10 @@ import * as THREE from "../vendor/three/three.module.js";
 import { standing } from "./standing.js";
 import { moonPhase, nextElongation, PLANET_NAMES, planetPosition, subsolarPoint } from "./sky.js";
 import { LAND } from "./land.js";
+import { label } from "./label.js";
 
 const RAD = Math.PI / 180;
 const DAY_MS = 86400000;
-
-// A text label floating over a model, drawn on a canvas; `update(lines)` redraws it.
-function label(width) {
-  const canvas = document.createElement("canvas");
-  canvas.width = 512;
-  canvas.height = 128;
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, depthTest: false }));
-  sprite.scale.set(width, width / 4, 1);
-  let shown = "";
-  return {
-    sprite,
-    update(lines) {
-      if (lines.join("\n") === shown) return;
-      shown = lines.join("\n");
-      const context = canvas.getContext("2d");
-      context.clearRect(0, 0, canvas.width, canvas.height);
-      context.fillStyle = "rgba(0, 0, 0, 0.55)";
-      context.beginPath();
-      context.roundRect(8, 8, canvas.width - 16, canvas.height - 16, 24);
-      context.fill();
-      context.fillStyle = "#fff";
-      context.font = "600 40px system-ui, sans-serif";
-      context.textAlign = "center";
-      context.textBaseline = "middle";
-      lines.forEach((line, i) => context.fillText(line, canvas.width / 2, 64 + (i - (lines.length - 1) / 2) * 46));
-      texture.needsUpdate = true;
-    },
-  };
-}
 
 function inDays(from, to) {
   const days = Math.round((to - from) / DAY_MS);
@@ -140,12 +110,9 @@ function landTexture() {
   return texture;
 }
 
-// The Earth with the sun's light as it falls now: the day side around the point
-// where the sun is overhead, the terminator, the night side dark. A yellow meridian
-// marks the viewer's time zone (its offset, 15 degrees an hour: the browser knows no
-// more without asking for the location). North points to the watch's top, tilted
-// toward the camera, and the globe turns slowly so that it reads as a ball.
-export function earth(size, { now }) {
+// A globe with day and night as they are now: y is north, longitude 0 at +x, east
+// toward -z. `update()` moves the sun; a yellow meridian marks the viewer's time zone.
+function globe(radius, now) {
   const sunPoint = () => {
     const { latitude, longitude } = subsolarPoint(now());
     const phi = latitude * RAD;
@@ -195,18 +162,91 @@ export function earth(size, { now }) {
         #include <colorspace_fragment>
       }`,
   });
-  const globe = new THREE.Mesh(new THREE.SphereGeometry(size * 0.45, 64, 32), material);
+  const mesh = new THREE.Mesh(new THREE.SphereGeometry(radius, 64, 32), material);
+  return { mesh, update: () => material.uniforms.sun.value.copy(sunPoint()) };
+}
+
+// The Earth with the sun's light as it falls now: the day side around the point
+// where the sun is overhead, the terminator, the night side dark. A yellow meridian
+// marks the viewer's time zone (its offset, 15 degrees an hour: the browser knows no
+// more without asking for the location). North points to the watch's top, tilted
+// toward the camera, and the globe turns slowly so that it reads as a ball.
+export function earth(size, { now }) {
+  const { mesh, update } = globe(size * 0.45, now);
   const axis = new THREE.Group();
   // y (north) to the watch's top, leaning 23.4 degrees toward the camera.
   axis.rotation.x = -Math.PI / 2 + 23.4 * RAD;
-  axis.add(globe);
+  axis.add(mesh);
   axis.position.y = size * 0.75;
   const { root } = standing(axis);
   return {
     object: root,
     animate: (t) => {
-      globe.rotation.y = t * 0.2;
-      material.uniforms.sun.value.copy(sunPoint());
+      mesh.rotation.y = t * 0.2;
+      update();
+    },
+  };
+}
+
+// The cities of the world clock, west to east, with their time zones (IANA, which
+// the browser's Intl knows offline) and longitudes.
+const CITIES = [
+  ["Los Angeles", "America/Los_Angeles", -118.2],
+  ["New York", "America/New_York", -74.0],
+  ["São Paulo", "America/Sao_Paulo", -46.6],
+  ["London", "Europe/London", -0.1],
+  ["Dubai", "Asia/Dubai", 55.3],
+  ["Singapore", "Asia/Singapore", 103.8],
+  ["Tokyo", "Asia/Tokyo", 139.7],
+  ["Sydney", "Australia/Sydney", 151.2],
+];
+
+// A world clock: the globe seen from above the North Pole, day and night as they
+// are now, and around it the cities at their longitudes with their local time; a
+// ring of 24 hours under them. Every other label sits higher, so that neighbors
+// (Tokyo and Sydney) don't cover each other.
+export function worldClock(size, { now }) {
+  const radius = size * 0.32;
+  const { mesh, update } = globe(radius, now);
+  mesh.position.y = size * 0.45;
+  const ring = new THREE.Mesh(
+    new THREE.TorusGeometry(size * 0.62, size * 0.008, 8, 96),
+    new THREE.MeshStandardMaterial({ color: 0xc9d4ff, metalness: 0.6, roughness: 0.3 }),
+  );
+  ring.rotation.x = Math.PI / 2;
+  ring.position.y = size * 0.45;
+  const ticks = new THREE.Group();
+  for (let hour = 0; hour < 24; hour++) {
+    const tick = new THREE.Mesh(
+      new THREE.BoxGeometry(size * 0.012, size * 0.012, size * (hour % 6 ? 0.04 : 0.08)),
+      new THREE.MeshStandardMaterial({ color: 0xc9d4ff }),
+    );
+    const angle = (hour / 24) * Math.PI * 2;
+    tick.position.set(Math.cos(angle) * size * 0.62, size * 0.45, -Math.sin(angle) * size * 0.62);
+    tick.rotation.y = angle;
+    ticks.add(tick);
+  }
+  const formats = CITIES.map(([, zone]) => new Intl.DateTimeFormat("en-GB", { timeZone: zone, hour: "2-digit", minute: "2-digit" }));
+  const labels = CITIES.map(([, , longitude], i) => {
+    const text = label(size * 0.62);
+    const angle = longitude * RAD;
+    const out = size * 0.82;
+    text.sprite.position.set(Math.cos(angle) * out, size * (i % 2 ? 0.75 : 0.55), -Math.sin(angle) * out);
+    const pin = new THREE.Mesh(new THREE.SphereGeometry(size * 0.02, 8, 6), new THREE.MeshStandardMaterial({ color: 0xffd200, emissive: 0x664400 }));
+    pin.position.set(Math.cos(angle) * size * 0.62, size * 0.45, -Math.sin(angle) * size * 0.62);
+    return { text, pin };
+  });
+  const { root } = standing(mesh, ring, ticks, ...labels.flatMap(({ text, pin }) => [text.sprite, pin]));
+  let shown = -1;
+  return {
+    object: root,
+    animate: () => {
+      update();
+      const date = now();
+      const minute = Math.floor(date.getTime() / 60000);
+      if (minute === shown) return;
+      shown = minute;
+      labels.forEach(({ text }, i) => text.update([CITIES[i][0], formats[i].format(date)]));
     },
   };
 }

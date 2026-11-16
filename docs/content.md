@@ -30,28 +30,34 @@ the axis gizmo for any other ID. It works the same on a phone (rear camera) and 
 ## The models
 
 All of them are generated in code with three.js (`js/models.js`, `js/sky-models.js`,
-`js/fun-models.js`, `js/aviation-models.js`), so there are no asset files and nothing to
-license apart from this project's own code (GPL-3.0) and Natural Earth's land, which is in the
-public domain. Each stands on the marker's face, sized from the marker's side, and moves a
-little so that it reads as 3D.
+`js/fun-models.js`, `js/aviation-models.js`, `js/clock-models.js`), so there are no asset
+files and nothing to license apart from this project's own code (GPL-3.0) and Natural Earth's
+land, which is in the public domain. Each stands on the marker's face, sized from the marker's
+side, and moves a little so that it reads as 3D.
 
 ![The moon on 2026-11-16, the Earth at noon UTC that day, the robot and the snow globe](images/models.png)
 
 ![The planets on 2026-11-16, the landing at its flare, the fireworks](images/models-2.png)
 
-| ID  | Model       | What                                                                                                                                |
-|-----|-------------|-------------------------------------------------------------------------------------------------------------------------------------|
-| 0   | `moon`      | The moon in its phase now, lit from the sun's side wherever the camera is; a label with the lit share and the next full or new moon |
-| 1   | `earth`     | The Earth with day and night as they are now, the terminator moving; a yellow meridian at the viewer's time zone                    |
-| 2   | `robot`     | A robot mascot: it bobs, looks around, blinks and waves                                                                             |
-| 3   | `snowglobe` | A snow globe with a fir tree, the snow drifting down                                                                                |
-| 4   | `cube`      | Placeholder: a cube with a color per face, turning slowly                                                                           |
-| 5   | `knot`      | Placeholder: a torus knot above the marker, turning                                                                                 |
-| 6   | `planet`    | Placeholder: a planet with a ring and a moon orbiting it                                                                            |
-| 7   | `crystal`   | Placeholder: a flat-shaded crystal floating up and down                                                                             |
-| 8   | `orrery`    | The planets around the sun as they stand today: true directions, distances not to scale; a label with the date                      |
-| 9   | `landing`   | A plane landing on a runway along the watch: approach, flare, touchdown, rollout, with edge and approach lights                     |
-| 10  | `fireworks` | Rockets rising from the watch and bursting, the sparks falling and fading                                                           |
+![The world clock at 14:23 UTC, the watch movement, the hourglass and the helicopter hovering](images/models-3.png)
+
+| ID  | Model        | What                                                                                                                                                              |
+|-----|--------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 0   | `moon`       | The moon in its phase now, lit from the sun's side wherever the camera is; a label with the lit share and the next full or new moon                               |
+| 1   | `earth`      | The Earth with day and night as they are now, the terminator moving; a yellow meridian at the viewer's time zone                                                  |
+| 2   | `robot`      | A robot mascot: it bobs, looks around, blinks and waves                                                                                                           |
+| 3   | `snowglobe`  | A snow globe with a fir tree, the snow drifting down                                                                                                              |
+| 4   | `cube`       | Placeholder: a cube with a color per face, turning slowly                                                                                                         |
+| 5   | `knot`       | Placeholder: a torus knot above the marker, turning                                                                                                               |
+| 6   | `planet`     | Placeholder: a planet with a ring and a moon orbiting it                                                                                                          |
+| 7   | `crystal`    | Placeholder: a flat-shaded crystal floating up and down                                                                                                           |
+| 8   | `orrery`     | The planets around the sun as they stand today: true directions, distances not to scale; a label with the date                                                    |
+| 9   | `landing`    | A plane landing on a runway along the watch: approach, flare, touchdown, rollout, with edge and approach lights                                                   |
+| 10  | `fireworks`  | Rockets rising from the watch and bursting, the sparks falling and fading                                                                                         |
+| 11  | `worldClock` | The Earth seen from above the North Pole, day and night as they are now, and eight cities around it at their longitudes with their local time                     |
+| 12  | `movement`   | An open mechanical movement under a glass dome: the gear train turning, the escape wheel stepping, the balance swinging at 2.5 Hz, the hands showing the time now |
+| 13  | `hourglass`  | An hourglass that runs out every minute and turns over at the full minute                                                                                         |
+| 14  | `helicopter` | A helicopter on a helipad: the rotor spins up, it lifts off, hovers turning once around, lands and spins down; the pad's lights chase while it's away             |
 
 ### The moon, the Earth and the planets
 
