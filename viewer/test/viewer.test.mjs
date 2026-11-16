@@ -6,6 +6,7 @@
 // - the viewer, fed a marker through Chromium's fake camera, shows its model (or
 //   the gizmo for an ID without content) and the debug overlay;
 // - content.json passes its check, and the models stand on the marker;
+// - the guided device test measures a step and reports it;
 // - the privacy page is served and linked.
 import { after, before, test } from "node:test";
 import assert from "node:assert/strict";
@@ -216,6 +217,27 @@ test("a marker without content gets the gizmo and says so", async () => {
     assert.match(await page.locator("#status").textContent(), /^Marker 23 \(no content\), \d+ mm away$/);
     assert.equal(await page.locator("body").getAttribute("data-model"), null);
     assert.equal(await page.locator("#debug").isHidden(), true);
+  });
+});
+
+test("the guided device test measures a range step and reports it", async () => {
+  await withCamera(1, "/index.html?test&autostart&capture=1&countdown=0", async (page) => {
+    const guide = page.locator("#guide");
+    await guide.getByRole("button", { name: "Range" }).click();
+    await guide.getByRole("button", { name: "indoor lamp" }).click();
+    await guide.getByRole("checkbox").check();
+    await guide.getByRole("button", { name: "Start" }).click();
+    assert.doesNotMatch(await guide.textContent(), /null|undefined/);
+    await guide.getByRole("button", { name: "Measure" }).click();
+    await guide.getByRole("button", { name: "Save and next" }).click({ timeout: 10000 });
+    assert.match(await guide.textContent(), /2 of 6/);
+    await guide.getByRole("button", { name: "Sections" }).click();
+    assert.match(await guide.textContent(), /1 measured/);
+    await guide.getByRole("button", { name: "Report" }).click();
+    const markdown = await guide.locator(".guide-report").textContent();
+    assert.match(markdown, /^\| indoor lamp \| red light \| 15 +\| \d+ +\| (9\d|100) +\|/m);
+    // The live line shows the marker it sees.
+    assert.match(await guide.locator(".guide-live").textContent(), /^ID 1 /);
   });
 });
 

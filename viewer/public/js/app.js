@@ -30,6 +30,9 @@ const status = document.getElementById("status");
 const start = document.getElementById("start");
 const debugPanel = document.getElementById("debug");
 const debugToggle = document.getElementById("debug-toggle");
+// The guided device test (?test, docs/device-tests.md), fed every processed frame.
+// ?capture= and ?countdown= shorten its measurements (seconds), for the tests.
+let guide = null;
 
 function showDebug(visible) {
   debugPanel.hidden = !visible;
@@ -112,6 +115,7 @@ async function run() {
   const content = await loadContent("content.json", MODEL_NAMES);
   report("Opening the camera…", "starting");
   await openCamera();
+  guide?.cameraStarted();
   const frame = document.createElement("canvas");
   const context = frame.getContext("2d", { willReadFrequently: true });
   const tracker = new MarkerTracker({ markerSize: MARKER_SIZE, fovDegrees: FOV_DEGREES });
@@ -138,10 +142,12 @@ async function run() {
 
     context.drawImage(video, 0, 0, width, height);
     const detectStart = performance.now();
-    const markers = tracker.detect(context.getImageData(0, 0, width, height));
+    const image = context.getImageData(0, 0, width, height);
+    const markers = tracker.detect(image);
     const marker = markers[0];
     const pose = marker ? tracker.pose(marker, width, height) : null;
-    stats.frame(now, performance.now() - detectStart, Boolean(pose));
+    const detectMs = performance.now() - detectStart;
+    stats.frame(now, detectMs, Boolean(pose));
 
     // Another marker: its own content, and a pose of its own from scratch.
     if (marker && marker.id !== shownId) {
@@ -159,6 +165,9 @@ async function run() {
       view.anchor.visible = false;
     }
     const distance = smoothed ? Math.round(-smoothed.position.z) : null;
+    if (guide) {
+      guide.frame(guideFrame(now, detectMs, pose && marker, smoothed, image));
+    }
     if (marker && pose) {
       const what = entry ? entry.name : "no content";
       report(`Marker ${marker.id} (${what}), ${distance} mm away`, "tracking");
@@ -181,7 +190,45 @@ async function run() {
   requestAnimationFrame(loop);
 }
 
-start.addEventListener("click", () => run().catch(fail));
-if (params.has("autostart")) {
-  run().catch(fail);
+// The guide's view of a frame: the smoothed pose as numbers, the marker's face
+// (its z axis) and its tilt from the line of sight, and the image to measure the
+// marker's brightness in.
+function guideFrame(t, detectMs, marker, smoothed, image) {
+  if (!marker || !smoothed) {
+    return { t, detectMs, found: false };
+  }
+  const normal = new THREE.Vector3(0, 0, 1).applyQuaternion(smoothed.quaternion);
+  const toCamera = smoothed.position.clone().negate().normalize();
+  return {
+    t,
+    detectMs,
+    found: true,
+    id: marker.id,
+    distance: -smoothed.position.z,
+    position: smoothed.position.toArray(),
+    normal: normal.toArray(),
+    tilt: THREE.MathUtils.radToDeg(normal.angleTo(toCamera)),
+    image,
+    corners: marker.corners,
+  };
 }
+
+async function main() {
+  if (params.has("test")) {
+    const { startGuide } = await import("./guide.js");
+    const content = await loadContent("content.json", MODEL_NAMES);
+    guide = startGuide({
+      root: document.getElementById("guide"),
+      content,
+      markerSize: MARKER_SIZE,
+      captureSeconds: Number(params.get("capture")) || 10,
+      countdownSeconds: params.has("countdown") ? Number(params.get("countdown")) : 3,
+    });
+  }
+  start.addEventListener("click", () => run().catch(fail));
+  if (params.has("autostart")) {
+    await run();
+  }
+}
+
+main().catch(fail);

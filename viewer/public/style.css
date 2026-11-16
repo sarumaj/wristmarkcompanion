@@ -108,3 +108,91 @@ button {
   max-width: 40em;
   line-height: 1.5;
 }
+
+/* The guided device test (?test), under the camera's image: large targets, as the
+   other hand holds the watch. */
+.guide {
+  margin: 16px 0;
+  padding: 12px;
+  border: 1px solid rgb(128 128 128 / 50%);
+  border-radius: 8px;
+}
+
+.guide h2 {
+  margin: 0 0 8px;
+  font-size: 1.1em;
+}
+
+.guide button {
+  min-height: 44px;
+}
+
+.guide-live {
+  margin: 0 0 12px;
+  padding: 8px;
+  background: #000;
+  color: #7fff7f;
+  font: 14px/1.4 ui-monospace, monospace;
+  white-space: pre-wrap;
+}
+
+.guide-big {
+  font-size: 1.6em;
+  font-weight: bold;
+  margin: 8px 0;
+}
+
+.guide-result,
+.guide-report {
+  font: 13px/1.4 ui-monospace, monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.guide-report {
+  max-height: 50vh;
+  overflow: auto;
+  padding: 8px;
+  border: 1px solid rgb(128 128 128 / 50%);
+}
+
+.guide-note {
+  font-weight: bold;
+}
+
+.guide-sections li {
+  margin: 6px 0;
+}
+
+.choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.choices button[aria-pressed="true"] {
+  font-weight: bold;
+  outline: 3px solid #0a84ff;
+}
+
+.guide .field {
+  display: block;
+  margin: 8px 0;
+}
+
+.guide .field input,
+.guide .field textarea,
+.guide input[type="text"] {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+  padding: 6px;
+  margin-top: 4px;
+}
+
+.field-inline {
+  display: block;
+  margin: 8px 0;
+}

@@ -12,6 +12,31 @@ The prototype has two open questions:
 Fill in the tables below, as many rows as you get to. A `-` is fine where something wasn't
 measured; notes are welcome anywhere.
 
+## The guided test
+
+The viewer can walk you through this page and measure most of it itself: open it with `?test`
+(the **Device test** link under the viewer), e.g.
+`https://8095-dawid.studio.ciepiela.org/?test&size=18.6`, tap **Start the camera**, then work
+through the sections under the camera's image.
+
+- **Each step says what to do, aloud too** (spoken prompts and beeps, which can be turned off),
+  so that the phone and the watch can stay in your hands; a measurement starts after a
+  3-second countdown and takes 10 seconds.
+- **It measures** the detection rate, FPS, detection time, the distance shown, the tilt of the
+  watch (for the angles, without a protractor), and how still the pose stays: its jitter and
+  flips give a suggested "Steady", which you can change.
+- **Session length is timed automatically:** the marker's brightness shows when the display
+  dims, its loss when it goes off; then the guide asks for a button press and checks whether
+  the marker comes back. **It dimmed now** marks the dimming by hand.
+- **The models** are measured as soon as the watch shows each marker; you answer whether the
+  model sits on the watch and is smooth.
+- **Red light (night mode):** range, angle and session runs each have a switch for the watch
+  in red light; run the range in a dark room and under a lamp with it.
+- **The results stay on the phone** (the browser's storage) until **Report** copies,
+  downloads or shares them as this page's tables, filled in.
+
+The tables below are what the report fills in; they also work by hand with the debug overlay.
+
 ## Getting set up
 
 ### The watch app
@@ -75,7 +100,8 @@ note what the overlay shows. "Measured" is the distance from the phone's camera 
 with a tape measure; "shown" is the overlay's `distance`. "Steady" is whether the model sits
 still on the watch (yes, jitters, flips, lost).
 
-Lighting: indoor lamp, indoor daylight, outdoor shade, outdoor sun.
+Lighting: indoor lamp, indoor daylight, outdoor shade, outdoor sun; and with the watch in red
+light (night mode), a dark room and an indoor lamp.
 
 | Lighting      | Measured (cm) | Shown (mm) | Detection (%) | FPS | Detect time (ms) | Steady | Notes |
 |---------------|---------------|------------|---------------|-----|------------------|--------|-------|
