@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## 0.1.0 - 2026-11-16
+
 ### Added
 
 - Repository layout, CI (viewer lint, image build and smoke test, marker table check), Renovate.
@@ -38,3 +40,4 @@ All notable changes to this project are documented here. The format follows
 - The watch app: the marker as large as the D2 Mach 1's round display allows
   with its quiet zone (about 18.6 mm), next and previous ID, an automatic cycle, and the display
   held on until the system's burn-in protection refuses.
+
