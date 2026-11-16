@@ -25,6 +25,7 @@ const DATE_OFFSET = params.has("date") ? Date.parse(params.get("date")) - Date.n
 const now = () => new Date(Date.now() + DATE_OFFSET);
 
 const video = document.getElementById("camera");
+const stage = document.querySelector(".stage");
 const overlay = document.getElementById("overlay");
 const status = document.getElementById("status");
 const start = document.getElementById("start");
@@ -64,6 +65,11 @@ async function openCamera() {
   });
   video.srcObject = stream;
   await video.play();
+  // The stage takes the camera's aspect, so that the overlay lies exactly on the image;
+  // a phone turned around changes it.
+  const fit = () => video.videoWidth && stage.style.setProperty("--aspect", String(video.videoWidth / video.videoHeight));
+  fit();
+  video.addEventListener("resize", fit);
 }
 
 function scene() {

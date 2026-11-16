@@ -19,6 +19,12 @@ All notable changes to this project are documented here. The format follows
   as they are now (1), a waving robot (2) and a snow globe (3). The placeholders move to 4-7.
   `?date=` shows the moon and the globe on another day.
 
+### Changed
+
+- The viewer's look: dark, with a start screen, the camera's image fitted to the screen in
+  its own aspect, a status pill that shows searching or tracking, glass panels, and the same
+  buttons and fields on every page.
+
 ### Fixed
 
 - A release whose deployment fails shows the end of the panel's log in its job.

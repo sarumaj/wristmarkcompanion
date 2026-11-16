@@ -1,22 +1,63 @@
+/* WristMarkCompanion's pages. The viewer is a camera app, dark always; the marker
+   and privacy pages follow the system's light or dark. System fonts only: the
+   Content-Security-Policy keeps every request on this origin. */
+
 :root {
   color-scheme: light dark;
-  font-family: system-ui, sans-serif;
-  --background: #fff;
-  --text: #111;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --bg: #f6f7fb;
+  --surface: #fff;
+  --surface-2: #eef0f6;
+  --border: rgb(15 20 40 / 12%);
+  --text: #12151d;
+  --muted: #5d6578;
+  --accent: #4f7cff;
+  --accent-2: #8b5cf6;
+  --accent-text: #fff;
+  --ok: #10b981;
+  --warn: #f59e0b;
+  --danger: #ef4444;
+  --radius: 14px;
+  --shadow: 0 10px 30px rgb(0 0 0 / 12%);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #111;
-    --text: #eee;
+    --bg: #0b0d12;
+    --surface: #141821;
+    --surface-2: #1c2130;
+    --border: rgb(255 255 255 / 9%);
+    --text: #e8ecf4;
+    --muted: #98a1b3;
+    --shadow: 0 10px 30px rgb(0 0 0 / 45%);
   }
+}
+
+/* The viewer: dark whatever the system says. */
+.app {
+  color-scheme: dark;
+  --bg: #0b0d12;
+  --surface: #141821;
+  --surface-2: #1c2130;
+  --border: rgb(255 255 255 / 9%);
+  --text: #e8ecf4;
+  --muted: #98a1b3;
+  --shadow: 0 10px 30px rgb(0 0 0 / 45%);
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  padding: 16px;
-  background: var(--background);
+  min-height: 100dvh;
+  padding: 0 16px max(16px, env(safe-area-inset-bottom));
+  background: var(--bg);
   color: var(--text);
+  font: 16px/1.5 var(--font);
+  -webkit-font-smoothing: antialiased;
 }
 
 main {
@@ -24,127 +65,428 @@ main {
   margin: 0 auto;
 }
 
-/* The camera and the overlay on top of it, the same size: the video sets the height. */
-.stage {
-  position: relative;
+a {
+  color: var(--accent);
 }
 
-#camera {
-  display: block;
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.9em;
+}
+
+/* Buttons: quiet by default, the primary one in the accent's gradient. */
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-2);
+  color: var(--text);
+  font: 600 15px/1.2 var(--font);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+}
+
+button:hover {
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--accent) 60%, transparent);
+  outline-offset: 2px;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+button[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 22%, var(--surface-2));
+}
+
+button.primary {
+  min-height: 52px;
+  padding: 14px 28px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: var(--accent-text);
+  font-size: 17px;
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+input,
+textarea {
   width: 100%;
-  height: auto;
-  background: #000;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
 }
 
+input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--accent);
+  vertical-align: middle;
+}
+
+/* The viewer's top bar: the name and the debug switch. */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: max(12px, env(safe-area-inset-top)) 0 12px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+  font-weight: 700;
+  font-size: 17px;
+  text-decoration: none;
+}
+
+.brand-soft {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.logo {
+  width: 32px;
+  height: 32px;
+}
+
+.chip {
+  min-height: 36px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 14px;
+}
+
+.chip svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* The camera and the overlay on top of it, the same size. The stage keeps the
+   camera's aspect (--aspect, set once it is known) and fits the screen's height. */
+.stage {
+  --aspect: 0.75;
+  position: relative;
+  width: min(100%, calc((100dvh - 150px) * var(--aspect)));
+  aspect-ratio: var(--aspect);
+  margin: 0 auto;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background:
+    radial-gradient(120% 80% at 50% 0%, rgb(91 140 255 / 18%), transparent 60%),
+    radial-gradient(90% 70% at 50% 100%, rgb(139 92 246 / 14%), transparent 60%),
+    #07090d;
+  box-shadow: var(--shadow);
+}
+
+@media (min-aspect-ratio: 1/1) {
+  .stage {
+    --aspect: 1.333;
+  }
+}
+
+#camera,
 #overlay {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
+}
+
+#camera {
+  display: block;
+  object-fit: fill;
+  background: #000;
+}
+
+body[data-state="idle"] #camera {
+  visibility: hidden;
+}
+
+#overlay {
   pointer-events: none;
 }
 
-button {
-  font: inherit;
-  padding: 8px 16px;
+/* The start screen, on the stage until the camera runs. */
+.intro {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 24px;
+  text-align: center;
+}
+
+body:not([data-state="idle"]) .intro {
+  display: none;
+}
+
+.intro-art {
+  width: min(42%, 170px);
+  height: auto;
+  margin-bottom: 8px;
+}
+
+.intro-cube {
+  animation: float 3.2s ease-in-out infinite;
+}
+
+@keyframes float {
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-cube,
+  .status::before {
+    animation: none;
+  }
+}
+
+.intro h1 {
+  margin: 0;
+  font-size: clamp(24px, 6vw, 32px);
+}
+
+.steps {
+  margin: 12px 0 20px;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+  color: var(--muted);
+  text-align: left;
+}
+
+.steps li {
+  counter-increment: step;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0;
+}
+
+.steps li::before {
+  content: counter(step);
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.steps strong {
+  color: var(--text);
+}
+
+.fineprint {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* The status, a pill on the camera's image; its dot says searching or tracking. */
+.status {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  max-width: calc(100% - 28px);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  margin: 0;
+  padding: 7px 12px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 999px;
+  background: rgb(10 12 18 / 65%);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  transform: translateX(-50%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.status::before {
+  content: "";
+  display: inline-block;
+  margin-right: 8px;
+  vertical-align: 1px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+
+body[data-state="idle"] .status {
+  display: none;
+}
+
+body[data-state="starting"] .status::before {
+  background: var(--accent);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+body[data-state="searching"] .status::before {
+  background: var(--warn);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+body[data-state="tracking"] .status::before {
+  background: var(--ok);
+  box-shadow: 0 0 0 4px rgb(16 185 129 / 25%);
+}
+
+body[data-state="error"] .status {
+  bottom: auto;
+  top: 50%;
+  white-space: normal;
+  border-radius: 16px;
+  transform: translate(-50%, -50%);
+}
+
+body[data-state="error"] .status::before {
+  background: var(--danger);
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* The debug overlay: glass on the camera's image, readable over any scene. */
+#debug {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 12px;
+  background: rgb(10 12 18 / 62%);
+  color: #fff;
+  font: 12px/1.45 var(--mono);
+  pointer-events: none;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 20px;
+  max-width: 960px;
+  margin: 20px auto 0;
+  font-size: 14px;
+}
+
+.links a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.links a:hover {
+  color: var(--text);
 }
 
 .actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-}
-
-#debug-toggle[aria-pressed="true"] {
-  font-weight: bold;
-}
-
-/* The debug overlay, on the camera's image: light text on a dark box, readable
-   over any scene. */
-#debug {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  margin: 0;
-  padding: 8px;
-  background: rgb(0 0 0 / 65%);
-  color: #fff;
-  font: 12px/1.4 ui-monospace, monospace;
-  pointer-events: none;
-}
-
-/* The marker always on white: its quiet zone must be light, also in dark mode. */
-.marker-sheet {
-  background: #fff;
-  color: #111;
-  padding: 16px;
-  text-align: center;
-}
-
-#marker {
-  width: min(480px, 100%);
-  height: auto;
-}
-
-.marker-id {
-  margin: 8px 0 0;
-}
-
-.controls {
-  display: flex;
-  gap: 8px;
   align-items: center;
-  justify-content: center;
-  margin: 16px 0;
-}
-
-.controls input {
-  width: 4em;
-  font: inherit;
-}
-
-/* The privacy page: text at a readable width. */
-.text {
-  max-width: 40em;
-  line-height: 1.5;
+  gap: 8px;
 }
 
 /* The guided device test (?test), under the camera's image: large targets, as the
    other hand holds the watch. */
 .guide {
-  margin: 16px 0;
-  padding: 12px;
-  border: 1px solid rgb(128 128 128 / 50%);
-  border-radius: 8px;
+  margin: 16px auto 0;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
 }
 
 .guide h2 {
   margin: 0 0 8px;
-  font-size: 1.1em;
+  font-size: 18px;
 }
 
-.guide button {
-  min-height: 44px;
+.guide p {
+  margin: 8px 0;
 }
 
 .guide-live {
-  margin: 0 0 12px;
-  padding: 8px;
-  background: #000;
-  color: #7fff7f;
-  font: 14px/1.4 ui-monospace, monospace;
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #07090d;
+  color: #6ee7b7;
+  font: 13px/1.4 var(--mono);
   white-space: pre-wrap;
 }
 
 .guide-big {
-  font-size: 1.6em;
-  font-weight: bold;
   margin: 8px 0;
+  font-size: 28px;
+  font-weight: 750;
+  letter-spacing: -0.02em;
 }
 
 .guide-result,
 .guide-report {
-  font: 13px/1.4 ui-monospace, monospace;
+  margin: 8px 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  font: 13px/1.45 var(--mono);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
@@ -152,16 +494,34 @@ button {
 .guide-report {
   max-height: 50vh;
   overflow: auto;
-  padding: 8px;
-  border: 1px solid rgb(128 128 128 / 50%);
 }
 
 .guide-note {
-  font-weight: bold;
+  padding: 8px 12px;
+  border-left: 3px solid var(--warn);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--warn) 12%, transparent);
+}
+
+.guide-sections {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0;
+  padding: 0;
+  list-style: none;
+  color: var(--muted);
+  font-size: 14px;
 }
 
 .guide-sections li {
-  margin: 6px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.guide-sections button {
+  flex: 0 0 11em;
+  justify-content: flex-start;
 }
 
 .choices {
@@ -171,28 +531,93 @@ button {
   margin: 8px 0;
 }
 
-.choices button[aria-pressed="true"] {
-  font-weight: bold;
-  outline: 3px solid #0a84ff;
-}
-
 .guide .field {
   display: block;
-  margin: 8px 0;
-}
-
-.guide .field input,
-.guide .field textarea,
-.guide input[type="text"] {
-  display: block;
-  width: 100%;
-  box-sizing: border-box;
-  font: inherit;
-  padding: 6px;
-  margin-top: 4px;
+  margin: 10px 0;
+  color: var(--muted);
+  font-size: 14px;
 }
 
 .field-inline {
-  display: block;
-  margin: 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+/* The marker page: the marker always on white, its quiet zone must be light. */
+.markers main {
+  max-width: 560px;
+  padding-top: 24px;
+}
+
+.marker-sheet {
+  padding: 24px;
+  border-radius: 20px;
+  background: #fff;
+  color: #111;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+#marker {
+  width: min(480px, 100%);
+  height: auto;
+}
+
+.marker-id {
+  margin: 8px 0 0;
+  font-weight: 700;
+}
+
+.controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.controls label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.controls input {
+  width: 5em;
+  margin: 0;
+  text-align: center;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 14px;
+  text-align: center;
+}
+
+/* The privacy page: text at a readable width, on a card. */
+.text {
+  max-width: 44em;
+  margin: 24px auto;
+  padding: clamp(20px, 5vw, 40px);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+  line-height: 1.6;
+}
+
+.text h1 {
+  margin-top: 0;
+  font-size: 32px;
+}
+
+.text h2,
+.text h3 {
+  margin-top: 1.6em;
+}
+
+.text li {
+  margin: 6px 0;
 }
