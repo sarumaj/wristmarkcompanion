@@ -1,0 +1,3 @@
+# The build's settings (https://developer.garmin.com/connect-iq/reference-guides/jungle-reference/):
+# the default source/ and resources/ directories.
+project.manifest = manifest.xml

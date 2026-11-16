@@ -4,8 +4,10 @@ FROM docker.io/library/node:24-alpine AS libraries
 WORKDIR /viewer
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev --ignore-scripts --no-audit --no-fund
-RUN mkdir -p /vendor/js-aruco2 \
-    && cp -r node_modules/js-aruco2/src/. node_modules/js-aruco2/LICENSE.txt /vendor/js-aruco2/
+RUN mkdir -p /vendor/js-aruco2 /vendor/three \
+    && cp -r node_modules/js-aruco2/src/. node_modules/js-aruco2/LICENSE.txt /vendor/js-aruco2/ \
+    && cp node_modules/three/build/three.module.js node_modules/three/build/three.core.js \
+       node_modules/three/LICENSE /vendor/three/
 
 # The unprivileged image runs nginx as a non-root user on port 8080.
 FROM docker.io/nginxinc/nginx-unprivileged:1.31-alpine

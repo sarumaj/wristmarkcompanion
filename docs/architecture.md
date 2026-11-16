@@ -27,15 +27,21 @@ flowchart LR
 
 ## Repository layout
 
-| Path | What |
-|---|---|
-| `watch/` | The Connect IQ project. `source/MarkerDictionary.mc` is generated |
-| `viewer/` | The static web app (`public/`), its pinned libraries (`package.json`), nginx config and Dockerfile |
-| `tools/` | `generate-dictionary.mjs` (the watch's marker table), `smoke-test.sh` (the viewer's image) |
-| `docs/` | This page, [decisions](decisions/), [CI](ci.md); later the test protocol and the store guide |
-| `.forgejo/workflows/` | CI |
+| Path                  | What                                                                                                                                                                                                                                             |
+|-----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `watch/`              | The Connect IQ project ([watch app](watch.md)). `source/MarkerDictionary.mc` is generated                                                                                                                                                        |
+| `viewer/`             | The static web app (`public/`: the viewer `index.html`, the desktop marker page `markers.html`, `js/`), its pinned libraries (`package.json`), nginx config, Dockerfile and end-to-end tests (`test/`)                                           |
+| `tools/`              | `generate-dictionary.mjs` (the watch's marker table), `smoke-test.sh` (the viewer's image), `align-tables.mjs` (Markdown tables), `build-watch.sh` (the watch app), `simulate.sh` (it in the simulator), `generate-icon.mjs` (its launcher icon) |
+| `docs/`               | This page, [the watch app](watch.md), [decisions](decisions/), [CI](ci.md); later the test protocol and the store guide                                                                                                                          |
+| `.forgejo/workflows/` | CI                                                                                                                                                                                                                                               |
 
 ## Decisions
 
 - [001: Detection library: js-aruco2](decisions/001-detection-library.md)
 - [002: Marker dictionary: OpenCV DICT_4X4_50](decisions/002-marker-dictionary.md)
+- [003: Pose: coplanar POSIT, assumed intrinsics, flip-aware smoothing](decisions/003-pose.md)
+
+## Planned
+
+- [Interaction with the models](interaction.md): moving the watch, touch and clicks, and hand
+  gestures only if they give the watch hand meaningful actions. After the device tests.

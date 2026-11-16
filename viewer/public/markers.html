@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>wristmark markers</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="vendor/js-aruco2/cv.js"></script>
+  <script defer src="vendor/js-aruco2/aruco.js"></script>
+  <script defer src="vendor/js-aruco2/dictionaries/aruco_4x4_1000.js"></script>
+  <script type="module" src="js/marker-page.js"></script>
+</head>
+<body class="markers">
+  <main>
+    <div class="marker-sheet">
+      <canvas id="marker" width="480" height="480"></canvas>
+      <p id="marker-id" class="marker-id"></p>
+    </div>
+    <form class="controls" id="controls">
+      <button type="button" id="previous">Previous</button>
+      <label>ID <input type="number" id="id" min="0" max="49" value="0"></label>
+      <button type="button" id="next">Next</button>
+    </form>
+    <p class="hint">The same markers as the watch (OpenCV DICT_4X4_50). Arrow keys switch the ID. The
+      white border is the quiet zone the detector needs. <a href="./">Back to the viewer</a></p>
+  </main>
+</body>
+</html>

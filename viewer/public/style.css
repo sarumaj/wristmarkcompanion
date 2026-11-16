@@ -1,9 +1,80 @@
 :root {
   color-scheme: light dark;
   font-family: system-ui, sans-serif;
+  --background: #fff;
+  --text: #111;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #111;
+    --text: #eee;
+  }
 }
 
 body {
   margin: 0;
   padding: 16px;
+  background: var(--background);
+  color: var(--text);
+}
+
+main {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* The camera and the overlay on top of it, the same size: the video sets the height. */
+.stage {
+  position: relative;
+}
+
+#camera {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #000;
+}
+
+#overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+button {
+  font: inherit;
+  padding: 8px 16px;
+}
+
+/* The marker always on white: its quiet zone must be light, also in dark mode. */
+.marker-sheet {
+  background: #fff;
+  color: #111;
+  padding: 16px;
+  text-align: center;
+}
+
+#marker {
+  width: min(480px, 100%);
+  height: auto;
+}
+
+.marker-id {
+  margin: 8px 0 0;
+}
+
+.controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  margin: 16px 0;
+}
+
+.controls input {
+  width: 4em;
+  font: inherit;
 }

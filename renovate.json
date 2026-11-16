@@ -5,5 +5,12 @@
     ":pinAllExceptPeerDependencies",
     "docker:pinDigests",
     "helpers:pinGitHubActionDigests"
+  ],
+  "packageRules": [
+    {
+      "description": "The CI image's browsers are those of its Playwright version: the npm package and the image move together",
+      "matchPackageNames": ["playwright", "mcr.microsoft.com/playwright"],
+      "groupName": "Playwright"
+    }
   ]
 }

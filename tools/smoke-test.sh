@@ -33,6 +33,10 @@ fetch / | grep -q "<title>wristmark viewer</title>" || fail "/ is not the viewer
 fetch /vendor/js-aruco2/aruco.js | grep -q "AR.Detector" || fail "js-aruco2 is not served"
 fetch /vendor/js-aruco2/dictionaries/aruco_4x4_1000.js | grep -q "ARUCO_4X4_1000" \
     || fail "the 4x4 dictionary is not served"
+fetch /vendor/three/three.module.js | grep -q "three.core.js" || fail "three.js is not served"
+fetch /vendor/three/three.core.js | grep -q "REVISION" || fail "three.js's core is not served"
+fetch /markers.html | grep -q "<title>wristmark markers</title>" || fail "the marker page is not served"
+fetch /js/app.js | grep -q "MarkerTracker" || fail "the viewer's code is not served"
 
 headers=$(docker exec "$name" wget -q -S -O /dev/null http://127.0.0.1:8080/ 2>&1)
 echo "$headers" | grep -q "Content-Security-Policy: .*connect-src 'self'" \

@@ -1,6 +1,6 @@
 {
-  // Prose lines up to 100 characters; tables and code may be longer.
+  // Prose lines up to 100 characters; table rows can't be wrapped and code may be longer.
   "MD013": { "line_length": 100, "tables": false, "code_blocks": false },
-  // Tables are left unaligned, so that a changed cell does not rewrite the whole table.
-  "MD060": false
+  // Tables aligned, their pipes in columns, as in the homelab's documentation.
+  "MD060": { "style": "aligned" }
 }

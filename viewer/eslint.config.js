@@ -11,4 +11,9 @@ export default [
     files: ["eslint.config.js"],
     languageOptions: { globals: globals.node },
   },
+  {
+    // The tests run in Node; their page.evaluate() callbacks run in the browser.
+    files: ["test/**/*.mjs"],
+    languageOptions: { globals: { ...globals.node, ...globals.browser } },
+  },
 ];

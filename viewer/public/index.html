@@ -5,13 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>wristmark viewer</title>
   <link rel="stylesheet" href="style.css">
-  <script type="module" src="main.js"></script>
+  <!-- js-aruco2 (classic scripts, globals CV, AR, SVD, POS), in this order, before the modules. -->
+  <script defer src="vendor/js-aruco2/cv.js"></script>
+  <script defer src="vendor/js-aruco2/aruco.js"></script>
+  <script defer src="vendor/js-aruco2/dictionaries/aruco_4x4_1000.js"></script>
+  <script defer src="vendor/js-aruco2/svd.js"></script>
+  <script defer src="vendor/js-aruco2/posit1.js"></script>
+  <script type="module" src="js/app.js"></script>
 </head>
-<body>
-  <main>
-    <h1>wristmark</h1>
-    <p>The viewer is not built yet (milestone 1: the repository's skeleton).</p>
-    <p id="camera-support">Checking camera support…</p>
+<body data-state="idle">
+  <main class="viewer">
+    <div class="stage">
+      <video id="camera" playsinline muted></video>
+      <canvas id="overlay"></canvas>
+    </div>
+    <p id="status" role="status">Point the camera at the watch's marker.</p>
+    <button id="start" type="button">Start the camera</button>
+    <p class="links"><a href="markers.html">Markers for testing without a watch</a></p>
   </main>
 </body>
 </html>

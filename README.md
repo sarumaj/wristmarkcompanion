@@ -1,19 +1,21 @@
 # wristmark
 
-AR on a phone screen, anchored to a Garmin watch. The watch shows an ArUco marker. A web page in
-the phone's browser finds it in the camera image and draws a 3D model on top of the watch. Each
-marker ID shows a different model. There is no phone app and no connection between the two: the
-marker ID is the only data channel, and the camera images never leave the phone.
+AR on a phone or laptop screen, anchored to a Garmin watch. The watch shows an ArUco marker. A web
+page in the browser finds it in the camera image (a phone's rear camera, or a laptop's webcam) and
+draws a 3D model on top of the watch. Each marker ID shows a different model. There is no app to
+install and no connection between the two: the marker ID is the only data channel, and the camera
+images never leave the device.
 
-Status: **milestone 1**. The repository, CI and the decisions are in place; the watch app and
-the viewer are not built yet.
+Status: **milestone 2 done, milestone 3 in progress**. The watch app shows a marker on the D2
+Mach 1 in the simulator, and the viewer finds it in the camera image and draws an axis gizmo on
+it. A desktop page shows the markers for testing without a watch. Not yet tried on a real watch.
 
-| Part | Where | What |
-|---|---|---|
-| Watch app | [`watch/`](watch/) | Connect IQ device app (Monkey C), first target the D2 Mach 1 |
-| Viewer | [`viewer/`](viewer/) | Static web app with js-aruco2 and three.js, served by nginx |
-| Tools | [`tools/`](tools/) | The marker table generator, the image's smoke test |
-| Docs | [`docs/`](docs/) | [Architecture](docs/architecture.md), [decisions](docs/decisions/), [CI](docs/ci.md) |
+| Part      | Where                | What                                                                                 |
+|-----------|----------------------|--------------------------------------------------------------------------------------|
+| Watch app | [`watch/`](watch/)   | Connect IQ device app (Monkey C), first target the D2 Mach 1                         |
+| Viewer    | [`viewer/`](viewer/) | Static web app with js-aruco2 and three.js, served by nginx                          |
+| Tools     | [`tools/`](tools/)   | The marker table and icon generators, the watch's build and simulator, smoke test    |
+| Docs      | [`docs/`](docs/)     | [Architecture](docs/architecture.md), [decisions](docs/decisions/), [CI](docs/ci.md) |
 
 ## Development
 

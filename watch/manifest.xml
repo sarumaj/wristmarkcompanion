@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The watch app's manifest (https://developer.garmin.com/connect-iq/core-topics/manifest-and-permissions/).
+  id: the app's own UUID, kept for every version (the store knows the app by it).
+  launcherIcon: required by the compiler; marker 0, 60x60 for the D2 Mach 1 (tools/generate-icon.mjs).
+  minApiLevel 3.3.0: Attention.backlight with BacklightOnTooLongException needs 3.2.1.
+  No permissions: drawing, buttons, timers and Attention.backlight need none.
+-->
+<iq:manifest xmlns:iq="http://www.garmin.com/xml/connectiq" version="3">
+    <iq:application id="8afbecc92aad4e8594fb825489774f83" type="watch-app" name="@Strings.AppName" entry="WristmarkApp" launcherIcon="@Drawables.LauncherIcon" minApiLevel="3.3.0">
+        <iq:products>
+            <iq:product id="d2mach1"/>
+        </iq:products>
+        <iq:permissions/>
+        <iq:languages>
+            <iq:language>eng</iq:language>
+        </iq:languages>
+        <iq:barrels/>
+    </iq:application>
+</iq:manifest>

@@ -1,6 +1,5 @@
-# The checks of every push to main and of every pull request. The watch app gets
-# its job once the Connect IQ SDK is available to CI (docs/ci.md: not automated
-# before the owner agrees to how it is obtained). No artifacts are uploaded.
+# The checks of every push to main and of every pull request. No artifacts are
+# uploaded.
 name: CI
 'on':
   push:
@@ -30,9 +29,38 @@ jobs:
       - name: Check the tools parse
         run: for f in tools/*.mjs; do node --check "$f"; done
 
+      # Line length and aligned tables (.markdownlint.jsonc); tools/align-tables.mjs
+      # aligns them.
+      - name: Lint the Markdown
+        run: viewer/node_modules/.bin/markdownlint-cli2 "**/*.md" "#viewer/node_modules"
+
       # The watch's table must be generated from the library the viewer detects with.
       - name: Check the watch's marker table
         run: node tools/generate-dictionary.mjs --check
+
+      # The launcher icon is marker 0 of that table.
+      - name: Check the watch's launcher icon
+        run: node tools/generate-icon.mjs --check
+
+  # The marker page and the viewer in Chromium (viewer/test): every marker detected,
+  # the pose's distance, and the viewer fed a marker through a fake camera. The
+  # image's Playwright must be the version in viewer/package-lock.json (Renovate
+  # updates both together).
+  e2e:
+    runs-on: docker
+    timeout-minutes: 15
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+      options: --ipc=host
+    steps:
+      - name: Check out repository
+        uses: https://github.com/actions/checkout@v7
+
+      - name: Install the viewer's packages
+        run: npm ci --prefix viewer --ignore-scripts --no-audit --no-fund
+
+      - name: Run the end-to-end tests
+        run: npm test --prefix viewer
 
   # The image is built and tested here, pushed nowhere (deployment: milestone 5).
   image:
@@ -51,3 +79,29 @@ jobs:
       - name: Remove the image
         if: always()
         run: docker image rm -f "wristmark-viewer:ci-${GITHUB_RUN_ID}" || true
+
+  # The watch app compiled for every device in its manifest. The Connect IQ SDK
+  # can't be downloaded here (its license, docs/ci.md): it's installed by hand on
+  # the runner's host and mounted read-only at /opt/connectiq in the runner
+  # container `ci`, whose host label is ubuntu-latest. CONNECTIQ_SDK must be a
+  # version installed there (runbook connectiq-update); Renovate doesn't update it.
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CONNECTIQ_SDK: 9.3.0
+      CONNECTIQ_HOME: /opt/connectiq
+    steps:
+      - name: Check out repository
+        uses: https://github.com/actions/checkout@v7
+
+      # monkeyc needs Java 11 or later (Garmin's "Using Monkey C from the Command
+      # Line").
+      - name: Set up Java
+        uses: https://github.com/actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Build the watch app
+        run: tools/build-watch.sh "$CONNECTIQ_SDK" "$RUNNER_TEMP/watch"
