@@ -39,3 +39,24 @@ test("the phase: dark at new moon, full at full moon, half and waxing at first q
   assert.equal(quarter.waxing, true);
   assert.equal(moonPhase(new Date("2024-02-02T23:18Z")).waxing, false);
 });
+
+test("the planets: the Earth opposite the sun, and Mars, Jupiter and Saturn in line with it at opposition", async () => {
+  const { planetLongitude, sunEclipticLongitude } = await import("../public/js/sky.js");
+  const apart = (a, b) => Math.abs(((a - b + 540) % 360) - 180);
+  // The Earth's heliocentric longitude is the sun's geocentric one turned by 180
+  // degrees, once the J2000 frame of the elements is moved to the equinox of the
+  // date (precession, 1.397 degrees a century); left over are the aberration (20
+  // arcseconds) and the moon's pull on the barycenter.
+  for (const date of ["2024-03-20T03:06Z", "2026-11-16T00:00Z", "2030-07-01T00:00Z"]) {
+    const centuries = (new Date(date) - new Date("2000-01-01T12:00Z")) / (36525 * 86400000);
+    const earth = planetLongitude("earth", new Date(date)) + 1.397 * centuries;
+    const gap = apart(earth, sunEclipticLongitude(new Date(date)) + 180);
+    assert.ok(gap < 0.05, `the Earth is ${gap} degrees off on ${date}`);
+  }
+  // Oppositions (the planet behind the Earth, seen from the sun), from the USNO's
+  // and NASA's published dates: within a day's motion of the Earth, a degree.
+  for (const [planet, date] of [["mars", "2025-01-16T02:00Z"], ["jupiter", "2024-12-07T21:00Z"], ["saturn", "2025-09-21T04:00Z"]]) {
+    const gap = apart(planetLongitude(planet, new Date(date)), planetLongitude("earth", new Date(date)));
+    assert.ok(gap < 1, `${planet} is ${gap} degrees from opposition on ${date}`);
+  }
+});

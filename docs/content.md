@@ -30,12 +30,14 @@ the axis gizmo for any other ID. It works the same on a phone (rear camera) and 
 ## The models
 
 All of them are generated in code with three.js (`js/models.js`, `js/sky-models.js`,
-`js/fun-models.js`), so there are no asset files and nothing to license apart from this
-project's own code (GPL-3.0) and Natural Earth's land, which is in the public domain. Each
-stands on the marker's face, sized from the marker's side, and moves a little so that it reads
-as 3D.
+`js/fun-models.js`, `js/aviation-models.js`), so there are no asset files and nothing to
+license apart from this project's own code (GPL-3.0) and Natural Earth's land, which is in the
+public domain. Each stands on the marker's face, sized from the marker's side, and moves a
+little so that it reads as 3D.
 
 ![The moon on 2026-11-16, the Earth at noon UTC that day, the robot and the snow globe](images/models.png)
+
+![The planets on 2026-11-16, the landing at its flare, the fireworks](images/models-2.png)
 
 | ID  | Model       | What                                                                                                                                |
 |-----|-------------|-------------------------------------------------------------------------------------------------------------------------------------|
@@ -47,8 +49,11 @@ as 3D.
 | 5   | `knot`      | Placeholder: a torus knot above the marker, turning                                                                                 |
 | 6   | `planet`    | Placeholder: a planet with a ring and a moon orbiting it                                                                            |
 | 7   | `crystal`   | Placeholder: a flat-shaded crystal floating up and down                                                                             |
+| 8   | `orrery`    | The planets around the sun as they stand today: true directions, distances not to scale; a label with the date                      |
+| 9   | `landing`   | A plane landing on a runway along the watch: approach, flare, touchdown, rollout, with edge and approach lights                     |
+| 10  | `fireworks` | Rockets rising from the watch and bursting, the sparks falling and fading                                                           |
 
-### The moon and the Earth
+### The moon, the Earth and the planets
 
 - **Only the time:** the sun's and the moon's positions come from low-precision formulas
   (`js/sky.js`: the Astronomical Almanac's for the sun, the main terms of Meeus's for the moon).
@@ -56,8 +61,12 @@ as 3D.
   moon phases: within 0.05 degrees and an hour. No location is asked for. The globe's meridian
   is the browser's time zone offset (15 degrees an hour), so with daylight saving time it's
   an hour's worth east of the zone's usual meridian.
-- **Another day:** `?date=2026-12-24T18:00Z` shows the moon and the globe at that time, the
-  clock running on from it.
+- **The planets:** JPL's Keplerian elements ("Approximate Positions of the Planets", Table 1,
+  valid 1800-2050). The test checks the Earth against the sun's position and Mars, Jupiter and
+  Saturn against their oppositions of 2024 and 2025: within a degree. The orrery shows only the
+  directions truly: Neptune's orbit is 78 times Mercury's, too much for a watch.
+- **Another day:** `?date=2026-12-24T18:00Z` shows the moon, the globe and the planets at that
+  time, the clock running on from it.
 - **The land:** `js/land.js`, a 360x180 grid of one bit per degree, generated from Natural
   Earth's 1:110m land by `tools/generate-land.mjs` (its header has the download). Regenerate
   it rather than editing it.

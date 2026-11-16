@@ -140,3 +140,76 @@ export function snowglobe(size) {
     },
   };
 }
+
+// Fireworks rising from the watch: rockets launched one after another, each
+// bursting into a ball of sparks that fall and fade. Every spark's place is a
+// function of the time, so the show loops without keeping state.
+export function fireworks(size) {
+  const rockets = 5;
+  const sparks = 70;
+  const period = 5;
+  const colors = [0xff4d4d, 0xffd24d, 0x4dd2ff, 0x9dff4d, 0xff4dff].map((hex) => new THREE.Color(hex));
+  const count = rockets * (sparks + 1);
+  const positions = new Float32Array(count * 3);
+  const shades = new Float32Array(count * 3);
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+  geometry.setAttribute("color", new THREE.BufferAttribute(shades, 3));
+  geometry.boundingBox = new THREE.Box3(new THREE.Vector3(-size, 0, -size), new THREE.Vector3(size, size * 2.2, size));
+  geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, size, 0), size * 1.6);
+  const points = new THREE.Points(
+    geometry,
+    new THREE.PointsMaterial({ size: size * 0.07, vertexColors: true, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }),
+  );
+  // The sparks' directions, spread evenly over a sphere (a Fibonacci lattice).
+  const directions = Array.from({ length: sparks }, (_, i) => {
+    const y = 1 - (2 * (i + 0.5)) / sparks;
+    const r = Math.sqrt(1 - y * y);
+    const angle = i * 2.399963;
+    return [Math.cos(angle) * r, y, Math.sin(angle) * r];
+  });
+  const launcher = new THREE.Mesh(
+    new THREE.CylinderGeometry(size * 0.06, size * 0.08, size * 0.08, 16),
+    new THREE.MeshStandardMaterial({ color: 0x5a2d82, roughness: 0.6 }),
+  );
+  launcher.position.y = size * 0.04;
+  const { root } = standing(launcher, points);
+  const put = (index, x, y, z, color, brightness) => {
+    positions.set([x, Math.max(y, 0), z], index * 3);
+    shades.set([color.r * brightness, color.g * brightness, color.b * brightness], index * 3);
+  };
+  return {
+    object: root,
+    animate: (t) => {
+      for (let r = 0; r < rockets; r++) {
+        const age = (t + (r * period) / rockets) % period;
+        const round = Math.floor((t + (r * period) / rockets) / period);
+        // Each round of a rocket gets its own place, height and color.
+        const seed = (r * 7 + round * 13) % 17;
+        const color = colors[(r + round) % colors.length];
+        const top = size * (1.2 + 0.05 * (seed % 7));
+        const x = size * 0.35 * Math.sin(seed * 1.7);
+        const z = size * 0.35 * Math.cos(seed * 2.3);
+        const base = r * (sparks + 1);
+        const rise = 1.0;
+        if (age < rise) {
+          // The rocket climbing, slowing toward the top; no sparks yet.
+          const k = age / rise;
+          put(base, x * k, top * (2 * k - k * k), z * k, new THREE.Color(0xffe0a0), 1);
+          for (let s = 1; s <= sparks; s++) put(base + s, 0, 0, 0, color, 0);
+          continue;
+        }
+        put(base, 0, 0, 0, color, 0);
+        const since = age - rise;
+        const spread = size * 0.55 * (1 - Math.exp(-since * 3));
+        const fall = size * 0.12 * since * since;
+        const fade = Math.max(0, 1 - since / 2.2);
+        directions.forEach(([dx, dy, dz], s) => {
+          put(base + s + 1, x + dx * spread, top + dy * spread - fall, z + dz * spread, color, fade ** 1.5);
+        });
+      }
+      geometry.attributes.position.needsUpdate = true;
+      geometry.attributes.color.needsUpdate = true;
+    },
+  };
+}

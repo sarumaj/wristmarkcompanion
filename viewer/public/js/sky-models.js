@@ -1,8 +1,9 @@
-// The moon as it is tonight and the Earth with day and night, both from the time
+// The moon as it is tonight, the Earth with day and night and the planets around
+// the sun, all from the time
 // alone (js/sky.js): no location, no permission, no network.
 import * as THREE from "../vendor/three/three.module.js";
 import { standing } from "./standing.js";
-import { moonPhase, nextElongation, subsolarPoint } from "./sky.js";
+import { moonPhase, nextElongation, PLANET_NAMES, planetPosition, subsolarPoint } from "./sky.js";
 import { LAND } from "./land.js";
 
 const RAD = Math.PI / 180;
@@ -206,6 +207,85 @@ export function earth(size, { now }) {
     animate: (t) => {
       globe.rotation.y = t * 0.2;
       material.uniforms.sun.value.copy(sunPoint());
+    },
+  };
+}
+
+// Each planet's color and size (in marker sizes); Saturn also gets its ring.
+const PLANET_LOOKS = {
+  mercury: [0xa8a29a, 0.025],
+  venus: [0xe8cf8f, 0.035],
+  earth: [0x3a7bd5, 0.037],
+  mars: [0xc1502e, 0.03],
+  jupiter: [0xd8a66b, 0.07],
+  saturn: [0xe3c98d, 0.06],
+  uranus: [0x9fd8e0, 0.045],
+  neptune: [0x4d6fdc, 0.045],
+};
+
+// The planets around the sun as they stand today, seen from the ecliptic's north,
+// moving counterclockwise. Their directions from the sun are true (js/sky.js, JPL's
+// elements); their distances are not to scale (Neptune is 78 times as far out as
+// Mercury), one orbit after the other, and the planets are much enlarged. The
+// vernal equinox points to the watch's top. A label gives the date.
+export function orrery(size, { now }) {
+  const system = new THREE.Group();
+  const sun = new THREE.Mesh(
+    new THREE.SphereGeometry(size * 0.1, 32, 16),
+    new THREE.MeshStandardMaterial({ color: 0xffd34d, emissive: 0xffb000, emissiveIntensity: 1.2 }),
+  );
+  system.add(sun);
+  const orbitMaterial = new THREE.LineBasicMaterial({ color: 0x8899aa, transparent: true, opacity: 0.5 });
+  const planets = PLANET_NAMES.map((name, i) => {
+    const radius = size * (0.2 + 0.1 * i);
+    const points = Array.from({ length: 97 }, (_, k) => {
+      const angle = (k / 96) * Math.PI * 2;
+      return new THREE.Vector3(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
+    });
+    system.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), orbitMaterial));
+    const [color, scale] = PLANET_LOOKS[name];
+    const body = new THREE.Mesh(
+      new THREE.SphereGeometry(size * scale, 20, 10),
+      new THREE.MeshStandardMaterial({ color, roughness: 0.7 }),
+    );
+    if (name === "saturn") {
+      const ring = new THREE.Mesh(
+        new THREE.RingGeometry(size * scale * 1.4, size * scale * 2.1, 32),
+        new THREE.MeshStandardMaterial({ color: 0xcdb58a, side: THREE.DoubleSide }),
+      );
+      ring.rotation.x = Math.PI / 2 - 0.47;
+      body.add(ring);
+    }
+    system.add(body);
+    return { name, radius, body };
+  });
+  system.position.y = size * 0.35;
+  const text = label(size * 1.2);
+  // Beyond Neptune's orbit at the watch's top, clear of the planets seen face on.
+  text.sprite.position.set(0, size * 0.45, -size * 1.1);
+  const { root } = standing(system, text.sprite);
+  const place = () => {
+    const date = now();
+    for (const { name, radius, body } of planets) {
+      const { x, y } = planetPosition(name, date);
+      // Ecliptic x to the watch's top (-z here), y to its left (-x), north up (y).
+      const angle = Math.atan2(y, x);
+      body.position.set(-Math.sin(angle) * radius, 0, -Math.cos(angle) * radius);
+    }
+    text.update(["The planets today", date.toLocaleDateString("en", { day: "numeric", month: "short", year: "numeric" })]);
+  };
+  place();
+  let placed = 0;
+  return {
+    object: root,
+    animate: (t) => {
+      sun.material.emissiveIntensity = 1.1 + 0.2 * Math.sin(t * 2);
+      for (const { body } of planets) body.rotation.y = t;
+      system.position.y = size * (0.35 + 0.03 * Math.sin(t * 0.8));
+      if (Math.abs(t - placed) > 60) {
+        placed = t;
+        place();
+      }
     },
   };
 }

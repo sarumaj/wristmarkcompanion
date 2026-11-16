@@ -7,6 +7,9 @@
     "4": { "model": "cube", "name": "Cube" },
     "5": { "model": "knot", "name": "Torus knot" },
     "6": { "model": "planet", "name": "Planet" },
-    "7": { "model": "crystal", "name": "Crystal" }
+    "7": { "model": "crystal", "name": "Crystal" },
+    "8": { "model": "orrery", "name": "The planets today" },
+    "9": { "model": "landing", "name": "Landing" },
+    "10": { "model": "fireworks", "name": "Fireworks" }
   }
 }

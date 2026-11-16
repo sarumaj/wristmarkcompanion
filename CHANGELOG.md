@@ -8,6 +8,8 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Three more models (markers 8 to 10): the planets around the sun as they stand today, from
+  JPL's orbital elements; a plane landing on a runway on the watch; fireworks.
 - Four models, all from the time alone, without a permission or the network: the moon
   in tonight's phase with the next full or new moon (marker 0), the Earth with day and night
   as they are now (1), a waving robot (2) and a snow globe (3). The placeholders move to 4-7.

@@ -1,7 +1,8 @@
 # Model ideas
 
-Status: **four built** (2026-11-16): the moon phase, the Earth with day and night, the mascot
-(a robot) and the snow globe ([content](content.md)). The rest are ideas for the owner to choose
+Status: **seven built** (2026-11-16): the moon phase, the Earth with day and night, the
+orrery, the landing demo, the mascot (a robot), the snow globe and the fireworks
+([content](content.md)). The rest are ideas for the owner to choose
 from; nothing else is decided.
 
 The marker ID is the only data from the watch, so a model can use only what the viewer itself

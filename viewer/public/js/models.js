@@ -2,18 +2,22 @@
 // project's own (and Natural Earth's public-domain land, js/land.js). Each one stands
 // on the marker: in its anchor's frame x and y lie on the marker's face and z points
 // out of it, in millimeters, and `size` is the marker's side. A model is
-// {object, animate(seconds)}. `options.now` gives the date the moon and the globe
-// show (default: the clock).
+// {object, animate(seconds)}. `options.now` gives the date the moon, the globe and
+// the orrery show (default: the clock).
 import * as THREE from "../vendor/three/three.module.js";
 import { standing } from "./standing.js";
-import { earth, moon } from "./sky-models.js";
-import { robot, snowglobe } from "./fun-models.js";
+import { earth, moon, orrery } from "./sky-models.js";
+import { fireworks, robot, snowglobe } from "./fun-models.js";
+import { landing } from "./aviation-models.js";
 
 const MODELS = {
   moon,
   earth,
   robot,
   snowglobe,
+  orrery,
+  landing,
+  fireworks,
 
   // A cube with a color per face, on the marker, turning slowly.
   cube(size) {
