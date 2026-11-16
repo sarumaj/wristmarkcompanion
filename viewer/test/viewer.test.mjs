@@ -199,6 +199,15 @@ test("the viewer shows the model content.json gives the camera's marker, and the
   await withCamera(1, "/index.html?autostart&debug", async (page) => {
     assert.match(await page.locator("#status").textContent(), /^Marker 1 \(Earth, day and night\), \d+ mm away$/);
     assert.equal(await page.locator("body").getAttribute("data-model"), "earth");
+    // The watch's display is drawn black under the model.
+    assert.equal(await page.locator("body").getAttribute("data-screen"), "covered");
+    // The wheel zooms the model, a double click puts it back.
+    await page.locator(".stage").hover();
+    await page.mouse.wheel(0, -300);
+    await page.waitForFunction(() => Number(document.body.dataset.zoom) > 1.2);
+    assert.equal(await page.locator("#zoom").isVisible(), true);
+    await page.locator(".stage").dblclick();
+    await page.waitForFunction(() => document.body.dataset.zoom === "1.00");
     // The overlay is rewritten every 250 ms: wait for a second of frames.
     await page.waitForTimeout(1200);
     const row = (key) => page.locator(`#debug [data-key="${key}"] dd`).textContent();
@@ -218,6 +227,7 @@ test("a marker without content gets the gizmo and says so", async () => {
   await withCamera(23, "/index.html?autostart", async (page) => {
     assert.match(await page.locator("#status").textContent(), /^Marker 23 \(no content\), \d+ mm away$/);
     assert.equal(await page.locator("body").getAttribute("data-model"), null);
+    assert.equal(await page.locator("body").getAttribute("data-screen"), null);
     assert.equal(await page.locator("#debug").isHidden(), true);
   });
 });

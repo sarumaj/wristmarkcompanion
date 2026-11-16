@@ -26,6 +26,14 @@ the axis gizmo for any other ID. It works the same on a phone (rear camera) and 
   step through. Run it after changing the mapping; CI fails while the watch's list is stale.
 - **An ID without an entry** shows the axis gizmo, and the status says "no content": the
   marker page shows every ID, the watch only the mapped ones.
+- **Size:** each model is built 2.5 times the marker's size (`?scale=` sets it), so that it reads
+  well at arm's length; it may reach well beyond the watch. Two fingers pinching, the mouse
+  wheel or a trackpad's pinch make it larger or smaller (0.3 to 6 times that), a double tap or
+  double click puts it back.
+- **The watch's display goes black** under a model: the viewer draws the D2 Mach 1's round
+  display (416 pixels across, the marker 234) black over the camera's image, so the model stands
+  on a dark watch face instead of the marker. Detection still reads the camera's own image. In
+  the debug view the marker shows through; `?screen=0` leaves it visible.
 - **Switching:** the model changes when the camera sees another ID (the watch's next and
   previous buttons, or its automatic cycle). The new marker's pose starts afresh, without the
   smoothing of the old one.

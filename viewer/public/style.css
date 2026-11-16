@@ -244,6 +244,28 @@ body[data-state="idle"] #camera {
   pointer-events: none;
 }
 
+/* One finger scrolls the page; two pinch the model (js/zoom.js). */
+.stage {
+  touch-action: pan-y;
+}
+
+/* The zoom, for a moment after it changes. */
+.zoom-chip {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  margin: 0;
+  padding: 6px 12px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 999px;
+  background: rgb(10 12 18 / 65%);
+  color: #fff;
+  font: 600 14px/1.2 var(--font);
+  font-variant-numeric: tabular-nums;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
 /* The start screen, on the stage until the camera runs. */
 .intro {
   position: absolute;

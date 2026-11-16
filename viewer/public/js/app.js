@@ -8,12 +8,21 @@ import { PoseSmoother } from "./smoothing.js";
 import { loadContent } from "./content.js";
 import { createModel, lights, MODEL_NAMES } from "./models.js";
 import { DebugStats } from "./debug.js";
+import { zoomControl } from "./zoom.js";
 
 const params = new URLSearchParams(location.search);
 // The marker's black square, in millimeters: about the D2 Mach 1's (the watch's
 // layout fixes it exactly). The desktop marker page shows other sizes; give its
 // size as ?size=.
 const MARKER_SIZE = Number(params.get("size")) || 20;
+// The models are built this many times the marker's size, so that they read well at
+// arm's length: the marker is under 2 cm. ?scale= sets it.
+const MODEL_SCALE = Number(params.get("scale")) || 2.5;
+// The watch's round display, in marker sides: the D2 Mach 1's is 416 pixels across, its
+// marker 234 (docs/watch.md). Where a model shows, the display is drawn black over the
+// camera's image, so the model stands on a dark watch face, not on the marker. ?screen=0
+// leaves the marker visible.
+const SCREEN_RATIO = params.has("screen") ? Number(params.get("screen")) : 416 / 234;
 // The camera's horizontal field of view, assumed (docs/decisions/003-pose.md).
 const FOV_DEGREES = Number(params.get("fov")) || 65;
 // Frames are scaled to this width for detection: enough for the marker's cells at
@@ -90,9 +99,17 @@ function scene() {
   );
   gizmo.add(new THREE.Line(outline, new THREE.LineBasicMaterial({ color: 0xffd200 })));
   anchor.add(gizmo);
+  // The watch's display, black, a hair above the marker's face so that it hides it.
+  const screen = new THREE.Mesh(
+    new THREE.CircleGeometry((MARKER_SIZE * SCREEN_RATIO) / 2, 64),
+    new THREE.MeshBasicMaterial({ color: 0x050608, transparent: true }),
+  );
+  screen.position.z = 0.05;
+  screen.visible = false;
+  anchor.add(screen);
   anchor.visible = false;
   world.add(anchor);
-  return { renderer, camera, world, anchor, gizmo };
+  return { renderer, camera, world, anchor, gizmo, screen };
 }
 
 // What the anchor shows for marker `id`: its model, or the gizmo alone.
@@ -103,7 +120,7 @@ function show(view, content, id) {
   }
   const entry = content.get(id);
   if (entry) {
-    view.model = createModel(entry.model, MARKER_SIZE, { now });
+    view.model = createModel(entry.model, MARKER_SIZE * MODEL_SCALE, { now });
     view.anchor.add(view.model.object);
     document.body.dataset.model = entry.model;
   } else {
@@ -111,6 +128,10 @@ function show(view, content, id) {
   }
   // The gizmo with every model in the debug view, alone where there is no model.
   view.gizmo.visible = !entry || !debugPanel.hidden;
+  // The black display under a model only.
+  view.screen.visible = Boolean(entry) && SCREEN_RATIO > 0;
+  if (view.screen.visible) document.body.dataset.screen = "covered";
+  else delete document.body.dataset.screen;
   return entry;
 }
 
@@ -130,6 +151,16 @@ async function run() {
   let smoother = new PoseSmoother();
   const view = scene();
   const stats = new DebugStats();
+  // The size by hand (pinch, wheel), shown for a moment in a chip on the stage.
+  const zoomChip = document.getElementById("zoom");
+  let zoomShown = 0;
+  const zoom = zoomControl(stage, (value) => {
+    zoomChip.textContent = `${value.toFixed(1)}×`;
+    zoomChip.hidden = false;
+    document.body.dataset.zoom = value.toFixed(2);
+    clearTimeout(zoomShown);
+    zoomShown = setTimeout(() => (zoomChip.hidden = true), 1200);
+  });
   let shownId = null;
   let entry = null;
   report("Looking for a marker…", "searching");
@@ -168,7 +199,10 @@ async function run() {
       view.anchor.matrix.compose(smoothed.position, smoothed.quaternion, new THREE.Vector3(1, 1, 1));
       view.anchor.visible = true;
       view.model?.animate(now / 1000);
+      view.model?.object.scale.setScalar(zoom.value);
       view.gizmo.visible = !entry || !debugPanel.hidden;
+      // In the debug view the marker shows through, to see what the detector sees.
+      view.screen.material.opacity = debugPanel.hidden ? 1 : 0.55;
     } else {
       view.anchor.visible = false;
     }

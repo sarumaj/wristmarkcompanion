@@ -28,6 +28,9 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
+- The models are 2.5 times as large (`?scale=`), and pinching, the mouse wheel or a trackpad's
+  pinch resize them; a double tap resets. Under a model, the watch's display is drawn black, so
+  the model stands on a dark watch face instead of the marker.
 - The watch shows only the markers the viewer has a model for (`MarkerContent.mc`, generated
   from `content.json` and checked by CI), so that every marker it shows brings up a model.
 - The viewer's look: dark, with a start screen, the camera's image fitted to the screen in
