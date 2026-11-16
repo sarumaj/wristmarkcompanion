@@ -14,3 +14,8 @@ FROM docker.io/nginxinc/nginx-unprivileged:1.31-alpine
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY public/ /usr/share/nginx/html/
 COPY --from=libraries /vendor/ /usr/share/nginx/html/vendor/
+
+# Docker, and so the app host, see whether the viewer answers; busybox wget is in the
+# image (tools/smoke-test.sh uses it too).
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD wget -q -O /dev/null http://127.0.0.1:8080/healthz || exit 1

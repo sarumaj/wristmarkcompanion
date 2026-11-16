@@ -5,7 +5,7 @@ and every pull request.
 
 | Job      | Runs on                           | What it checks                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 |----------|-----------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `checks` | `docker`, in `node:24-bookworm`   | The viewer's lint (ESLint). The tools parse. The Markdown's lint (line length, aligned tables). `watch/source/MarkerDictionary.mc` is what `tools/generate-dictionary.mjs` writes from the pinned js-aruco2 ([002](decisions/002-marker-dictionary.md)), and the launcher icon what `tools/generate-icon.mjs` draws from it                                                                                                                                                                   |
+| `checks` | `docker`, in `node:24-bookworm`   | The viewer's lint (ESLint). The tools parse. The Markdown's lint (line length, aligned tables). `watch/source/MarkerDictionary.mc` is what `tools/generate-dictionary.mjs` writes from the pinned js-aruco2 ([002](decisions/002-marker-dictionary.md)), and the launcher and store icons what `tools/generate-icon.mjs` draws from it                                                                                                                                                        |
 | `e2e`    | `docker`, in Playwright's image   | `viewer/test`: in Chromium, under the production CSP, every marker of the marker page is detected with its ID (also at an angle, rotated and small), a frontal marker's pose gives the predicted distance, the viewer, fed a marker through Chromium's fake camera, shows its model and the debug overlay (and the gizmo for an ID without content), `content.json` passes its check and every model stands on the marker, and the watch's table and round layout give the detector's markers |
 | `image`  | `ubuntu-latest` (has Docker)      | The viewer's image builds, and `tools/smoke-test.sh` passes: health check, pages, libraries, privacy headers, 404                                                                                                                                                                                                                                                                                                                                                                             |
 | `watch`  | `ubuntu-latest` (the SDK mounted) | `tools/build-watch.sh`: the watch app compiles with the strict type check and warnings shown, for every device in `watch/manifest.xml`, signed with a throwaway key                                                                                                                                                                                                                                                                                                                           |
@@ -23,6 +23,15 @@ docker build -t wristmark-viewer:test viewer && tools/smoke-test.sh wristmark-vi
 # the end-to-end tests, in the image CI uses (its Playwright matches package-lock.json):
 docker run --rm --ipc=host -v "$PWD:/w" -w /w/viewer mcr.microsoft.com/playwright:v1.64.1-noble npm test
 ```
+
+## Releases
+
+`.forgejo/workflows/release.yml`, on a version tag `vX.Y.Z` or by hand with a tag (rollback):
+the release notes from the version's section of `CHANGELOG.md` (no section, no release), the
+store package (`tools/build-watch.sh --package`, signed with `CONNECTIQ_DEVELOPER_KEY`), the
+viewer's image smoke-tested and its files packed, the Forgejo release with both, and the viewer
+deployed to the app host ([deployment](deployment.md)). It runs on `ubuntu-latest`, where the
+SDK and Docker are.
 
 ## Artifacts and storage
 

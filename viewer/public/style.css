@@ -102,3 +102,9 @@ button {
   width: 4em;
   font: inherit;
 }
+
+/* The privacy page: text at a readable width. */
+.text {
+  max-width: 40em;
+  line-height: 1.5;
+}

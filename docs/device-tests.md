@@ -28,7 +28,7 @@ CONNECTIQ_HOME="$HOME/Library/Application Support/Garmin/ConnectIQ" tools/build-
    [Your First App](https://developer.garmin.com/connect-iq/connect-iq-basics/your-first-app/),
    "Side Loading an App"). On a Mac the watch's storage needs an MTP tool such as OpenMTP
    (not checked against Garmin's documentation).
-3. Disconnect it. The app is in the watch's apps list as **wristmark**.
+3. Disconnect it. The app is in the watch's apps list as **WristMarkCompanion**.
 
 The build is signed with a throwaway key, which is fine for sideloading.
 

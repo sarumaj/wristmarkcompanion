@@ -30,16 +30,17 @@ until [ "$(fetch /healthz 2> /dev/null)" = "ok" ]; do
     sleep 0.5
 done
 
-fetch / | grep -q "<title>wristmark viewer</title>" || fail "/ is not the viewer's page"
+fetch / | grep -q "<title>WristMarkCompanion viewer</title>" || fail "/ is not the viewer's page"
 fetch /vendor/js-aruco2/aruco.js | grep -q "AR.Detector" || fail "js-aruco2 is not served"
 fetch /vendor/js-aruco2/dictionaries/aruco_4x4_1000.js | grep -q "ARUCO_4X4_1000" \
     || fail "the 4x4 dictionary is not served"
 fetch /vendor/three/three.module.js | grep -q "three.core.js" || fail "three.js is not served"
 fetch /vendor/three/three.core.js | grep -q "REVISION" || fail "three.js's core is not served"
-fetch /markers.html | grep -q "<title>wristmark markers</title>" || fail "the marker page is not served"
+fetch /markers.html | grep -q "<title>WristMarkCompanion markers</title>" || fail "the marker page is not served"
 fetch /js/app.js | grep -q "MarkerTracker" || fail "the viewer's code is not served"
 fetch /js/models.js | grep -q "createModel" || fail "the models are not served"
 fetch /content.json | grep -q '"markers"' || fail "content.json is not served"
+fetch /privacy.html | grep -q "<title>WristMarkCompanion privacy</title>" || fail "the privacy page is not served"
 docker exec "$name" wget -q -S -O /dev/null http://127.0.0.1:8080/content.json 2>&1 \
     | grep -q "Content-Type: application/json" || fail "content.json is not served as JSON"
 

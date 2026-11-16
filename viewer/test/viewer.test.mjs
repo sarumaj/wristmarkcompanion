@@ -5,7 +5,8 @@
 // - a frontal marker's pose gives the distance the camera model predicts;
 // - the viewer, fed a marker through Chromium's fake camera, shows its model (or
 //   the gizmo for an ID without content) and the debug overlay;
-// - content.json passes its check, and the models stand on the marker.
+// - content.json passes its check, and the models stand on the marker;
+// - the privacy page is served and linked.
 import { after, before, test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
@@ -244,6 +245,18 @@ test("content.json passes its check, and every model stands on the marker", asyn
     assert.ok(max[2] > 5 && max[2] < 60, `${name} stands up out of the watch: ${max}`);
     assert.ok(Math.max(...max.map(Math.abs), ...min.map(Math.abs)) < 60, `${name} is a few markers wide`);
   }
+  assert.deepEqual(problems, []);
+  await context.close();
+});
+
+test("the privacy page is served under the CSP, in English and German, and linked from the viewer", async () => {
+  const context = await browser.newContext();
+  const { page, problems } = await open(context, "/index.html");
+  await page.locator('a[href="privacy.html"]').click();
+  await page.waitForURL(/privacy\.html$/);
+  assert.equal(await page.title(), "WristMarkCompanion privacy");
+  assert.match(await page.locator("main").textContent(), /never sent, saved or recorded/);
+  assert.equal(await page.locator('#deutsch[lang="de"]').textContent(), "Datenschutz");
   assert.deepEqual(problems, []);
   await context.close();
 });

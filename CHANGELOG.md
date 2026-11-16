@@ -18,7 +18,15 @@ All notable changes to this project are documented here. The format follows
   placeholder models generated in code; an ID without content shows the gizmo.
 - The viewer's debug overlay: ID, distance, FPS, detection rate and time, camera resolution.
 - The device test protocol (`docs/device-tests.md`): range, angle, session length, models.
-- `tools/build-watch.sh` runs on macOS too.
+- `tools/build-watch.sh` runs on macOS too, and builds the store package (`--package`).
+- The release workflow: on a version tag, the store package, the viewer's files and the notes
+  from this changelog on a Forgejo release, and the viewer deployed to
+  `wristmark.apps.ciepiela.org`; the image's health check.
+- The viewer's privacy page, in English and German, with `contact@ciepiela.org` as the contact.
+- The app's name is WristMarkCompanion ("WristMark" is taken by an iPhone app), the
+  repository `wristmarkcompanion`; the viewer's address stays `wristmark.apps.ciepiela.org`.
+- The release bot's configuration (`.cz.toml`).
+- The store guide (`docs/publishing.md`) and the store icons; German declared in the manifest.
 - Decisions: js-aruco2 for detection, OpenCV's DICT_4X4_50 as the marker dictionary.
 - The watch's marker table, generated from js-aruco2's dictionary data.
 - The viewer behind nginx, with a Content-Security-Policy that keeps every connection on its own

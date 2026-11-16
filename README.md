@@ -1,4 +1,4 @@
-# wristmark
+# WristMarkCompanion
 
 AR on a phone or laptop screen, anchored to a Garmin watch. The watch shows an ArUco marker. A web
 page in the browser finds it in the camera image (a phone's rear camera, or a laptop's webcam) and
@@ -12,12 +12,12 @@ finds the marker in the camera image and draws the model `content.json` gives it
 placeholders), with a debug overlay for the range tests. A desktop page shows the markers for
 testing without a watch. Not yet tried on a real watch.
 
-| Part      | Where                | What                                                                                                                                     |
-|-----------|----------------------|------------------------------------------------------------------------------------------------------------------------------------------|
-| Watch app | [`watch/`](watch/)   | Connect IQ device app (Monkey C), first target the D2 Mach 1                                                                             |
-| Viewer    | [`viewer/`](viewer/) | Static web app with js-aruco2 and three.js, served by nginx                                                                              |
-| Tools     | [`tools/`](tools/)   | The marker table and icon generators, the watch's build and simulator, smoke test                                                        |
-| Docs      | [`docs/`](docs/)     | [Architecture](docs/architecture.md), [decisions](docs/decisions/), [content](docs/content.md), [watch](docs/watch.md), [CI](docs/ci.md) |
+| Part      | Where                | What                                                                                                                                                                                                         |
+|-----------|----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Watch app | [`watch/`](watch/)   | Connect IQ device app (Monkey C), first target the D2 Mach 1                                                                                                                                                 |
+| Viewer    | [`viewer/`](viewer/) | Static web app with js-aruco2 and three.js, served by nginx                                                                                                                                                  |
+| Tools     | [`tools/`](tools/)   | The marker table and icon generators, the watch's build and simulator, smoke test                                                                                                                            |
+| Docs      | [`docs/`](docs/)     | [Architecture](docs/architecture.md), [decisions](docs/decisions/), [content](docs/content.md), [watch](docs/watch.md), [CI](docs/ci.md), [deployment](docs/deployment.md), [publishing](docs/publishing.md) |
 
 ## Development
 

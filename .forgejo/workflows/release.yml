@@ -1,0 +1,176 @@
+# A release, on a version tag (vX.Y.Z): the watch's store package, the viewer's
+# files and the release notes from CHANGELOG.md on a Forgejo release, and the
+# viewer deployed to the app host (docs/deployment.md). Nothing else is uploaded.
+name: release
+'on':
+  push:
+    tags: [v*]
+  # Run by hand to retry a release, or to deploy an older tag again (rollback).
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: The tag to release (vX.Y.Z)
+        type: string
+        required: true
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+env:
+  TAG: ${{ inputs.tag || github.ref_name }}
+  # As in ci.yml's watch job: the SDK installed on the runner's host.
+  CONNECTIQ_SDK: 9.3.0
+  CONNECTIQ_HOME: /opt/connectiq
+
+jobs:
+  release:
+    # The SDK is mounted only in the runner container ci (docs/ci.md), which also
+    # has Docker for the viewer's files.
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check the tag
+        run: |
+          case "$TAG" in
+            v[0-9]*.[0-9]*.[0-9]*) ;;
+            *) echo "::error::$TAG is not a release tag (vX.Y.Z)"; exit 1 ;;
+          esac
+
+      - name: Check out the tag
+        uses: https://github.com/actions/checkout@v7
+        with:
+          ref: refs/tags/${{ env.TAG }}
+
+      # The notes are the version's section of CHANGELOG.md, "## X.Y.Z - date" as the
+      # release bot writes it or "## [X.Y.Z]" by hand; a release without one fails here
+      # rather than going out with notes made up from commit subjects.
+      - name: Write the release notes
+        run: |
+          mkdir -p "$RUNNER_TEMP/release"
+          awk -v v="${TAG#v}" '/^## / { if (found) exit; h = $2; gsub(/^\[|\]$/, "", h)
+            if (h == v) { found = 1; next } } found' CHANGELOG.md \
+            | sed -e '/^\[[^]]*\]: /d' -e '/./,$!d' > "$RUNNER_TEMP/notes.md"
+          if [ -z "$(tr -d '[:space:]' < "$RUNNER_TEMP/notes.md")" ]; then
+            echo "::error::CHANGELOG.md has no section '## ${TAG#v}'"
+            exit 1
+          fi
+          cat "$RUNNER_TEMP/notes.md"
+
+      - name: Set up Java
+        uses: https://github.com/actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      # The developer key, base64 of its DER file (docs/publishing.md): written for
+      # this step only and deleted, also when the build fails.
+      - name: Build the store package
+        env:
+          CONNECTIQ_DEVELOPER_KEY: ${{ secrets.CONNECTIQ_DEVELOPER_KEY }}
+        run: |
+          if [ -z "$CONNECTIQ_DEVELOPER_KEY" ]; then
+            echo "::error::The Actions secret CONNECTIQ_DEVELOPER_KEY is missing (docs/publishing.md)"
+            exit 1
+          fi
+          key=$(mktemp)
+          trap 'rm -f "$key"' EXIT
+          printf '%s' "$CONNECTIQ_DEVELOPER_KEY" | base64 -d > "$key"
+          CONNECTIQ_KEY=$key tools/build-watch.sh --package "$CONNECTIQ_SDK" "$RUNNER_TEMP/watch"
+          cp "$RUNNER_TEMP/watch/wristmark.iq" "$RUNNER_TEMP/release/wristmark-$TAG.iq"
+
+      # The files the image serves, libraries included, as one archive.
+      - name: Pack the viewer
+        run: |
+          image="wristmark-viewer:release-$GITHUB_RUN_ID"
+          docker build --pull --no-cache -t "$image" viewer
+          tools/smoke-test.sh "$image"
+          container=$(docker create "$image")
+          docker cp "$container:/usr/share/nginx/html" "$RUNNER_TEMP/viewer"
+          docker rm "$container" > /dev/null
+          docker image rm -f "$image" > /dev/null
+          tar -C "$RUNNER_TEMP/viewer" -czf "$RUNNER_TEMP/release/wristmark-viewer-$TAG.tar.gz" .
+          ls -l "$RUNNER_TEMP/release"
+
+      - name: Read the release notes
+        id: notes
+        run: |
+          {
+            echo 'notes<<END_OF_NOTES'
+            cat "$RUNNER_TEMP/notes.md"
+            echo END_OF_NOTES
+          } >> "$GITHUB_OUTPUT"
+
+      # A run by hand for a tag released before (a rollback) deploys it again but
+      # publishes nothing: forgejo-release fails on a release that exists.
+      - name: Look for the tag's release
+        id: existing
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: token $TOKEN" \
+            "$GITHUB_SERVER_URL/api/v1/repos/$GITHUB_REPOSITORY/releases/tags/$TAG")
+          case "$code" in
+            200) echo "exists=true" >> "$GITHUB_OUTPUT"; echo "$TAG has its release already: not published again" ;;
+            404) echo "exists=false" >> "$GITHUB_OUTPUT" ;;
+            *) echo "::error::Asking for the release of $TAG answered $code"; exit 1 ;;
+          esac
+
+      - name: Publish the release
+        if: steps.existing.outputs.exists == 'false'
+        uses: https://code.forgejo.org/actions/forgejo-release@v2
+        with:
+          direction: upload
+          url: ${{ github.server_url }}
+          repo: ${{ github.repository }}
+          tag: ${{ env.TAG }}
+          title: ${{ env.TAG }}
+          release-dir: ${{ runner.temp }}/release
+          prerelease: 'false'
+          override: false
+          release-notes: ${{ steps.notes.outputs.notes }}
+
+      # Coolify's API, as the homelab's apps guide shows (Deploy from CI): the app
+      # named like the repository, pinned to the tag's commit, then the health check
+      # at its public address.
+      - name: Deploy the viewer
+        env:
+          APPS_URL: https://apps.ciepiela.org
+          APPS_TOKEN: ${{ secrets.APPS_TOKEN }}
+        run: |
+          set -euo pipefail
+          app=${GITHUB_REPOSITORY#*/}
+          api() {
+            curl -fsS --retry 3 -H "Authorization: Bearer $APPS_TOKEN" -H "Accept: application/json" "$@"
+          }
+          uuid=$(api "$APPS_URL/api/v1/applications" \
+            | jq -r --arg name "$app" '[.[] | select(.name == $name)][0].uuid // empty')
+          if [ -z "$uuid" ]; then
+            echo "::error::The panel at $APPS_URL has no application named $app"
+            exit 1
+          fi
+          jq -n --arg sha "$(git rev-parse HEAD)" '{git_commit_sha: $sha}' \
+            | api -X PATCH -H "Content-Type: application/json" -d @- "$APPS_URL/api/v1/applications/$uuid" > /dev/null
+          deployment=$(api -X POST "$APPS_URL/api/v1/deploy?uuid=$uuid&force=true" \
+            | jq -r '.deployments[0].deployment_uuid')
+          echo "Deployment $deployment of $app at $(git rev-parse --short HEAD)"
+          status=queued
+          for _ in $(seq 90); do
+            status=$(api "$APPS_URL/api/v1/deployments/$deployment" | jq -r .status)
+            case "$status" in
+              finished) break ;;
+              failed | cancelled-by-user)
+                echo "::error::The deployment ended as $status; its log is in the panel"
+                exit 1
+                ;;
+            esac
+            sleep 10
+          done
+          if [ "$status" != finished ]; then
+            echo "::error::The deployment did not finish within 15 minutes ($status)"
+            exit 1
+          fi
+          address=$(api "$APPS_URL/api/v1/applications/$uuid" | jq -r '(.fqdn // "") | split(",")[0]')
+          # The app may be asleep: the first request wakes it (a few seconds).
+          curl -fsS --retry 6 --retry-delay 10 --retry-all-errors -o /dev/null "$address/healthz"
+          echo "Deployed: $address"

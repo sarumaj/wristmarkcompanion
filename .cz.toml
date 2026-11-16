@@ -1,0 +1,11 @@
+# The release bot (release-bot on git.ciepiela.org) tags the releases due from the
+# Conventional Commits since the last tag and writes CHANGELOG.md; cz works locally too.
+# Every tag also builds the store package with the developer key and deploys the viewer
+# (.forgejo/workflows/release.yml); the upload to the store stays by hand.
+[tool.commitizen]
+name = "cz_conventional_commits"
+tag_format = "v$version"
+# The tag is the version: the release workflow builds it in.
+version_provider = "scm"
+# Below 1.0.0 a breaking change raises the minor version, not the major.
+major_version_zero = true

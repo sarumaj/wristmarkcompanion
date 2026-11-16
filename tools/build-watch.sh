@@ -10,12 +10,29 @@
 # the account, not from $HOME, so for another directory (CI's /opt/connectiq) the
 # script gives Java a home of its own. Where the SDK is read-only, monkeyc can't
 # create its default.jungle ("Unable to generate default.jungle: Read-only file
-# system"), so the script builds writable directories of links over it. Each build
+# system"), so the script builds writable directories of links over it. Each test build
 # is signed with a throwaway key made here and deleted afterwards: these builds are
-# for testing, never released (release signing: milestone 5).
+# for testing, never released (the store package: --package below).
+#
+#   CONNECTIQ_KEY=developer_key.der tools/build-watch.sh --package 9.3.0 [output directory]
+#
+# --package builds the store package instead (wristmark.iq: every device of the
+# manifest, without debug information), signed with the developer key whose DER
+# file CONNECTIQ_KEY names: the same key for every release, or the store refuses
+# the update (Garmin's Getting Started: "If you lose your original signing key
+# you will not be able to update your app").
 set -euo pipefail
 
-version=${1:?usage: tools/build-watch.sh <sdk-version> [output directory]}
+package=false
+if [[ "${1:-}" == --package ]]; then
+  package=true
+  shift
+  if [[ -z "${CONNECTIQ_KEY:-}" || ! -f "$CONNECTIQ_KEY" ]]; then
+    echo "error: --package needs CONNECTIQ_KEY, the developer key's DER file" >&2
+    exit 1
+  fi
+fi
+version=${1:?usage: tools/build-watch.sh [--package] <sdk-version> [output directory]}
 out=${2:-watch/bin}
 home=${CONNECTIQ_HOME:-$HOME/.Garmin/ConnectIQ}
 
@@ -73,9 +90,6 @@ if [[ -n "${CONNECTIQ_HOME:-}" && "$(uname)" == Linux ]]; then
 fi
 monkeyc=$sdk/bin/monkeyc
 
-openssl genrsa -out "$keys/key.pem" 4096 2>/dev/null
-openssl pkcs8 -topk8 -inform PEM -outform DER -in "$keys/key.pem" -out "$keys/key.der" -nocrypt
-
 mkdir -p "$out"
 "$monkeyc" --version
 for device in "${devices[@]}"; do
@@ -83,6 +97,18 @@ for device in "${devices[@]}"; do
     echo "error: no device files for $device in $home/Devices (connectiq-update)" >&2
     exit 1
   fi
+done
+
+if $package; then
+  "$monkeyc" --package-app --release --warn --typecheck 3 --jungles watch/monkey.jungle \
+    --private-key "$CONNECTIQ_KEY" --output "$out/wristmark.iq"
+  exit 0
+fi
+
+openssl genrsa -out "$keys/key.pem" 4096 2>/dev/null
+openssl pkcs8 -topk8 -inform PEM -outform DER -in "$keys/key.pem" -out "$keys/key.der" -nocrypt
+
+for device in "${devices[@]}"; do
   echo "== $device"
   "$monkeyc" --warn --typecheck 3 --device "$device" --jungles watch/monkey.jungle \
     --private-key "$keys/key.der" --output "$out/wristmark-$device.prg"

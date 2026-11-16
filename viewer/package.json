@@ -1,7 +1,7 @@
 {
   "name": "wristmark-viewer",
   "private": true,
-  "description": "The phone viewer of wristmark: static files, no bundler. The Dockerfile copies the runtime libraries out of node_modules.",
+  "description": "The viewer of WristMarkCompanion: static files, no bundler. The Dockerfile copies the runtime libraries out of node_modules.",
   "license": "GPL-3.0-only",
   "type": "module",
   "scripts": {
