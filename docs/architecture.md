@@ -40,6 +40,7 @@ flowchart LR
 - [001: Detection library: js-aruco2](decisions/001-detection-library.md)
 - [002: Marker dictionary: OpenCV DICT_4X4_50](decisions/002-marker-dictionary.md)
 - [003: Pose: coplanar POSIT, assumed intrinsics, flip-aware smoothing](decisions/003-pose.md)
+- [004: Control channel (proposed)](decisions/004-control-channel.md)
 
 ## Planned
 
