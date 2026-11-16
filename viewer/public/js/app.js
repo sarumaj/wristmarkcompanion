@@ -50,7 +50,9 @@ function report(text, state) {
 function fail(error) {
   console.error(error);
   report(error.message || String(error), "error");
+  document.getElementById("failure-text").textContent = error.message || String(error);
 }
+document.getElementById("retry").addEventListener("click", () => location.reload());
 
 async function openCamera() {
   if (!window.isSecureContext) {

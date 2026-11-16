@@ -116,7 +116,13 @@ export function startGuide({ root, content, markerSize, captureSeconds = 10, cou
     fill(render());
     window.scrollTo({ top: 0 });
   }
-  const back = () => h("button", { type: "button", onclick: () => show(home) }, "Sections");
+  const back = () => h("button", { type: "button", class: "quiet", onclick: () => show(home) }, "Sections");
+  // A step's header: the section, where in it, and a bar of the way done.
+  const header = (section, detail, index, total) => [
+    h("p", { class: "guide-kicker" }, section, total ? h("span", {}, `${index + 1} of ${total}`) : null),
+    detail ? h("h2", {}, detail) : null,
+    total ? h("progress", { class: "guide-steps", max: total, value: index }) : null,
+  ];
   const needCamera = () => (cameraOn ? null : h("p", { class: "guide-note" }, "Start the camera first (the button above)."));
   const choice = (options, selected, pick) =>
     h("div", { class: "choices" }, options.map((option) =>
@@ -127,19 +133,26 @@ export function startGuide({ root, content, markerSize, captureSeconds = 10, cou
     let left = countdownSeconds;
     const tick = () => {
       if (left > 0) {
-        screen.replaceChildren(h("p", { class: "guide-big" }, `${prompt}: ${left}`));
+        screen.replaceChildren(h("div", { class: "guide-countdown" },
+          h("p", {}, prompt),
+          h("span", { class: "guide-ring" }, String(left))));
         say(String(left));
         beep(660, 80);
         left--;
         setTimeout(tick, 1000);
         return;
       }
-      screen.replaceChildren(h("p", { class: "guide-big" }, `Measuring for ${seconds} seconds…`));
+      const bar = h("progress", { max: 1, value: 0 });
+      screen.replaceChildren(h("div", { class: "guide-countdown" },
+        h("p", {}, `Measuring for ${seconds} seconds`),
+        h("p", { class: "guide-big" }, "Hold still"),
+        bar));
       say("Measuring");
       beep(880);
       const start = performance.now();
       capture = {
         frames: [],
+        progress: (frame) => (bar.value = Math.min(1, (frame.t - start) / (seconds * 1000))),
         until: (frame) => frame.t - start >= seconds * 1000,
         finish: (frames) => {
           const summary = summarize(frames, start, start + seconds * 1000);
@@ -152,17 +165,19 @@ export function startGuide({ root, content, markerSize, captureSeconds = 10, cou
     tick();
   }
 
+  // A capture's numbers as tiles, each colored by how good it is.
   function resultCard(summary) {
-    return h("pre", { class: "guide-result" }, [
-      `detection   ${Math.round(summary.rate * 100)} % of ${summary.frames} frames`,
-      `distance    ${round(summary.distance)} mm`,
-      `tilt        ${round(summary.tilt)}°`,
-      `FPS         ${round(summary.fps)}`,
-      `detect time ${round(summary.detectMs, 1)} ms`,
-      `jitter      ±${round(summary.jitterMm, 1)} mm, ±${round(summary.jitterDegrees, 1)}°`,
-      `flips       ${summary.flips}`,
-      `longest gap ${round(summary.longestGapMs)} ms`,
-    ].join("\n"));
+    const grade = (value, good, fair, higher = true) =>
+      (higher ? value >= good : value <= good) ? "good" : (higher ? value >= fair : value <= fair) ? "fair" : "poor";
+    const tile = (label, value, health, detail) =>
+      h("div", { class: "tile", "data-health": health }, h("span", { class: "tile-label" }, label), h("strong", {}, value), detail ? h("span", { class: "tile-detail" }, detail) : null);
+    return h("div", { class: "tiles" },
+      tile("Detected", `${Math.round(summary.rate * 100)} %`, grade(summary.rate, 0.9, 0.5), `${summary.frames} frames`),
+      tile("Distance", summary.distance === null ? "–" : `${round(summary.distance / 10, 1)} cm`, null, `tilt ${round(summary.tilt)}°`),
+      tile("FPS", round(summary.fps), grade(summary.fps, 24, 15), `${round(summary.detectMs, 1)} ms detect`),
+      tile("Jitter", `±${round(summary.jitterMm, 1)} mm`, grade(summary.jitterMm, 1.5, 4, false), `±${round(summary.jitterDegrees, 1)}°`),
+      tile("Flips", String(summary.flips), summary.flips ? "poor" : "good", null),
+      tile("Longest gap", `${round(summary.longestGapMs)} ms`, grade(summary.longestGapMs, 300, 1000, false), null));
   }
 
   // The result of a range or angle capture: the measured verdict, the person's, a note.
@@ -246,7 +261,7 @@ export function startGuide({ root, content, markerSize, captureSeconds = 10, cou
           () => show(() => rangeStep(block, index + 1)), again));
     };
     return [
-      h("h2", {}, `Range · ${label} · ${index + 1} of ${DISTANCES.length}`),
+      header("Range", label, index, DISTANCES.length),
       h("p", { class: "guide-big" }, `${cm} cm`),
       h("p", {}, `Hold the phone ${cm} cm from the watch (a tape measure from the camera to the watch), the watch facing the camera, still for ${captureSeconds} seconds.`),
       needCamera(),
@@ -272,7 +287,7 @@ export function startGuide({ root, content, markerSize, captureSeconds = 10, cou
     const target = ANGLES[index];
     const again = () => show(() => angle(block, index));
     return [
-      h("h2", {}, `Angle · ${index + 1} of ${ANGLES.length}`),
+      header("Angle", block.night ? "red light" : "", index, ANGLES.length),
       h("p", { class: "guide-big" }, `${target}°`),
       h("p", {}, `About 30 cm away, turn the watch away from the camera until the tilt in the line above reads about ${target}°.`),
       nightToggle(block, (night) => show(() => angle({ ...block, night }, index))),
@@ -420,12 +435,12 @@ export function startGuide({ root, content, markerSize, captureSeconds = 10, cou
     };
     say(`Show marker ${id}, ${entry.name}.`);
     return [
-      h("h2", {}, `Models · ${index + 1} of ${models.length}`),
+      header("Models", "", index, models.length),
       h("p", { class: "guide-big" }, `Marker ${id}: ${entry.name}`),
       h("p", {}, "Show it on the watch (its next and previous buttons). The guide measures as soon as it sees it."),
       needCamera(),
       h("p", { class: "actions" },
-        h("button", { type: "button", onclick: () => {
+        h("button", { type: "button", class: "quiet", onclick: () => {
           waitingFor = null;
           show(() => model(index + 1));
         } }, "Skip"),
@@ -522,19 +537,27 @@ export function startGuide({ root, content, markerSize, captureSeconds = 10, cou
 
   function home() {
     const count = (kind) => state.results.filter((result) => result.kind === kind).length;
-    const item = (label, detail, render) =>
-      h("li", {}, h("button", { type: "button", onclick: () => show(render) }, label), detail ? ` ${detail}` : "");
+    const sections = [
+      ["Setup", "Watch, phone and the marker's size", state.setup.watch ? "done" : "", setup],
+      ["Range", "Detection at 15 to 150 cm, per light", count("range") ? `${count("range")} measured` : "", () => range()],
+      ["Angle", "The watch turned 0 to 60°", count("angle") ? `${count("angle")} of ${ANGLES.length}` : "", () => angle()],
+      ["Session length", "When the display dims and turns off", count("session") ? `${count("session")} runs` : "", () => session()],
+      ["Models", "Each marker's model on the watch", count("model") ? `${count("model")} of ${models.length}` : "", () => model(Math.min(count("model"), models.length - 1))],
+      ["Battery and notes", "Battery use, anything else", state.battery.before || state.notes ? "done" : "", notes],
+    ];
+    const done = sections.filter(([, , status]) => status).length;
     return [
-      h("h2", {}, "Device test"),
-      h("p", {}, "The steps of docs/device-tests.md. The results stay on this phone until you copy them."),
+      h("p", { class: "guide-kicker" }, "Device test", h("span", {}, `${done} of ${sections.length} sections`)),
+      h("h2", {}, "Test the watch, step by step"),
+      h("progress", { class: "guide-steps", max: sections.length, value: done }),
+      h("p", { class: "guide-muted" }, "Each step says what to do and measures itself. The results stay on this phone until you copy them."),
       h("ol", { class: "guide-sections" },
-        item("Setup", state.setup.watch ? "✓" : "", setup),
-        item("Range", `${count("range")} measured`, () => range()),
-        item("Angle", `${count("angle")} measured`, () => angle()),
-        item("Session length", `${count("session")} runs`, () => session()),
-        item("Models", `${count("model")} of ${models.length}`, () => model(Math.min(count("model"), models.length - 1))),
-        item("Battery and notes", state.battery.before ? "✓" : "", notes),
-        item("Report", "", reportScreen)),
+        sections.map(([label, detail, status, render], i) =>
+          h("li", {}, h("button", { type: "button", class: "section-card", onclick: () => show(render) },
+            h("span", { class: "section-number" }, String(i + 1)),
+            h("span", { class: "section-text" }, h("strong", {}, label), h("span", {}, detail)),
+            status ? h("span", { class: "section-status" }, status) : null)))),
+      h("p", { class: "actions" }, h("button", { type: "button", class: "primary", onclick: () => show(reportScreen) }, "Report")),
       h("label", { class: "field-inline" },
         h("input", { type: "checkbox", checked: state.voice, onchange: (event) => {
           state.voice = event.target.checked;
@@ -542,7 +565,7 @@ export function startGuide({ root, content, markerSize, captureSeconds = 10, cou
         } }),
         " Spoken prompts and beeps"),
       h("p", { class: "actions" },
-        h("button", { type: "button", onclick: () => {
+        h("button", { type: "button", class: "quiet", onclick: () => {
           if (confirm("Delete every result on this phone?")) {
             state.setup = {};
             state.results = [];

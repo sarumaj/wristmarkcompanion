@@ -42,7 +42,7 @@
     <div class="stage">
       <video id="camera" playsinline muted></video>
       <canvas id="overlay"></canvas>
-      <pre id="debug" hidden></pre>
+      <div id="debug" class="debug" hidden></div>
       <section class="intro" aria-labelledby="intro-title">
         <svg class="intro-art" viewBox="0 0 160 150" aria-hidden="true">
           <defs>
@@ -74,6 +74,12 @@
         </ol>
         <button id="start" class="primary" type="button">Start the camera</button>
         <p class="fineprint">The camera image never leaves this device.</p>
+      </section>
+      <section class="failure" role="alert" aria-labelledby="failure-title">
+        <svg class="failure-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v6M12 16.5v.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+        <h2 id="failure-title">The viewer stopped</h2>
+        <p id="failure-text"></p>
+        <button id="retry" class="primary" type="button">Try again</button>
       </section>
       <p id="status" class="status" role="status">Point the camera at the watch's marker.</p>
     </div>

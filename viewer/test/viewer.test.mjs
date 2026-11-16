@@ -7,6 +7,7 @@
 //   the gizmo for an ID without content) and the debug overlay;
 // - content.json passes its check, and the models stand on the marker;
 // - the guided device test measures a step and reports it;
+// - a camera that can't be opened shows the error card;
 // - the privacy page is served and linked.
 import { after, before, test } from "node:test";
 import assert from "node:assert/strict";
@@ -200,12 +201,13 @@ test("the viewer shows the model content.json gives the camera's marker, and the
     assert.equal(await page.locator("body").getAttribute("data-model"), "earth");
     // The overlay is rewritten every 250 ms: wait for a second of frames.
     await page.waitForTimeout(1200);
-    const debug = await page.locator("#debug").textContent();
-    assert.match(debug, /^ID {10}1$/m);
-    assert.match(debug, /^distance {4}\d+ mm$/m);
-    assert.match(debug, /^FPS {9}[1-9]\d*$/m);
-    assert.match(debug, /^detection {3}\d+ % of frames$/m);
-    assert.match(debug, /^camera {6}640x480$/m);
+    const row = (key) => page.locator(`#debug [data-key="${key}"] dd`).textContent();
+    assert.equal(await row("id"), "1");
+    assert.match(await row("distance"), /^\d+ mm$/);
+    assert.match(await row("fps"), /^[1-9]\d*$/);
+    assert.match(await row("detection"), /^\d+ %$/);
+    assert.match(await row("camera"), /^640x480$/);
+    assert.equal(await page.locator("#debug .debug-chart").count(), 1);
     // The toggle hides it.
     await page.locator("#debug-toggle").click();
     assert.equal(await page.locator("#debug").isHidden(), true);
@@ -239,6 +241,19 @@ test("the guided device test measures a range step and reports it", async () => 
     // The live line shows the marker it sees.
     assert.match(await guide.locator(".guide-live").textContent(), /^ID 1 /);
   });
+});
+
+test("a camera that can't be opened shows the error card with a way to try again", async () => {
+  // A Chromium without a camera: getUserMedia fails, as when the permission is refused.
+  const context = await browser.newContext();
+  const { page } = await open(context, "/index.html");
+  await page.locator("#start").click();
+  await page.waitForSelector('body[data-state="error"]');
+  assert.equal(await page.locator(".failure").isVisible(), true);
+  assert.notEqual((await page.locator("#failure-text").textContent()).trim(), "");
+  assert.equal(await page.locator("#retry").isVisible(), true);
+  assert.equal(await page.locator(".intro").isVisible(), false);
+  await context.close();
 });
 
 test("content.json passes its check, and every model stands on the marker", async () => {

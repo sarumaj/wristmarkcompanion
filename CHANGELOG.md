@@ -29,7 +29,11 @@ All notable changes to this project are documented here. The format follows
   from `content.json` and checked by CI), so that every marker it shows brings up a model.
 - The viewer's look: dark, with a start screen, the camera's image fitted to the screen in
   its own aspect, a status pill that shows searching or tracking, glass panels, and the same
-  buttons and fields on every page.
+  header, buttons and fields on every page. An error shows a card with *Try again*.
+- The debug overlay: its numbers in a grid, colored by how good they are, and a chart of the
+  last ten seconds of the detection rate and FPS.
+- The device test: section cards with their progress, a progress bar per step, a countdown
+  ring, and each measurement as tiles colored by how good it is.
 
 ### Fixed
 
