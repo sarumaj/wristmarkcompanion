@@ -27,18 +27,43 @@ the axis gizmo for any other ID. It works the same on a phone (rear camera) and 
   previous buttons, or its automatic cycle). The new marker's pose starts afresh, without the
   smoothing of the old one.
 
-## The placeholder models
+## The models
 
-All four are generated in code with three.js's geometries (`js/models.js`), so there are no asset
-files and nothing to license apart from this project's own code (GPL-3.0). Each stands on the
-marker's face, sized from the marker's side, and moves a little so that it reads as 3D.
+All of them are generated in code with three.js (`js/models.js`, `js/sky-models.js`,
+`js/fun-models.js`), so there are no asset files and nothing to license apart from this
+project's own code (GPL-3.0) and Natural Earth's land, which is in the public domain. Each
+stands on the marker's face, sized from the marker's side, and moves a little so that it reads
+as 3D.
 
-| ID  | Model     | What                                         |
-|-----|-----------|----------------------------------------------|
-| 0   | `cube`    | A cube with a color per face, turning slowly |
-| 1   | `knot`    | A torus knot above the marker, turning       |
-| 2   | `planet`  | A planet with a ring and a moon orbiting it  |
-| 3   | `crystal` | A flat-shaded crystal floating up and down   |
+![The moon on 2026-11-16, the Earth at noon UTC that day, the robot and the snow globe](images/models.png)
+
+| ID  | Model       | What                                                                                                                                |
+|-----|-------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| 0   | `moon`      | The moon in its phase now, lit from the sun's side wherever the camera is; a label with the lit share and the next full or new moon |
+| 1   | `earth`     | The Earth with day and night as they are now, the terminator moving; a yellow meridian at the viewer's time zone                    |
+| 2   | `robot`     | A robot mascot: it bobs, looks around, blinks and waves                                                                             |
+| 3   | `snowglobe` | A snow globe with a fir tree, the snow drifting down                                                                                |
+| 4   | `cube`      | Placeholder: a cube with a color per face, turning slowly                                                                           |
+| 5   | `knot`      | Placeholder: a torus knot above the marker, turning                                                                                 |
+| 6   | `planet`    | Placeholder: a planet with a ring and a moon orbiting it                                                                            |
+| 7   | `crystal`   | Placeholder: a flat-shaded crystal floating up and down                                                                             |
+
+### The moon and the Earth
+
+- **Only the time:** the sun's and the moon's positions come from low-precision formulas
+  (`js/sky.js`: the Astronomical Almanac's for the sun, the main terms of Meeus's for the moon).
+  `viewer/test/sky.test.mjs` checks them against the USNO's published equinox, solstice and
+  moon phases: within 0.05 degrees and an hour. No location is asked for. The globe's meridian
+  is the browser's time zone offset (15 degrees an hour), so with daylight saving time it's
+  an hour's worth east of the zone's usual meridian.
+- **Another day:** `?date=2026-12-24T18:00Z` shows the moon and the globe at that time, the
+  clock running on from it.
+- **The land:** `js/land.js`, a 360x180 grid of one bit per degree, generated from Natural
+  Earth's 1:110m land by `tools/generate-land.mjs` (its header has the download). Regenerate
+  it rather than editing it.
+- **Orientation:** a model can't know where north is or where the sun stands in the room, so
+  the globe's north points to the watch's top and the moon's lit side is set relative to the
+  camera, as the phase looks from the northern hemisphere.
 
 A model from a file (glTF) would need three.js's loader added to the image and its license
 recorded here. Large files need the owner's approval first ([CI](ci.md)).

@@ -195,8 +195,8 @@ async function withCamera(id, path, check) {
 
 test("the viewer shows the model content.json gives the camera's marker, and the debug overlay", async () => {
   await withCamera(1, "/index.html?autostart&debug", async (page) => {
-    assert.match(await page.locator("#status").textContent(), /^Marker 1 \(Torus knot\), \d+ mm away$/);
-    assert.equal(await page.locator("body").getAttribute("data-model"), "knot");
+    assert.match(await page.locator("#status").textContent(), /^Marker 1 \(Earth, day and night\), \d+ mm away$/);
+    assert.equal(await page.locator("body").getAttribute("data-model"), "earth");
     // The overlay is rewritten every 250 ms: wait for a second of frames.
     await page.waitForTimeout(1200);
     const debug = await page.locator("#debug").textContent();

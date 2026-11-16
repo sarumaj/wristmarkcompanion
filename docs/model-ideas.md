@@ -1,7 +1,8 @@
 # Model ideas
 
-Status: **ideas, none built** beyond the four placeholders ([content](content.md)). For the
-owner to choose from; nothing here is decided.
+Status: **four built** (2026-11-16): the moon phase, the Earth with day and night, the mascot
+(a robot) and the snow globe ([content](content.md)). The rest are ideas for the owner to choose
+from; nothing else is decided.
 
 The marker ID is the only data from the watch, so a model can use only what the viewer itself
 knows. That sorts the ideas by what they need, and so by cost:
@@ -41,8 +42,9 @@ flowchart LR
 The moon, the globe and the orrery need no permission and work on a laptop, so they're the
 natural first ones. Their math (the sun's and moon's positions, Meeus-style low-precision
 formulas) is a few hundred lines of code, with no data files. The globe's continents need an
-outline: Natural Earth's (public domain), simplified to tens of kilobytes, or a texture (NASA
-Blue Marble, public domain), a few hundred kilobytes, which needs the owner's approval.
+outline: the built globe uses Natural Earth's (public domain) as a 1-degree land mask of 11 KB.
+A photographic texture (NASA Blue Marble, public domain) would be a few hundred kilobytes,
+which needs the owner's approval.
 
 ## Aviation
 

@@ -1,21 +1,20 @@
-// The placeholder models, generated in code: no asset files, nothing to license
-// beyond this project's own. Each one stands on the marker: in its anchor's frame
-// x and y lie on the marker's face and z points out of it, in millimeters, and
-// `size` is the marker's side. A model is {object, animate(seconds)}.
+// The models, generated in code: no asset files, nothing to license beyond this
+// project's own (and Natural Earth's public-domain land, js/land.js). Each one stands
+// on the marker: in its anchor's frame x and y lie on the marker's face and z points
+// out of it, in millimeters, and `size` is the marker's side. A model is
+// {object, animate(seconds)}. `options.now` gives the date the moon and the globe
+// show (default: the clock).
 import * as THREE from "../vendor/three/three.module.js";
-
-// The models are built with y up, as three.js's geometries are; this turns y into
-// the marker's z, out of the watch.
-function standing(...children) {
-  const group = new THREE.Group();
-  group.rotation.x = Math.PI / 2;
-  group.add(...children);
-  const root = new THREE.Group();
-  root.add(group);
-  return { root, group };
-}
+import { standing } from "./standing.js";
+import { earth, moon } from "./sky-models.js";
+import { robot, snowglobe } from "./fun-models.js";
 
 const MODELS = {
+  moon,
+  earth,
+  robot,
+  snowglobe,
+
   // A cube with a color per face, on the marker, turning slowly.
   cube(size) {
     const colors = [0xe4572e, 0x29335c, 0xf3a712, 0x669bbc, 0xa8c686, 0xdb2b39].map(
@@ -97,12 +96,12 @@ const MODELS = {
 export const MODEL_NAMES = Object.keys(MODELS);
 
 // A new instance of the model `name`, for a marker `size` millimeters wide.
-export function createModel(name, size) {
+export function createModel(name, size, options = {}) {
   const make = MODELS[name];
   if (!make) {
     throw new Error(`no model "${name}"`);
   }
-  return make(size);
+  return make(size, { now: () => new Date(), ...options });
 }
 
 // The light the models are shown in: from above the camera, and all around.

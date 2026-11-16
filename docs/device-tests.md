@@ -122,14 +122,20 @@ Battery before and after 10 minutes of the app (with presses to keep it on): \_\
 
 ## 4. The models
 
-On the phone, with markers 0 to 3 on the watch (its next and previous buttons):
+On the phone, with markers 0 to 7 on the watch (its next and previous buttons). For the moon
+and the globe, also: does the moon's phase match the sky, and is the day side of the Earth
+where it's day now?
 
-| ID  | Model      | Sits on the watch? | Smooth? | Notes |
-|-----|------------|--------------------|---------|-------|
-| 0   | Cube       |                    |         |       |
-| 1   | Torus knot |                    |         |       |
-| 2   | Planet     |                    |         |       |
-| 3   | Crystal    |                    |         |       |
+| ID  | Model                | Sits on the watch? | Smooth? | Notes |
+|-----|----------------------|--------------------|---------|-------|
+| 0   | Moon phase           |                    |         |       |
+| 1   | Earth, day and night |                    |         |       |
+| 2   | Robot                |                    |         |       |
+| 3   | Snow globe           |                    |         |       |
+| 4   | Cube                 |                    |         |       |
+| 5   | Torus knot           |                    |         |       |
+| 6   | Planet               |                    |         |       |
+| 7   | Crystal              |                    |         |       |
 
 ## 5. Anything else
 

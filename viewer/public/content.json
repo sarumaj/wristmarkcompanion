@@ -1,8 +1,12 @@
 {
   "markers": {
-    "0": { "model": "cube", "name": "Cube" },
-    "1": { "model": "knot", "name": "Torus knot" },
-    "2": { "model": "planet", "name": "Planet" },
-    "3": { "model": "crystal", "name": "Crystal" }
+    "0": { "model": "moon", "name": "Moon phase" },
+    "1": { "model": "earth", "name": "Earth, day and night" },
+    "2": { "model": "robot", "name": "Robot" },
+    "3": { "model": "snowglobe", "name": "Snow globe" },
+    "4": { "model": "cube", "name": "Cube" },
+    "5": { "model": "knot", "name": "Torus knot" },
+    "6": { "model": "planet", "name": "Planet" },
+    "7": { "model": "crystal", "name": "Crystal" }
   }
 }
