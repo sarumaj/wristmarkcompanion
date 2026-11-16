@@ -1,7 +1,8 @@
 #!/bin/sh
 # Smoke test of the viewer image: starts it, then checks from inside the
 # container (busybox wget; CI jobs cannot reach published ports) that the
-# health check, the page, the library and the privacy headers are served.
+# health check, the page, the libraries, the content mapping and the privacy
+# headers are served.
 #
 #   tools/smoke-test.sh <image>
 set -eu
@@ -37,6 +38,10 @@ fetch /vendor/three/three.module.js | grep -q "three.core.js" || fail "three.js 
 fetch /vendor/three/three.core.js | grep -q "REVISION" || fail "three.js's core is not served"
 fetch /markers.html | grep -q "<title>wristmark markers</title>" || fail "the marker page is not served"
 fetch /js/app.js | grep -q "MarkerTracker" || fail "the viewer's code is not served"
+fetch /js/models.js | grep -q "createModel" || fail "the models are not served"
+fetch /content.json | grep -q '"markers"' || fail "content.json is not served"
+docker exec "$name" wget -q -S -O /dev/null http://127.0.0.1:8080/content.json 2>&1 \
+    | grep -q "Content-Type: application/json" || fail "content.json is not served as JSON"
 
 headers=$(docker exec "$name" wget -q -S -O /dev/null http://127.0.0.1:8080/ 2>&1)
 echo "$headers" | grep -q "Content-Security-Policy: .*connect-src 'self'" \

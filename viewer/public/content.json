@@ -1,0 +1,8 @@
+{
+  "markers": {
+    "0": { "model": "cube", "name": "Cube" },
+    "1": { "model": "knot", "name": "Torus knot" },
+    "2": { "model": "planet", "name": "Planet" },
+    "3": { "model": "crystal", "name": "Crystal" }
+  }
+}

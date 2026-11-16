@@ -49,6 +49,30 @@ button {
   padding: 8px 16px;
 }
 
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+#debug-toggle[aria-pressed="true"] {
+  font-weight: bold;
+}
+
+/* The debug overlay, on the camera's image: light text on a dark box, readable
+   over any scene. */
+#debug {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  margin: 0;
+  padding: 8px;
+  background: rgb(0 0 0 / 65%);
+  color: #fff;
+  font: 12px/1.4 ui-monospace, monospace;
+  pointer-events: none;
+}
+
 /* The marker always on white: its quiet zone must be light, also in dark mode. */
 .marker-sheet {
   background: #fff;

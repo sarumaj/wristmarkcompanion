@@ -27,13 +27,13 @@ flowchart LR
 
 ## Repository layout
 
-| Path                  | What                                                                                                                                                                                                                                             |
-|-----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `watch/`              | The Connect IQ project ([watch app](watch.md)). `source/MarkerDictionary.mc` is generated                                                                                                                                                        |
-| `viewer/`             | The static web app (`public/`: the viewer `index.html`, the desktop marker page `markers.html`, `js/`), its pinned libraries (`package.json`), nginx config, Dockerfile and end-to-end tests (`test/`)                                           |
-| `tools/`              | `generate-dictionary.mjs` (the watch's marker table), `smoke-test.sh` (the viewer's image), `align-tables.mjs` (Markdown tables), `build-watch.sh` (the watch app), `simulate.sh` (it in the simulator), `generate-icon.mjs` (its launcher icon) |
-| `docs/`               | This page, [the watch app](watch.md), [decisions](decisions/), [CI](ci.md); later the test protocol and the store guide                                                                                                                          |
-| `.forgejo/workflows/` | CI                                                                                                                                                                                                                                               |
+| Path                  | What                                                                                                                                                                                                                                                     |
+|-----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `watch/`              | The Connect IQ project ([watch app](watch.md)). `source/MarkerDictionary.mc` is generated                                                                                                                                                                |
+| `viewer/`             | The static web app (`public/`: the viewer `index.html`, the desktop marker page `markers.html`, `js/`, the [content mapping](content.md) `content.json`), its pinned libraries (`package.json`), nginx config, Dockerfile and end-to-end tests (`test/`) |
+| `tools/`              | `generate-dictionary.mjs` (the watch's marker table), `smoke-test.sh` (the viewer's image), `align-tables.mjs` (Markdown tables), `build-watch.sh` (the watch app), `simulate.sh` (it in the simulator), `generate-icon.mjs` (its launcher icon)         |
+| `docs/`               | This page, [the watch app](watch.md), [decisions](decisions/), [CI](ci.md), [content](content.md), [model ideas](model-ideas.md), the [device tests](device-tests.md); later the store guide                                                             |
+| `.forgejo/workflows/` | CI                                                                                                                                                                                                                                                       |
 
 ## Decisions
 

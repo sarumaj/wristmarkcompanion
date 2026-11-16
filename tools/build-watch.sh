@@ -5,15 +5,14 @@
 #   tools/build-watch.sh 9.3.0 [output directory, default watch/bin]
 #
 # CONNECTIQ_HOME is that directory, by default Linux's ~/.Garmin/ConnectIQ (macOS:
-# "$HOME/Library/Application Support/Garmin/ConnectIQ"). monkeyc looks for the
-# device files in the home's .Garmin/ConnectIQ (Linux), and Java takes the home
-# from the account, not from $HOME. For another directory (CI's read-only
-# /opt/connectiq) the script gives Java a home of its own whose .Garmin/ConnectIQ
-# links to it. monkeyc also creates a default.jungle in the SDK's bin ("Unable
-# to generate default.jungle: Read-only file system"), so the directories on
-# that path are real ones holding links to the files. Each build is signed with a
-# throwaway key made here and deleted afterwards: these builds are for testing,
-# never released (release signing: milestone 5).
+# "$HOME/Library/Application Support/Garmin/ConnectIQ"). On Linux monkeyc looks for
+# the device files in the home's .Garmin/ConnectIQ, and Java takes the home from
+# the account, not from $HOME, so for another directory (CI's /opt/connectiq) the
+# script gives Java a home of its own. Where the SDK is read-only, monkeyc can't
+# create its default.jungle ("Unable to generate default.jungle: Read-only file
+# system"), so the script builds writable directories of links over it. Each build
+# is signed with a throwaway key made here and deleted afterwards: these builds are
+# for testing, never released (release signing: milestone 5).
 set -euo pipefail
 
 version=${1:?usage: tools/build-watch.sh <sdk-version> [output directory]}
@@ -28,7 +27,11 @@ if (( ${#sdks[@]} != 1 )); then
 fi
 sdk=${sdks[0]%/}
 
-mapfile -t devices < <(sed -n 's/.*<iq:product id="\([^"]*\)".*/\1/p' watch/manifest.xml)
+# A loop, not mapfile: macOS ships bash 3.2.
+devices=()
+while IFS= read -r device; do
+  devices+=("$device")
+done < <(sed -n 's/.*<iq:product id="\([^"]*\)".*/\1/p' watch/manifest.xml)
 if (( ${#devices[@]} == 0 )); then
   echo "error: no <iq:product> in watch/manifest.xml" >&2
   exit 1
@@ -42,21 +45,30 @@ shadow() {
   mkdir -p "$2"
   for entry in "$1"/*; do ln -s "$entry" "$2/"; done
 }
-if [[ -n "${CONNECTIQ_HOME:-}" ]]; then
+# Linux with another directory than ~/.Garmin/ConnectIQ: Java's home is redirected
+# to one whose .Garmin/ConnectIQ is that directory. macOS's SDK finds its devices
+# itself.
+if [[ -n "${CONNECTIQ_HOME:-}" && "$(uname)" == Linux ]]; then
   writable=$keys/home/.Garmin/ConnectIQ
-  shadow "$home" "$writable"
-  rm "$writable/Sdks"
-  shadow "$home/Sdks" "$writable/Sdks"
-  rm "$writable/Sdks/${sdk##*/}"
-  shadow "$sdk" "$writable/Sdks/${sdk##*/}"
-  rm "$writable/Sdks/${sdk##*/}/bin"
-  # Java creates default.jungle next to the real path of monkeybrains.jar, so
-  # the jar is a copy (23 MB), not a link.
-  bin=$writable/Sdks/${sdk##*/}/bin
-  shadow "$sdk/bin" "$bin"
-  cp --remove-destination "$sdk/bin/monkeybrains.jar" "$bin/"
-  home=$writable
-  sdk=$writable/Sdks/${sdk##*/}
+  if [[ -w "$sdk/bin" ]]; then
+    mkdir -p "${writable%/*}"
+    ln -s "$home" "$writable"
+  else
+    # Read-only (CI's mount): real directories holding links down to the SDK's bin,
+    # and the jar a copy, since Java creates default.jungle next to its real path.
+    shadow "$home" "$writable"
+    rm "$writable/Sdks"
+    shadow "$home/Sdks" "$writable/Sdks"
+    rm "$writable/Sdks/${sdk##*/}"
+    shadow "$sdk" "$writable/Sdks/${sdk##*/}"
+    rm "$writable/Sdks/${sdk##*/}/bin"
+    bin=$writable/Sdks/${sdk##*/}/bin
+    shadow "$sdk/bin" "$bin"
+    rm "$bin/monkeybrains.jar"
+    cp "$sdk/bin/monkeybrains.jar" "$bin/"
+    home=$writable
+    sdk=$writable/Sdks/${sdk##*/}
+  fi
   export JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS:-} -Duser.home=$keys/home"
 fi
 monkeyc=$sdk/bin/monkeyc

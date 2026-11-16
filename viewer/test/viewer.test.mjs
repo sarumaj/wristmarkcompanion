@@ -3,7 +3,9 @@
 // - every marker the page draws is found by the detector, with its ID, also seen
 //   at an angle and rotated;
 // - a frontal marker's pose gives the distance the camera model predicts;
-// - the viewer, fed a marker through Chromium's fake camera, reports its ID.
+// - the viewer, fed a marker through Chromium's fake camera, shows its model (or
+//   the gizmo for an ID without content) and the debug overlay;
+// - content.json passes its check, and the models stand on the marker.
 import { after, before, test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
@@ -163,11 +165,13 @@ async function markerVideo(id, path) {
   await writeFile(path, Buffer.concat([header, Buffer.from("FRAME\n"), y, u, v]));
 }
 
-test("the viewer, shown a marker by the camera, reports its ID and draws no error", async () => {
+// The viewer in a Chromium whose fake camera shows marker `id`, at `path`; calls
+// `check(page)` once it has found the marker, then fails on any page error.
+async function withCamera(id, path, check) {
   const directory = await mkdtemp(join(tmpdir(), "wristmark-"));
   try {
     const video = join(directory, "marker.y4m");
-    await markerVideo(23, video);
+    await markerVideo(id, video);
     const camera = await chromium.launch({
       args: [
         "--use-fake-ui-for-media-stream",
@@ -176,9 +180,9 @@ test("the viewer, shown a marker by the camera, reports its ID and draws no erro
       ],
     });
     try {
-      const { page, problems } = await open(await camera.newContext(), "/index.html?autostart");
-      await page.waitForSelector('body[data-marker-id="23"]', { timeout: 15000 });
-      assert.match(await page.locator("#status").textContent(), /^Marker 23, \d+ mm away$/);
+      const { page, problems } = await open(await camera.newContext(), path);
+      await page.waitForSelector(`body[data-marker-id="${id}"]`, { timeout: 15000 });
+      await check(page);
       assert.deepEqual(problems, []);
     } finally {
       await camera.close();
@@ -186,6 +190,62 @@ test("the viewer, shown a marker by the camera, reports its ID and draws no erro
   } finally {
     await rm(directory, { recursive: true, force: true });
   }
+}
+
+test("the viewer shows the model content.json gives the camera's marker, and the debug overlay", async () => {
+  await withCamera(1, "/index.html?autostart&debug", async (page) => {
+    assert.match(await page.locator("#status").textContent(), /^Marker 1 \(Torus knot\), \d+ mm away$/);
+    assert.equal(await page.locator("body").getAttribute("data-model"), "knot");
+    // The overlay is rewritten every 250 ms: wait for a second of frames.
+    await page.waitForTimeout(1200);
+    const debug = await page.locator("#debug").textContent();
+    assert.match(debug, /^ID {10}1$/m);
+    assert.match(debug, /^distance {4}\d+ mm$/m);
+    assert.match(debug, /^FPS {9}[1-9]\d*$/m);
+    assert.match(debug, /^detection {3}\d+ % of frames$/m);
+    assert.match(debug, /^camera {6}640x480$/m);
+    // The toggle hides it.
+    await page.locator("#debug-toggle").click();
+    assert.equal(await page.locator("#debug").isHidden(), true);
+  });
+});
+
+test("a marker without content gets the gizmo and says so", async () => {
+  await withCamera(23, "/index.html?autostart", async (page) => {
+    assert.match(await page.locator("#status").textContent(), /^Marker 23 \(no content\), \d+ mm away$/);
+    assert.equal(await page.locator("body").getAttribute("data-model"), null);
+    assert.equal(await page.locator("#debug").isHidden(), true);
+  });
+});
+
+test("content.json passes its check, and every model stands on the marker", async () => {
+  const context = await browser.newContext();
+  const { page, problems } = await open(context, "/index.html");
+  const results = await page.evaluate(async () => {
+    const THREE = await import("/vendor/three/three.module.js");
+    const { loadContent } = await import("/js/content.js");
+    const { createModel, MODEL_NAMES } = await import("/js/models.js");
+    const content = await loadContent("/content.json", MODEL_NAMES);
+    return {
+      mapped: [...content.values()].map((entry) => entry.model),
+      models: MODEL_NAMES.map((name) => {
+        const model = createModel(name, 20);
+        model.animate(1.5);
+        model.object.updateMatrixWorld(true);
+        const box = new THREE.Box3().setFromObject(model.object);
+        return { name, min: box.min.toArray(), max: box.max.toArray() };
+      }),
+    };
+  });
+  assert.deepEqual(new Set(results.mapped), new Set(results.models.map((model) => model.name)), "every model is mapped");
+  for (const { name, min, max } of results.models) {
+    // On the marker's face (z = 0) and above it, within a few marker sizes.
+    assert.ok(min[2] >= -0.5, `${name} starts at the marker's face: ${min}`);
+    assert.ok(max[2] > 5 && max[2] < 60, `${name} stands up out of the watch: ${max}`);
+    assert.ok(Math.max(...max.map(Math.abs), ...min.map(Math.abs)) < 60, `${name} is a few markers wide`);
+  }
+  assert.deepEqual(problems, []);
+  await context.close();
 });
 
 // The watch's table and the screen it draws, without the SDK: the codes of

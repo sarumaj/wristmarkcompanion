@@ -61,7 +61,7 @@ The pixel figures are from Garmin's
 [device reference](https://developer.garmin.com/connect-iq/device-reference/d2mach1/). The
 display's diameter comes from spec sheets
 ([the5krunner](https://the5krunner.com/specs/garmin/d2-mach-1/),
-[AVweb](https://www.avweb.com/?p=276908)), not from Garmin. The device test protocol includes
+[AVweb](https://www.avweb.com/?p=276908)), not from Garmin. The [device tests](device-tests.md) include
 measuring the marker on the watch with a ruler. The viewer's default marker size is 20 mm until
 then (`?size=18.6` on its URL uses this one).
 
@@ -103,8 +103,8 @@ use, the system's limit stays in force, and the user restarts a session by press
 
 **Open, for the device tests:** how long the D2 Mach 1 actually holds the display before
 refusing, whether a press resets the limit, and whether the app keeps the marker visible
-(dimmed) or the display turns off after a refusal. The test protocol (milestone 4) measures the
-session length.
+(dimmed) or the display turns off after a refusal. The [device tests](device-tests.md)
+(milestone 4) measure the session length.
 
 ## Glance: not added
 

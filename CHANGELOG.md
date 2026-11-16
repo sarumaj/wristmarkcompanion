@@ -14,6 +14,11 @@ All notable changes to this project are documented here. The format follows
 - The watch's launcher icon: marker 0, generated from the marker table.
 - `tools/simulate.sh`: the watch app in the Connect IQ simulator, in a container, with a
   screenshot.
+- The viewer's content: `content.json` maps marker IDs to models, checked on load; four
+  placeholder models generated in code; an ID without content shows the gizmo.
+- The viewer's debug overlay: ID, distance, FPS, detection rate and time, camera resolution.
+- The device test protocol (`docs/device-tests.md`): range, angle, session length, models.
+- `tools/build-watch.sh` runs on macOS too.
 - Decisions: js-aruco2 for detection, OpenCV's DICT_4X4_50 as the marker dictionary.
 - The watch's marker table, generated from js-aruco2's dictionary data.
 - The viewer behind nginx, with a Content-Security-Policy that keeps every connection on its own

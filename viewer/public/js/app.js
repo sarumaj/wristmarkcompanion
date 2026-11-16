@@ -1,9 +1,13 @@
-// The viewer: the rear camera's image, the marker found in it, and an axis gizmo
-// drawn where the marker is (milestone 2). Nothing leaves the browser: the frames
-// are read from a canvas here and dropped.
+// The viewer: the camera's image (a phone's rear camera, or a laptop's webcam), the
+// marker found in it, and the model content.json gives its ID drawn on it; an ID
+// without one gets an axis gizmo. A debug overlay shows what the range tests need.
+// Nothing leaves the browser: the frames are read from a canvas here and dropped.
 import * as THREE from "../vendor/three/three.module.js";
 import { MarkerTracker } from "./tracker.js";
 import { PoseSmoother } from "./smoothing.js";
+import { loadContent } from "./content.js";
+import { createModel, lights, MODEL_NAMES } from "./models.js";
+import { DebugStats } from "./debug.js";
 
 const params = new URLSearchParams(location.search);
 // The marker's black square, in millimeters: about the D2 Mach 1's (the watch's
@@ -20,6 +24,15 @@ const video = document.getElementById("camera");
 const overlay = document.getElementById("overlay");
 const status = document.getElementById("status");
 const start = document.getElementById("start");
+const debugPanel = document.getElementById("debug");
+const debugToggle = document.getElementById("debug-toggle");
+
+function showDebug(visible) {
+  debugPanel.hidden = !visible;
+  debugToggle.setAttribute("aria-pressed", String(visible));
+}
+showDebug(params.has("debug"));
+debugToggle.addEventListener("click", () => showDebug(debugPanel.hidden));
 
 function report(text, state) {
   status.textContent = text;
@@ -50,29 +63,56 @@ function scene() {
   const renderer = new THREE.WebGLRenderer({ canvas: overlay, alpha: true, antialias: true });
   const camera = new THREE.PerspectiveCamera(45, 1, 1, 10000);
   const world = new THREE.Scene();
+  world.add(...lights());
   const anchor = new THREE.Group();
   anchor.matrixAutoUpdate = false;
   // The gizmo: red x, green y, blue z out of the marker's face; and its outline.
-  anchor.add(new THREE.AxesHelper(MARKER_SIZE));
+  const gizmo = new THREE.Group();
+  gizmo.add(new THREE.AxesHelper(MARKER_SIZE));
   const half = MARKER_SIZE / 2;
   const outline = new THREE.BufferGeometry().setFromPoints(
     [[-half, half], [half, half], [half, -half], [-half, -half], [-half, half]].map(([x, y]) => new THREE.Vector3(x, y, 0)),
   );
-  anchor.add(new THREE.Line(outline, new THREE.LineBasicMaterial({ color: 0xffd200 })));
+  gizmo.add(new THREE.Line(outline, new THREE.LineBasicMaterial({ color: 0xffd200 })));
+  anchor.add(gizmo);
   anchor.visible = false;
   world.add(anchor);
-  return { renderer, camera, world, anchor };
+  return { renderer, camera, world, anchor, gizmo };
+}
+
+// What the anchor shows for marker `id`: its model, or the gizmo alone.
+function show(view, content, id) {
+  if (view.model) {
+    view.anchor.remove(view.model.object);
+    view.model = null;
+  }
+  const entry = content.get(id);
+  if (entry) {
+    view.model = createModel(entry.model, MARKER_SIZE);
+    view.anchor.add(view.model.object);
+    document.body.dataset.model = entry.model;
+  } else {
+    delete document.body.dataset.model;
+  }
+  // The gizmo with every model in the debug view, alone where there is no model.
+  view.gizmo.visible = !entry || !debugPanel.hidden;
+  return entry;
 }
 
 async function run() {
   start.hidden = true;
+  report("Loading the content…", "starting");
+  const content = await loadContent("content.json", MODEL_NAMES);
   report("Opening the camera…", "starting");
   await openCamera();
   const frame = document.createElement("canvas");
   const context = frame.getContext("2d", { willReadFrequently: true });
   const tracker = new MarkerTracker({ markerSize: MARKER_SIZE, fovDegrees: FOV_DEGREES });
-  const smoother = new PoseSmoother();
+  let smoother = new PoseSmoother();
   const view = scene();
+  const stats = new DebugStats();
+  let shownId = null;
+  let entry = null;
   report("Looking for a marker…", "searching");
 
   const loop = (now) => {
@@ -90,22 +130,43 @@ async function run() {
     view.camera.updateProjectionMatrix();
 
     context.drawImage(video, 0, 0, width, height);
+    const detectStart = performance.now();
     const markers = tracker.detect(context.getImageData(0, 0, width, height));
     const marker = markers[0];
     const pose = marker ? tracker.pose(marker, width, height) : null;
+    stats.frame(now, performance.now() - detectStart, Boolean(pose));
+
+    // Another marker: its own content, and a pose of its own from scratch.
+    if (marker && marker.id !== shownId) {
+      shownId = marker.id;
+      smoother = new PoseSmoother();
+      entry = show(view, content, shownId);
+    }
     const smoothed = pose ? smoother.update(pose, now) : smoother.lost(now);
     if (smoothed) {
       view.anchor.matrix.compose(smoothed.position, smoothed.quaternion, new THREE.Vector3(1, 1, 1));
       view.anchor.visible = true;
+      view.model?.animate(now / 1000);
+      view.gizmo.visible = !entry || !debugPanel.hidden;
     } else {
       view.anchor.visible = false;
     }
+    const distance = smoothed ? Math.round(-smoothed.position.z) : null;
     if (marker && pose) {
-      report(`Marker ${marker.id}, ${Math.round(-smoothed.position.z)} mm away`, "tracking");
+      const what = entry ? entry.name : "no content";
+      report(`Marker ${marker.id} (${what}), ${distance} mm away`, "tracking");
       document.body.dataset.markerId = String(marker.id);
     } else if (!smoothed) {
       report("Looking for a marker…", "searching");
       delete document.body.dataset.markerId;
+    }
+    if (!debugPanel.hidden) {
+      stats.render(debugPanel, now, {
+        id: smoothed ? shownId : null,
+        distance,
+        camera: `${video.videoWidth}x${video.videoHeight}`,
+        detection: `${width}x${height}`,
+      });
     }
     view.renderer.render(view.world, view.camera);
     requestAnimationFrame(loop);

@@ -6,16 +6,18 @@ draws a 3D model on top of the watch. Each marker ID shows a different model. Th
 install and no connection between the two: the marker ID is the only data channel, and the camera
 images never leave the device.
 
-Status: **milestone 2 done, milestone 3 in progress**. The watch app shows a marker on the D2
-Mach 1 in the simulator, and the viewer finds it in the camera image and draws an axis gizmo on
-it. A desktop page shows the markers for testing without a watch. Not yet tried on a real watch.
+Status: **milestone 4, waiting for the [device tests](docs/device-tests.md)**. The watch app
+shows a marker on the D2 Mach 1 in the simulator, switching IDs with its buttons. The viewer
+finds the marker in the camera image and draws the model `content.json` gives its ID (four
+placeholders), with a debug overlay for the range tests. A desktop page shows the markers for
+testing without a watch. Not yet tried on a real watch.
 
-| Part      | Where                | What                                                                                 |
-|-----------|----------------------|--------------------------------------------------------------------------------------|
-| Watch app | [`watch/`](watch/)   | Connect IQ device app (Monkey C), first target the D2 Mach 1                         |
-| Viewer    | [`viewer/`](viewer/) | Static web app with js-aruco2 and three.js, served by nginx                          |
-| Tools     | [`tools/`](tools/)   | The marker table and icon generators, the watch's build and simulator, smoke test    |
-| Docs      | [`docs/`](docs/)     | [Architecture](docs/architecture.md), [decisions](docs/decisions/), [CI](docs/ci.md) |
+| Part      | Where                | What                                                                                                                                     |
+|-----------|----------------------|------------------------------------------------------------------------------------------------------------------------------------------|
+| Watch app | [`watch/`](watch/)   | Connect IQ device app (Monkey C), first target the D2 Mach 1                                                                             |
+| Viewer    | [`viewer/`](viewer/) | Static web app with js-aruco2 and three.js, served by nginx                                                                              |
+| Tools     | [`tools/`](tools/)   | The marker table and icon generators, the watch's build and simulator, smoke test                                                        |
+| Docs      | [`docs/`](docs/)     | [Architecture](docs/architecture.md), [decisions](docs/decisions/), [content](docs/content.md), [watch](docs/watch.md), [CI](docs/ci.md) |
 
 ## Development
 

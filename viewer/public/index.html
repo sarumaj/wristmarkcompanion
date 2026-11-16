@@ -18,9 +18,13 @@
     <div class="stage">
       <video id="camera" playsinline muted></video>
       <canvas id="overlay"></canvas>
+      <pre id="debug" hidden></pre>
     </div>
     <p id="status" role="status">Point the camera at the watch's marker.</p>
-    <button id="start" type="button">Start the camera</button>
+    <p class="actions">
+      <button id="start" type="button">Start the camera</button>
+      <button id="debug-toggle" type="button" aria-pressed="false">Debug</button>
+    </p>
     <p class="links"><a href="markers.html">Markers for testing without a watch</a></p>
   </main>
 </body>
