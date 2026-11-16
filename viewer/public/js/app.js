@@ -19,6 +19,10 @@ const FOV_DEGREES = Number(params.get("fov")) || 65;
 // Frames are scaled to this width for detection: enough for the marker's cells at
 // the distances aimed at, fast enough on a mid-range phone (to be measured).
 const DETECT_WIDTH = 640;
+// The date the moon and the globe show: now, or ?date= (e.g. 2026-12-24T18:00Z) to
+// see another day, the clock running on from it.
+const DATE_OFFSET = params.has("date") ? Date.parse(params.get("date")) - Date.now() : 0;
+const now = () => new Date(Date.now() + DATE_OFFSET);
 
 const video = document.getElementById("camera");
 const overlay = document.getElementById("overlay");
@@ -88,7 +92,7 @@ function show(view, content, id) {
   }
   const entry = content.get(id);
   if (entry) {
-    view.model = createModel(entry.model, MARKER_SIZE);
+    view.model = createModel(entry.model, MARKER_SIZE, { now });
     view.anchor.add(view.model.object);
     document.body.dataset.model = entry.model;
   } else {
@@ -101,6 +105,9 @@ function show(view, content, id) {
 
 async function run() {
   start.hidden = true;
+  if (Number.isNaN(DATE_OFFSET)) {
+    throw new Error(`?date=${params.get("date")} is not a date (e.g. 2026-12-24T18:00Z)`);
+  }
   report("Loading the content…", "starting");
   const content = await loadContent("content.json", MODEL_NAMES);
   report("Opening the camera…", "starting");

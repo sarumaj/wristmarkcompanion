@@ -8,9 +8,10 @@ images never leave the device.
 
 Status: **milestone 4, waiting for the [device tests](docs/device-tests.md)**. The watch app
 shows a marker on the D2 Mach 1 in the simulator, switching IDs with its buttons. The viewer
-finds the marker in the camera image and draws the model `content.json` gives its ID (four
-placeholders), with a debug overlay for the range tests. A desktop page shows the markers for
-testing without a watch. Not yet tried on a real watch.
+finds the marker in the camera image and draws the model `content.json` gives its ID (the moon's
+phase, the Earth with day and night, a robot, a snow globe, and four placeholders), with a
+debug overlay for the range tests. A desktop page shows the markers for testing without a watch.
+Not yet tried on a real watch.
 
 | Part      | Where                | What                                                                                                                                                                                                         |
 |-----------|----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
