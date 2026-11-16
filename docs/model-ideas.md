@@ -1,8 +1,9 @@
 # Model ideas
 
-Status: **eleven built** (2026-11-16): the moon phase, the Earth with day and night, the
-orrery, the world clock, the landing demo, the helicopter, the mascot (a robot), the snow globe,
-the fireworks, a watch movement and an hourglass
+Status: **seventeen built** (2026-11-16): the moon phase, the Earth with day and night, the
+orrery, the world clock, the landing demo, the helicopter, the hot-air balloon, the rocket
+launch, the mascot (a robot), the snow globe, the fireworks, the dice, a campfire, an aquarium,
+a lighthouse, a watch movement and an hourglass
 ([content](content.md)). The rest are ideas for the owner to choose
 from; nothing else is decided.
 

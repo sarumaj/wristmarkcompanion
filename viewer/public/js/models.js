@@ -8,8 +8,9 @@ import * as THREE from "../vendor/three/three.module.js";
 import { standing } from "./standing.js";
 import { earth, moon, orrery, worldClock } from "./sky-models.js";
 import { hourglass, movement } from "./clock-models.js";
-import { fireworks, robot, snowglobe } from "./fun-models.js";
-import { helicopter, landing } from "./aviation-models.js";
+import { dice, fireworks, robot, snowglobe } from "./fun-models.js";
+import { aquarium, campfire, lighthouse } from "./nature-models.js";
+import { balloon, helicopter, landing, rocket } from "./aviation-models.js";
 
 const MODELS = {
   moon,
@@ -23,6 +24,12 @@ const MODELS = {
   movement,
   hourglass,
   helicopter,
+  dice,
+  campfire,
+  aquarium,
+  lighthouse,
+  balloon,
+  rocket,
 
   // A cube with a color per face, on the marker, turning slowly.
   cube(size) {

@@ -2,6 +2,7 @@
 // in a loop of the time alone.
 import * as THREE from "../vendor/three/three.module.js";
 import { standing } from "./standing.js";
+import { label } from "./label.js";
 
 const PERIOD = 12;
 
@@ -237,6 +238,143 @@ export function helicopter(size) {
       // The pad's lights chase around it while the helicopter is away.
       const lit = Math.floor(t * 8) % edge.length;
       edge.forEach((light, i) => (light.material.emissiveIntensity = lift > 0.05 && i !== lit ? 0.25 : 1.5));
+    },
+  };
+}
+
+// A hot-air balloon drifting above the watch: a striped envelope, a wicker basket on
+// its ropes, and the burner firing for a second every eight, which lifts it a little;
+// between burns it sinks gently back.
+export function balloon(size) {
+  const radius = size * 0.32;
+  // The envelope's outline, from the mouth at the bottom to the crown, turned about y.
+  const outline = [];
+  for (let i = 0; i <= 24; i++) {
+    const k = i / 24;
+    const angle = -Math.PI * 0.5 + k * Math.PI * 1.0;
+    const r = k < 0.35 ? radius * (0.22 + 0.78 * Math.sin((k / 0.35) * Math.PI * 0.5) ** 1.4) : radius * Math.cos(Math.max(0, angle));
+    outline.push(new THREE.Vector2(Math.max(r, 0.001), radius * 1.15 * k * 1.6));
+  }
+  const geometry = new THREE.LatheGeometry(outline, 24);
+  // Stripes: each of the 24 gores a color, through vertex colors.
+  const palette = [0xe63946, 0xf1c40f, 0x2a9d8f, 0xf1faee].map((hex) => new THREE.Color(hex));
+  const colors = [];
+  const segments = 24;
+  for (let segment = 0; segment <= segments; segment++) {
+    for (let i = 0; i <= 24; i++) {
+      const color = palette[Math.floor(segment / 2) % palette.length];
+      colors.push(color.r, color.g, color.b);
+    }
+  }
+  geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+  const envelope = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.6, side: THREE.DoubleSide }));
+  const wicker = new THREE.MeshStandardMaterial({ color: 0x9c6b3c, roughness: 0.9 });
+  const basket = box(size * 0.13, size * 0.1, size * 0.13, wicker, 0, -size * 0.2, 0);
+  const ropes = new THREE.LineSegments(
+    new THREE.BufferGeometry().setFromPoints([-1, 1].flatMap((x) => [-1, 1].flatMap((z) => [
+      new THREE.Vector3(x * size * 0.06, -size * 0.15, z * size * 0.06),
+      new THREE.Vector3(x * radius * 0.16, 0, z * radius * 0.16),
+    ]))),
+    new THREE.LineBasicMaterial({ color: 0x3b2a1a }),
+  );
+  const flame = new THREE.Mesh(
+    new THREE.ConeGeometry(size * 0.04, size * 0.16, 10, 1, true),
+    new THREE.MeshBasicMaterial({ color: 0xffa62b, transparent: true, opacity: 0.9, depthWrite: false, blending: THREE.AdditiveBlending }),
+  );
+  flame.position.y = -size * 0.06;
+  const craft = new THREE.Group();
+  craft.add(envelope, basket, ropes, flame);
+  const shadow = new THREE.Mesh(new THREE.CircleGeometry(size * 0.2, 32), new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.25, depthWrite: false }));
+  shadow.rotation.x = -Math.PI / 2;
+  shadow.position.y = size * 0.005;
+  const { root } = standing(craft, shadow);
+  return {
+    object: root,
+    animate: (t) => {
+      const phase = t % 8;
+      const burning = phase < 1;
+      flame.visible = burning;
+      flame.scale.y = 0.8 + 0.4 * Math.abs(Math.sin(t * 30));
+      // Up while burning and a moment after, then sinking back.
+      const lift = phase < 1.5 ? Math.sin((phase / 1.5) * Math.PI * 0.5) : Math.cos(((phase - 1.5) / 6.5) * Math.PI * 0.5);
+      craft.position.set(size * 0.12 * Math.sin(t * 0.21), size * (0.55 + 0.12 * lift), size * 0.1 * Math.cos(t * 0.17));
+      craft.rotation.y = t * 0.15;
+      shadow.position.x = craft.position.x;
+      shadow.position.z = craft.position.z;
+    },
+  };
+}
+
+// A rocket launch from a pad on the watch, every 14 seconds: the countdown on a label,
+// ignition and smoke, lift-off, faster and faster out of sight, and the pad again.
+export function rocket(size) {
+  const white = new THREE.MeshStandardMaterial({ color: 0xf4f6f8, roughness: 0.4, metalness: 0.2 });
+  const dark = new THREE.MeshStandardMaterial({ color: 0x2b2f36, roughness: 0.6 });
+  const red = new THREE.MeshStandardMaterial({ color: 0xd62828, roughness: 0.5 });
+  const pad = new THREE.Group();
+  pad.add(box(size * 0.6, size * 0.03, size * 0.6, new THREE.MeshStandardMaterial({ color: 0x6b6f76, roughness: 0.9 }), 0, size * 0.015, 0));
+  // The service tower beside it.
+  pad.add(box(size * 0.06, size * 0.75, size * 0.06, red, size * 0.17, size * 0.4, 0));
+  pad.add(box(size * 0.12, size * 0.02, size * 0.03, red, size * 0.11, size * 0.6, 0));
+  const vehicle = new THREE.Group();
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(size * 0.06, size * 0.06, size * 0.55, 20), white);
+  body.position.y = size * 0.3;
+  const nose = new THREE.Mesh(new THREE.ConeGeometry(size * 0.06, size * 0.16, 20), red);
+  nose.position.y = size * 0.655;
+  const band = new THREE.Mesh(new THREE.CylinderGeometry(size * 0.061, size * 0.061, size * 0.04, 20), dark);
+  band.position.y = size * 0.45;
+  vehicle.add(body, nose, band);
+  for (let i = 0; i < 4; i++) {
+    const fin = box(size * 0.01, size * 0.12, size * 0.08, red);
+    const angle = (i / 4) * Math.PI * 2;
+    fin.position.set(Math.cos(angle) * size * 0.08, size * 0.08, Math.sin(angle) * size * 0.08);
+    fin.rotation.y = -angle;
+    vehicle.add(fin);
+  }
+  // The exhaust: a cone hanging from the rocket's base, its point down.
+  const plumeLength = size * 0.3;
+  const plumeGeometry = new THREE.ConeGeometry(size * 0.05, plumeLength, 16, 1, true);
+  plumeGeometry.rotateX(Math.PI);
+  plumeGeometry.translate(0, -plumeLength / 2, 0);
+  const plume = new THREE.Mesh(
+    plumeGeometry,
+    new THREE.MeshBasicMaterial({ color: 0xffb347, transparent: true, opacity: 0.9, depthWrite: false, blending: THREE.AdditiveBlending }),
+  );
+  vehicle.add(plume);
+  vehicle.position.y = size * 0.03;
+  // Smoke: grey puffs spreading on the pad from ignition on.
+  const puffs = Array.from({ length: 10 }, (_, i) => {
+    const puff = new THREE.Mesh(new THREE.SphereGeometry(size * 0.08, 12, 8), new THREE.MeshStandardMaterial({ color: 0xd9d9d9, transparent: true, opacity: 0, roughness: 1, depthWrite: false }));
+    puff.userData.angle = (i / 10) * Math.PI * 2;
+    return puff;
+  });
+  const text = label(size * 0.7);
+  text.sprite.position.set(-size * 0.35, size * 0.95, 0);
+  const { root } = standing(pad, vehicle, ...puffs, text.sprite);
+  return {
+    object: root,
+    animate: (t) => {
+      const phase = t % 14;
+      const ignition = 4;
+      const flight = Math.max(0, phase - ignition - 0.8);
+      text.update(phase < ignition ? [`T-${Math.ceil(ignition - phase)}`] : phase < 9 ? ["Liftoff!"] : ["Next launch"]);
+      text.sprite.visible = phase < 11;
+      // Up with constant acceleration, gone above 2.2 marker sizes.
+      const height = 0.5 * 0.9 * flight * flight * size * 0.35;
+      vehicle.visible = height < size * 2.2 && phase < 12;
+      vehicle.position.y = size * 0.03 + height;
+      vehicle.position.x = size * 0.02 * Math.sin(t * 40) * (phase > ignition ? 1 : 0) * (flight < 0.5 ? 1 : 0);
+      plume.visible = phase > ignition && vehicle.visible;
+      // Never longer than the rocket is high: on the pad it spreads into the smoke.
+      const length = 0.8 + 0.4 * Math.abs(Math.sin(t * 35)) + Math.min(1.5, flight * 0.5);
+      plume.scale.set(1, Math.max(0.05, Math.min(length, vehicle.position.y / plumeLength)), 1);
+      const smoke = phase > ignition ? Math.min(1, (phase - ignition) / 3) : 0;
+      puffs.forEach((puff, i) => {
+        const spread = size * (0.1 + 0.35 * smoke);
+        puff.position.set(Math.cos(puff.userData.angle) * spread, size * (0.06 + 0.05 * (i % 3)) + smoke * size * 0.1, Math.sin(puff.userData.angle) * spread);
+        puff.scale.setScalar(0.6 + smoke);
+        puff.material.opacity = phase > ignition ? 0.7 * (1 - Math.max(0, (phase - 9) / 4)) : 0;
+      });
     },
   };
 }

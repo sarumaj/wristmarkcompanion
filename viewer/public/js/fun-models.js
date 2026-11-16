@@ -213,3 +213,64 @@ export function fireworks(size) {
     },
   };
 }
+
+// A die's face: `pips` dots on ivory, drawn on a canvas.
+function dieFace(pips) {
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = 128;
+  const context = canvas.getContext("2d");
+  context.fillStyle = "#f7f3ea";
+  context.fillRect(0, 0, 128, 128);
+  context.fillStyle = pips === 1 ? "#c8102e" : "#1b1f24";
+  const at = { 1: [[2, 2]], 2: [[1, 1], [3, 3]], 3: [[1, 1], [2, 2], [3, 3]], 4: [[1, 1], [1, 3], [3, 1], [3, 3]],
+    5: [[1, 1], [1, 3], [2, 2], [3, 1], [3, 3]], 6: [[1, 1], [1, 2], [1, 3], [3, 1], [3, 2], [3, 3]] }[pips];
+  for (const [col, row] of at) {
+    context.beginPath();
+    context.arc(col * 32, row * 32, pips === 1 ? 16 : 12, 0, Math.PI * 2);
+    context.fill();
+  }
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return new THREE.MeshStandardMaterial({ map: texture, roughness: 0.35 });
+}
+
+// BoxGeometry's faces are +x, -x, +y, -y, +z, -z; opposite faces add up to 7. The
+// turn that brings each value's face up (+y).
+const DIE_VALUES = [3, 4, 1, 6, 2, 5];
+const FACE_UP = { 1: [0, 0, 0], 6: [Math.PI, 0, 0], 3: [0, 0, Math.PI / 2], 4: [0, 0, -Math.PI / 2], 2: [-Math.PI / 2, 0, 0], 5: [Math.PI / 2, 0, 0] };
+
+// Two dice thrown onto the watch every five seconds: they tumble in, bounce and settle
+// on a new roll, which stays a while. The rolls follow from the time, so they look
+// random but need no state (a flick of the wrist will throw them, docs/interaction.md).
+export function dice(size) {
+  const side = size * 0.28;
+  const faces = DIE_VALUES.map(dieFace);
+  const pair = [-1, 1].map((sideOf) => {
+    const turn = new THREE.Group();
+    const die = new THREE.Mesh(new THREE.BoxGeometry(side, side, side), faces);
+    turn.add(die);
+    return { sideOf, turn, die };
+  });
+  const felt = new THREE.Mesh(new THREE.CylinderGeometry(size * 0.55, size * 0.55, size * 0.02, 48), new THREE.MeshStandardMaterial({ color: 0x0f5c3a, roughness: 0.95 }));
+  felt.position.y = size * 0.01;
+  const { root } = standing(felt, ...pair.map(({ turn }) => turn));
+  const period = 5;
+  const roll = (round, which) => 1 + Math.floor(((Math.sin(round * 12.9898 + which * 78.233) * 43758.5453) % 1 + 1) % 1 * 6);
+  return {
+    object: root,
+    animate: (t) => {
+      const round = Math.floor(t / period);
+      const k = Math.min(1, (t % period) / 1.4);
+      const ease = 1 - (1 - k) ** 3;
+      pair.forEach(({ sideOf, turn, die }, which) => {
+        const value = roll(round, which);
+        const [x, y, z] = FACE_UP[value];
+        const spin = (1 - ease) * 9;
+        die.rotation.set(x + spin * (1.3 + which), y + spin, z + spin * 0.7);
+        turn.rotation.y = (round * 1.7 + which) % (Math.PI * 2);
+        const bounce = Math.abs(Math.sin(k * Math.PI * 3)) * (1 - k) * size * 0.35;
+        turn.position.set(sideOf * size * (0.2 + 0.4 * (1 - ease)), size * 0.02 + side / 2 + size * 0.9 * (1 - ease) ** 2 + bounce, -size * 0.3 * (1 - ease) + sideOf * size * 0.05);
+      });
+    },
+  };
+}

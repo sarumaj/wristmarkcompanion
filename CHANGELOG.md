@@ -8,6 +8,9 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Six more models (markers 15 to 20), from the time alone: dice rolling onto the watch, a
+  campfire, an aquarium, a lighthouse, a hot-air balloon and a rocket launch. The watch shows
+  them too (`MarkerContent.mc`).
 - Four more models (markers 11 to 14), from the time alone: a world clock (the Earth from
   above the North Pole with eight cities' local times), an open watch movement whose hands
   show the time, an hourglass that runs out every minute, and a helicopter lifting off from a

@@ -14,6 +14,12 @@
     "11": { "model": "worldClock", "name": "World clock" },
     "12": { "model": "movement", "name": "Watch movement" },
     "13": { "model": "hourglass", "name": "Hourglass" },
-    "14": { "model": "helicopter", "name": "Helicopter" }
+    "14": { "model": "helicopter", "name": "Helicopter" },
+    "15": { "model": "dice", "name": "Dice" },
+    "16": { "model": "campfire", "name": "Campfire" },
+    "17": { "model": "aquarium", "name": "Aquarium" },
+    "18": { "model": "lighthouse", "name": "Lighthouse" },
+    "19": { "model": "balloon", "name": "Hot-air balloon" },
+    "20": { "model": "rocket", "name": "Rocket launch" }
   }
 }

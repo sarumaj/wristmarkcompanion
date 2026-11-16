@@ -33,16 +33,18 @@ the axis gizmo for any other ID. It works the same on a phone (rear camera) and 
 ## The models
 
 All of them are generated in code with three.js (`js/models.js`, `js/sky-models.js`,
-`js/fun-models.js`, `js/aviation-models.js`, `js/clock-models.js`), so there are no asset
-files and nothing to license apart from this project's own code (GPL-3.0) and Natural Earth's
-land, which is in the public domain. Each stands on the marker's face, sized from the marker's
-side, and moves a little so that it reads as 3D.
+`js/fun-models.js`, `js/aviation-models.js`, `js/clock-models.js`, `js/nature-models.js`), so
+there are no asset files and nothing to license apart from this project's own code (GPL-3.0)
+and Natural Earth's land, which is in the public domain. Each stands on the marker's face,
+sized from the marker's side, and moves a little so that it reads as 3D.
 
 ![The moon on 2026-11-16, the Earth at noon UTC that day, the robot and the snow globe](images/models.png)
 
 ![The planets on 2026-11-16, the landing at its flare, the fireworks](images/models-2.png)
 
 ![The world clock at 14:23 UTC, the watch movement, the hourglass and the helicopter hovering](images/models-3.png)
+
+![Dice rolling in, the campfire, the aquarium and the rocket lifting off](images/models-4.png)
 
 | ID  | Model        | What                                                                                                                                                              |
 |-----|--------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -61,6 +63,12 @@ side, and moves a little so that it reads as 3D.
 | 12  | `movement`   | An open mechanical movement under a glass dome: the gear train turning, the escape wheel stepping, the balance swinging at 2.5 Hz, the hands showing the time now |
 | 13  | `hourglass`  | An hourglass that runs out every minute and turns over at the full minute                                                                                         |
 | 14  | `helicopter` | A helicopter on a helipad: the rotor spins up, it lifts off, hovers turning once around, lands and spins down; the pad's lights chase while it's away             |
+| 15  | `dice`       | Two dice thrown onto the watch every five seconds: they tumble in, bounce and land on a new roll                                                                  |
+| 16  | `campfire`   | A campfire in a ring of stones: flickering flames, rising embers and a flickering orange light                                                                    |
+| 17  | `aquarium`   | A glass bowl with sand, swaying plants, three fish swimming their rounds and bubbles rising                                                                       |
+| 18  | `lighthouse` | A red and white lighthouse on a rock in the sea, its beam turning every six seconds                                                                               |
+| 19  | `balloon`    | A striped hot-air balloon drifting above the watch, the burner firing every eight seconds                                                                         |
+| 20  | `rocket`     | A rocket launch every 14 seconds: the countdown, ignition and smoke, lift-off out of sight                                                                        |
 
 ### The moon, the Earth and the planets
 
