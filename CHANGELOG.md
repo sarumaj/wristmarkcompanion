@@ -8,6 +8,10 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- The control channel's relay (`relay/`, [004](docs/decisions/004-control-channel.md)): channels
+  created by token hashes, a queue each way, the watch's long-poll over its channels, the viewer's
+  event stream with resume, the limits, nothing logged; a 10 MB image that checks its own health.
+  Not deployed yet.
 - The phone's tilt for the attitude indicator, the maze and the penguin: a button switches on its
   motion sensors (`deviceorientation`), and gravity comes from them instead of the image's down.
   The Permissions-Policy allows the sensors for the viewer's origin; the privacy page says so.

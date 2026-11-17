@@ -66,7 +66,29 @@ jobs:
       - name: Run the end-to-end tests
         run: npm test --prefix viewer
 
-  # The image is built and tested here, pushed nowhere (deployment: milestone 5).
+  # The control channel's relay (relay/, docs/decisions/004-control-channel.md):
+  # formatted, vetted, and its tests under the race detector.
+  relay:
+    runs-on: docker
+    timeout-minutes: 10
+    container: docker.io/library/golang:1.27-bookworm
+    defaults:
+      run:
+        working-directory: relay
+    steps:
+      - name: Check out repository
+        uses: https://github.com/actions/checkout@v7
+
+      - name: Check the formatting
+        run: test -z "$(gofmt -l .)" || { gofmt -l .; exit 1; }
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Run the tests
+        run: go test -race -count=1 ./...
+
+  # The images are built and tested here, pushed nowhere (deployment: milestone 5).
   image:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -80,9 +102,24 @@ jobs:
       - name: Smoke test
         run: tools/smoke-test.sh "wristmark-viewer:ci-${GITHUB_RUN_ID}"
 
-      - name: Remove the image
+      # The relay's image: it starts as nobody and its own health check passes.
+      - name: Build and check the relay's image
+        run: |
+          image="wristmark-relay:ci-${GITHUB_RUN_ID}"
+          docker build --pull --no-cache -t "$image" relay
+          docker run -d --name "relay-${GITHUB_RUN_ID}" "$image"
+          for _ in $(seq 20); do
+            status=$(docker inspect -f '{{.State.Health.Status}}' "relay-${GITHUB_RUN_ID}")
+            [ "$status" = healthy ] && break
+            sleep 1
+          done
+          docker exec "relay-${GITHUB_RUN_ID}" /relay -check
+
+      - name: Remove the images
         if: always()
-        run: docker image rm -f "wristmark-viewer:ci-${GITHUB_RUN_ID}" || true
+        run: |
+          docker rm -f "relay-${GITHUB_RUN_ID}" || true
+          docker image rm -f "wristmark-viewer:ci-${GITHUB_RUN_ID}" "wristmark-relay:ci-${GITHUB_RUN_ID}" || true
 
   # The watch app compiled for every device in its manifest. The Connect IQ SDK
   # can't be downloaded here (its license, docs/ci.md): it's installed by hand on
