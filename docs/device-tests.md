@@ -197,6 +197,8 @@ Whatever stood out: how holding the phone and the watch felt, what was annoying,
 
 ## What happens with the results
 
+Each run's results and what came of them: [2026-11-17, a laptop's webcam](device-tests/2026-11-17-laptop.md).
+
 They decide the next steps: whether js-aruco2 is fast enough or OpenCV.js is needed
 ([001](decisions/001-detection-library.md)), the detection resolution and smoothing, whether
 the watch's layout should change, and how the display-on handling should behave.

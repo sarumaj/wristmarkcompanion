@@ -49,6 +49,10 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
+- After the first device test ([results](docs/device-tests/2026-11-17-laptop.md)): the viewer
+  detects once per camera frame, not at every display refresh (the FPS read 120 on a 30-frame
+  camera); the detection's width grows toward the camera's own where it is fast, for range and
+  for distances read true far away; a dimming noted before the marker was seen counts as 0 s.
 - From a customer's view ([review](docs/ux-review.md)): the status names the model and its
   hint and gives tips when the watch isn't found; errors say what to do; a Help dialog; buttons
   that do what the gestures do; keys; full screen; a camera switch; the marker page names the

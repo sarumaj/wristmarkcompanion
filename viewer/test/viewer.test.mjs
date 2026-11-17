@@ -272,6 +272,8 @@ test("the viewer shows the model content.json gives the camera's marker, and the
     assert.equal(await row("id"), "1");
     assert.match(await row("distance"), /^\d+ mm$/);
     assert.match(await row("fps"), /^[1-9]\d*$/);
+    // Once per camera frame (the fake camera's 30 a second), not per display refresh.
+    assert.ok(Number(await row("fps")) <= 32, `fps ${await row("fps")}`);
     assert.match(await row("detection"), /^\d+ %$/);
     assert.match(await row("camera"), /^640x480$/);
     assert.equal(await page.locator("#debug .debug-chart").count(), 1);

@@ -28,9 +28,15 @@ const MODEL_SCALE = Number(params.get("scale")) || 2.5;
 const SCREEN_RATIO = params.has("screen") ? Number(params.get("screen")) : 416 / 234;
 // The camera's horizontal field of view, assumed (docs/decisions/003-pose.md).
 const FOV_DEGREES = Number(params.get("fov")) || 65;
-// Frames are scaled to this width for detection: enough for the marker's cells at
-// the distances aimed at, fast enough on a mid-range phone (to be measured).
-const DETECT_WIDTH = 640;
+// Frames are scaled to a width for detection: 640 pixels to start with, enough for the
+// marker's cells at arm's length and fast on a mid-range phone. Where detection is
+// quick, the width grows toward the camera's own, so that a far marker keeps enough
+// pixels (at 75 cm, 640 pixels leave it 13 wide: its distance read 16 % short in the
+// first device test); where it is slow, it shrinks back. ?detect= fixes the width.
+const DETECT_WIDTHS = params.has("detect") ? [Number(params.get("detect"))] : [640, 960, 1280, 1920];
+// Faster than this on average (ms), the next width; slower than the second, the one before.
+const DETECT_FAST_MS = 6;
+const DETECT_SLOW_MS = 18;
 // The date the moon and the globe show: now, or ?date= (e.g. 2026-12-24T18:00Z) to
 // see another day, the clock running on from it.
 const DATE_OFFSET = params.has("date") ? Date.parse(params.get("date")) - Date.now() : 0;
@@ -301,9 +307,55 @@ async function run() {
   let handsAt = -Infinity;
   if (params.has("hands")) setHands(true);
 
+  // Detection once per camera frame: the display refreshes faster (60 or 120 times a
+  // second) than a camera delivers (about 30), and a frame looked at twice tells nothing
+  // new. Drawing goes on at the display's rate, for smooth animations. Without
+  // requestVideoFrameCallback, a new frame is one with another time.
+  let cameraFrames = 0;
+  let handledFrame = -1;
+  let handledTime = -1;
+  if (video.requestVideoFrameCallback) {
+    const count = () => {
+      cameraFrames++;
+      video.requestVideoFrameCallback(count);
+    };
+    video.requestVideoFrameCallback(count);
+  }
+  const freshFrame = () => {
+    if (video.requestVideoFrameCallback) {
+      if (cameraFrames === handledFrame) return false;
+      handledFrame = cameraFrames;
+      return true;
+    }
+    if (video.currentTime === handledTime) return false;
+    handledTime = video.currentTime;
+    return true;
+  };
+  // The last camera frame's findings, kept for the display's frames in between.
+  let marker = null;
+  let pose = null;
+  let smoothed = null;
+  let detectMs = 0;
+  let image = null;
+
+  // The detection's width, as DETECT_WIDTHS allows and the camera has, looked at again
+  // every two seconds.
+  let widthIndex = 0;
+  let widthCheckedAt = performance.now();
+  const adaptWidth = (now) => {
+    if (now - widthCheckedAt < 2000) return;
+    widthCheckedAt = now;
+    const { detectMs: average, fps } = stats.summary();
+    if (!fps) return;
+    const next = DETECT_WIDTHS[widthIndex + 1];
+    if (average < DETECT_FAST_MS && next && next <= video.videoWidth) widthIndex++;
+    else if (average > DETECT_SLOW_MS && widthIndex > 0) widthIndex--;
+  };
+
   const loop = (now) => {
-    const width = DETECT_WIDTH;
-    const height = Math.round((DETECT_WIDTH * video.videoHeight) / video.videoWidth);
+    adaptWidth(now);
+    const width = Math.min(DETECT_WIDTHS[widthIndex], video.videoWidth || DETECT_WIDTHS[0]);
+    const height = Math.round((width * video.videoHeight) / video.videoWidth);
     if (frame.width !== width || frame.height !== height) {
       frame.width = width;
       frame.height = height;
@@ -315,35 +367,37 @@ async function run() {
     view.camera.aspect = width / height;
     view.camera.updateProjectionMatrix();
 
-    context.drawImage(video, 0, 0, width, height);
-    const detectStart = performance.now();
-    const image = context.getImageData(0, 0, width, height);
-    const markers = tracker.detect(image);
-    const marker = markers[0];
-    const pose = marker ? tracker.pose(marker, width, height) : null;
-    const detectMs = performance.now() - detectStart;
-    stats.frame(now, detectMs, Boolean(pose));
+    const fresh = freshFrame();
+    if (fresh) {
+      context.drawImage(video, 0, 0, width, height);
+      const detectStart = performance.now();
+      image = context.getImageData(0, 0, width, height);
+      marker = tracker.detect(image)[0] ?? null;
+      pose = marker ? tracker.pose(marker, width, height) : null;
+      detectMs = performance.now() - detectStart;
+      stats.frame(now, detectMs, Boolean(pose));
 
-    // Another marker: its own content, and a pose of its own from scratch.
-    if (marker && marker.id !== shownId) {
-      shownId = marker.id;
-      smoother = new PoseSmoother();
-      gestures.reset();
-      turntable.reset();
-      entry = show(view, content, shownId);
-    }
-    const smoothed = pose ? smoother.update(pose, now) : smoother.lost(now);
-    const recognized = gestures.update(
-      pose && smoothed
-        ? { t: now, tracked: true, position: smoothed.position.toArray(), quaternion: smoothed.quaternion.toArray() }
-        : { t: now, tracked: false },
-    );
-    for (const event of recognized) {
-      lastGesture = event;
-      // A gesture the model reacts to is confirmed for a moment; any shows in the debug view.
-      const handled = view.model?.gesture?.(event) === true;
-      document.body.dataset.gesture = event.name;
-      if (handled || !debugPanel.hidden) acknowledge(event.name);
+      // Another marker: its own content, and a pose of its own from scratch.
+      if (marker && marker.id !== shownId) {
+        shownId = marker.id;
+        smoother = new PoseSmoother();
+        gestures.reset();
+        turntable.reset();
+        entry = show(view, content, shownId);
+      }
+      smoothed = pose ? smoother.update(pose, now) : smoother.lost(now);
+      const recognized = gestures.update(
+        pose && smoothed
+          ? { t: now, tracked: true, position: smoothed.position.toArray(), quaternion: smoothed.quaternion.toArray() }
+          : { t: now, tracked: false },
+      );
+      for (const event of recognized) {
+        lastGesture = event;
+        // A gesture the model reacts to is confirmed for a moment; any shows in the debug view.
+        const handled = view.model?.gesture?.(event) === true;
+        document.body.dataset.gesture = event.name;
+        if (handled || !debugPanel.hidden) acknowledge(event.name);
+      }
     }
     if (smoothed) {
       view.anchor.matrix.compose(smoothed.position, smoothed.quaternion, new THREE.Vector3(1, 1, 1));
@@ -363,7 +417,7 @@ async function run() {
       view.anchor.visible = false;
     }
     const distance = smoothed ? Math.round(-smoothed.position.z) : null;
-    if (guide) {
+    if (guide && fresh) {
       guide.frame(guideFrame(now, detectMs, pose && marker, smoothed, image));
     }
     if (marker && pose) {
