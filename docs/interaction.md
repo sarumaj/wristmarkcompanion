@@ -86,6 +86,13 @@ The models with a tap of their own:
 | Satellite       | A ping: its light flashes, a ring spreads                            |
 | Sundial         | It says the time it reads, or that it's night                        |
 | Lava lamp       | The next colors: sunset, ocean, lime                                 |
+| Castle          | The drawbridge goes up, or down                                      |
+| House           | The lights switch, the other way from what the hour has them         |
+| Snowman         | It tips its hat                                                      |
+| Puzzle cube     | It hurries: three times as fast until it is solved                   |
+| Black hole      | It gets a star, which spirals in, stretched, and flares              |
+| Treasure chest  | It closes, or opens                                                  |
+| Rain cloud      | Lightning, twice                                                     |
 
 ## Further ideas
 

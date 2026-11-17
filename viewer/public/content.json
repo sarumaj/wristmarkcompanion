@@ -42,6 +42,13 @@
     "39": { "model": "raceTrack", "name": "Race track" },
     "40": { "model": "satellite", "name": "Satellite" },
     "41": { "model": "sundial", "name": "Sundial" },
-    "42": { "model": "lavaLamp", "name": "Lava lamp" }
+    "42": { "model": "lavaLamp", "name": "Lava lamp" },
+    "43": { "model": "castle", "name": "Castle" },
+    "44": { "model": "house", "name": "House" },
+    "45": { "model": "snowman", "name": "Snowman" },
+    "46": { "model": "puzzleCube", "name": "Puzzle cube" },
+    "47": { "model": "blackHole", "name": "Black hole" },
+    "48": { "model": "treasureChest", "name": "Treasure chest" },
+    "49": { "model": "raincloud", "name": "Rain cloud" }
   }
 }

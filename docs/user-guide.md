@@ -80,14 +80,15 @@ picture. It is new: tell us how it works for you.
 
 ## The models
 
-43 of them, from the sky to a campfire: the moon in tonight's phase, the Earth with day and night as
-they are now, the planets around the sun as they stand today, a world clock, an open watch movement
-showing the time, an hourglass, an aircraft's attitude indicator that follows your wrist, a landing,
-a helicopter, a hot-air balloon, a rocket launch, a windmill, a sailboat, a Ferris wheel lit at
-night, a bonsai in today's season, dice, a marble maze you tilt, fireworks, a snow globe, a
-campfire, an aquarium, a lighthouse, a volcano, an atom, DNA, a Newton's cradle, a metronome, a UFO,
-a toy train, a birthday cake, a jellyfish, butterflies, a carousel, a race track, a satellite, a
-sundial, a lava lamp, a robot, a penguin, and four simple shapes. [The full
+50 of them, one for every marker, from the sky to a campfire: the moon in tonight's phase, the Earth
+with day and night as they are now, the planets around the sun as they stand today, a world clock,
+an open watch movement showing the time, an hourglass, an aircraft's attitude indicator that follows
+your wrist, a landing, a helicopter, a hot-air balloon, a rocket launch, a windmill, a sailboat, a
+Ferris wheel lit at night, a bonsai in today's season, dice, a marble maze you tilt, fireworks, a
+snow globe, a campfire, an aquarium, a lighthouse, a volcano, an atom, DNA, a Newton's cradle, a
+metronome, a UFO, a toy train, a birthday cake, a jellyfish, butterflies, a carousel, a race track,
+a satellite, a sundial, a lava lamp, a castle, a house, a snowman, a puzzle cube, a black hole, a
+treasure chest, a rain cloud, a robot, a penguin, and four simple shapes. [The full
 list](content.md#the-models) says what each one does.
 
 ## When something doesn't work
@@ -99,7 +100,6 @@ list](content.md#the-models) says what each one does.
 | "The camera is busy in another app" | Close the video call or camera app that uses it, then **Try again**                                         |
 | "Can't see the watch"               | Hold it 20 to 50 cm away, display toward the camera; more light, less glare; turn the watch's brightness up |
 | The model shakes or jumps           | Hold the phone steadier, come a little closer, or turn the watch less steeply away                          |
-| "Marker 30 has no model yet"        | The watch shows only markers with a model; this one came from the markers page, which shows every ID        |
 | The watch's display turned off      | Press a button on the watch: the marker comes back. Watches limit how long an app may keep the display on   |
 | At night, in red light (night mode) | It works; hold the watch a little closer                                                                    |
 | More than one camera, the wrong one | The switch button on the camera image changes it                                                            |

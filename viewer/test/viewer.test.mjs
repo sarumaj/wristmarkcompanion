@@ -35,7 +35,7 @@ after(async () => {
 });
 
 // A page that fails the test on any error in its console or any CSP violation.
-async function open(context, path) {
+async function open(context, path, prepare = async () => {}) {
   const page = await context.newPage();
   const problems = [];
   page.on("console", (message) => message.type() === "error" && problems.push(message.text()));
@@ -45,6 +45,7 @@ async function open(context, path) {
       console.error(`CSP violation: ${event.violatedDirective} ${event.blockedURI}`),
     ),
   );
+  await prepare(page);
   await page.goto(`${server.url}${path}`);
   return { page, problems };
 }
@@ -185,6 +186,13 @@ test("the models that react to a tap take it, and the action buttons reach them"
     // What the sundial reads depends on the clock.
     sundial: result.reacting.sundial,
     lavaLamp: "Ocean",
+    castle: "Drawbridge up",
+    house: "Lights",
+    snowman: "Hello!",
+    puzzleCube: "Hurry",
+    blackHole: "Fed a star",
+    treasureChest: "Closed",
+    raincloud: "Thunder",
   });
   assert.match(result.reacting.sundial, /^(The sundial reads \d\d:\d\d|Night: no shadow)$/);
   assert.deepEqual(result.orphans, []);
@@ -237,7 +245,7 @@ async function markerVideo(id, path) {
 
 // The viewer in a Chromium whose fake camera shows marker `id`, at `path`; calls
 // `check(page)` once it has found the marker, then fails on any page error.
-async function withCamera(id, path, check) {
+async function withCamera(id, path, check, prepare) {
   const directory = await mkdtemp(join(tmpdir(), "wristmark-"));
   try {
     const video = join(directory, "marker.y4m");
@@ -250,7 +258,7 @@ async function withCamera(id, path, check) {
       ],
     });
     try {
-      const { page, problems } = await open(await camera.newContext(), path);
+      const { page, problems } = await open(await camera.newContext(), path, prepare);
       await page.waitForSelector(`body[data-marker-id="${id}"]`, { timeout: 15000 });
       await check(page);
       assert.deepEqual(problems, []);
@@ -363,12 +371,19 @@ test("hand tracking loads under the CSP, from the viewer's own origin, and looks
 });
 
 test("a marker without content gets the gizmo and says so", async () => {
+  // Every ID has a model: this one is taken out of the content the page gets.
+  const withoutLast = async (page) =>
+    page.route("**/content.json", async (route) => {
+      const content = await (await route.fetch()).json();
+      delete content.markers["49"];
+      await route.fulfill({ json: content });
+    });
   await withCamera(49, "/index.html?autostart", async (page) => {
     assert.equal(await page.locator("#status").textContent(), "Marker 49 has no model yet");
     assert.equal(await page.locator("body").getAttribute("data-model"), null);
     assert.equal(await page.locator("body").getAttribute("data-screen"), null);
     assert.equal(await page.locator("#debug").isHidden(), true);
-  });
+  }, withoutLast);
 });
 
 test("the guided device test measures a range step and reports it", async () => {

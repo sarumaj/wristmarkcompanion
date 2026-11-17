@@ -17,6 +17,8 @@ import { atom, dna, metronome, newtonsCradle } from "./science-models.js";
 import { cake, train, ufo, volcano } from "./play-models.js";
 import { butterflies, jellyfish } from "./life-models.js";
 import { carousel, lavaLamp, raceTrack } from "./fair-models.js";
+import { castle, house, raincloud, snowman, treasureChest } from "./home-models.js";
+import { blackHole, puzzleCube } from "./wonder-models.js";
 
 const MODELS = {
   moon,
@@ -58,6 +60,13 @@ const MODELS = {
   satellite,
   sundial,
   lavaLamp,
+  castle,
+  house,
+  snowman,
+  puzzleCube,
+  blackHole,
+  treasureChest,
+  raincloud,
 
   // A cube with a color per face, on the marker, turning slowly.
   cube(size) {
@@ -174,6 +183,13 @@ export const MODEL_GUIDES = {
   satellite: { hint: "Tap it to ping the satellite", actions: [{ label: "Ping", touch: true }] },
   sundial: { hint: "The shadow of your clock's time; tap it to read it", actions: [{ label: "Read", touch: true }] },
   lavaLamp: { hint: "Tap it for other colors", actions: [{ label: "Colors", touch: true }] },
+  castle: { hint: "Tap it to lower or raise the drawbridge", actions: [{ label: "Drawbridge", touch: true }] },
+  house: { hint: "Lit after dark; tap it to switch the lights", actions: [{ label: "Lights", touch: true }] },
+  snowman: { hint: "Tap it and it tips its hat", actions: [{ label: "Tip the hat", touch: true }] },
+  puzzleCube: { hint: "It scrambles and solves itself; tap it to hurry", actions: [{ label: "Hurry", touch: true }] },
+  blackHole: { hint: "Tap it to feed it a star", actions: [{ label: "Feed a star", touch: true }] },
+  treasureChest: { hint: "Tap it to open or close it", actions: [{ label: "Open or close", touch: true }] },
+  raincloud: { hint: "A rainbow after the rain; tap it for thunder", actions: [{ label: "Thunder", touch: true }] },
   orrery: {
     hint: "Tap a planet for its name; twist your wrist to move a month",
     actions: [

@@ -8,6 +8,9 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- The last seven models (markers 43 to 49): a castle with a drawbridge, a house lit after dark, a
+  snowman, a puzzle cube that scrambles and solves itself, a black hole, a treasure chest and a
+  rain cloud with a rainbow. Every marker now has a model, and the watch shows all 50.
 - A picture of every model in `docs/content.md`'s table, rendered from the models themselves at
   a fixed date (`viewer/tools/render-models.mjs`); a test fails while a mapped model has none.
   They replace six strips that left out the placeholders, the lighthouse and the balloon.

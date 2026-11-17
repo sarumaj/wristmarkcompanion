@@ -43,7 +43,7 @@ test("every mapped model has its picture, and the table in docs/content.md shows
   for (const [id, { model, name }] of Object.entries(markers)) {
     assert.ok(pictures.has(`${model}.webp`), `docs/images/models/${model}.webp is missing: run viewer/tools/render-models.mjs`);
     const row = new RegExp(`^\\| ${id} +\\| !\\[${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\]\\(images/models/${model}\\.webp\\) +\\| \`${model}\` +\\|`, "m");
-    assert.match(table, row, `docs/content.md has no row for marker ${id} with its picture`);
+    assert.ok(row.test(table), `docs/content.md has no row for marker ${id} with its picture`);
   }
   const stale = [...pictures].filter((file) => !models.has(file.replace(/\.webp$/, "")));
   assert.deepEqual(stale, [], "pictures of models no longer mapped");

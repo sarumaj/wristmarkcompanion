@@ -197,6 +197,13 @@ where it's day now?
 | 40  | Satellite            |                    |         |       |
 | 41  | Sundial              |                    |         |       |
 | 42  | Lava lamp            |                    |         |       |
+| 43  | Castle               |                    |         |       |
+| 44  | House                |                    |         |       |
+| 45  | Snowman              |                    |         |       |
+| 46  | Puzzle cube          |                    |         |       |
+| 47  | Black hole           |                    |         |       |
+| 48  | Treasure chest       |                    |         |       |
+| 49  | Rain cloud           |                    |         |       |
 
 ## 5. Anything else
 

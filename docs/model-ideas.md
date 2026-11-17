@@ -1,13 +1,15 @@
 # Model ideas
 
-Status: **thirty-nine built** (2026-11-17): the moon phase, the Earth with day and night, the
-orrery, the world clock, the landing demo, the helicopter, the hot-air balloon, the rocket launch,
-the mascots (a robot, a penguin), the snow globe, the fireworks, the dice, a campfire, an aquarium,
-a lighthouse, a watch movement, an hourglass, the attitude indicator (relative to the camera), the
-marble maze, a windmill, a sailboat, a Ferris wheel, a bonsai through the seasons, an atom, DNA, a
-Newton's cradle, a metronome, a volcano, a UFO, a toy train, a birthday cake, a jellyfish,
-butterflies, a carousel, a race track, a satellite, a sundial (from the clock, without the location)
-and a lava lamp ([content](content.md)). The rest are ideas for the owner to choose from; nothing
+Status: **forty-six built** (2026-11-17); with the four placeholders, every one of the 50 markers
+has a model: the moon phase, the Earth with day and night, the orrery, the world clock, the landing
+demo, the helicopter, the hot-air balloon, the rocket launch, the mascots (a robot, a penguin), the
+snow globe, the fireworks, the dice, a campfire, an aquarium, a lighthouse, a watch movement, an
+hourglass, the attitude indicator (relative to the camera), the marble maze, a windmill, a sailboat,
+a Ferris wheel, a bonsai through the seasons, an atom, DNA, a Newton's cradle, a metronome, a
+volcano, a UFO, a toy train, a birthday cake, a jellyfish, butterflies, a carousel, a race track, a
+satellite, a sundial (from the clock, without the location), a lava lamp, a castle, a house lit
+after dark, a snowman, a puzzle cube solving itself, a black hole, a treasure chest and a rain cloud
+with a rainbow ([content](content.md)). The rest are ideas for the owner to choose from; nothing
 else is decided.
 
 The marker ID is the only data from the watch, so a model can use only what the viewer itself

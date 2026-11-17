@@ -39,6 +39,10 @@ const MOMENTS = {
   ufo: { t: 9 },
   raceTrack: { t: 6 },
   sundial: { t: 1, date: "2026-11-16T10:00:00" },
+  house: { t: 2, date: "2026-11-16T20:00:00" },
+  puzzleCube: { t: 3.1 },
+  raincloud: { t: 15 },
+  blackHole: { t: 3 },
 };
 
 // The cameras: at an angle from the watch's bottom edge, or head-on and turned (for the

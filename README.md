@@ -17,13 +17,15 @@ The [user guide](docs/user-guide.md) has the gestures, the tips for a steady mod
 when something doesn't work. No watch at hand? The viewer's **Markers** page shows them on any
 screen.
 
-- **43 models**, all made in code: the sky (the moon's phase, the Earth with day and night, the
-  planets, a world clock, a satellite), time (a watch movement, an hourglass, a sundial, a
-  metronome), science (an atom, DNA, a Newton's cradle), flight (an attitude indicator, a
-  landing, a helicopter, a balloon, a rocket launch, a UFO), places (a windmill, a sailboat, a
-  Ferris wheel, a carousel, a race track, a bonsai through the seasons, a volcano, a lighthouse)
-  and fun (dice, a marble maze, fireworks, a snow globe, a campfire, an aquarium, a jellyfish,
-  butterflies, a lava lamp, a robot, a penguin, a toy train, a birthday cake). [The full list](docs/content.md#the-models).
+- **50 models, one for every marker**, all made in code: the sky (the moon's phase, the Earth with
+  day and night, the planets, a world clock, a satellite, a black hole), time (a watch movement, an
+  hourglass, a sundial, a metronome), science (an atom, DNA, a Newton's cradle, a puzzle cube that
+  solves itself), flight (an attitude indicator, a landing, a helicopter, a balloon, a rocket
+  launch, a UFO), places (a windmill, a sailboat, a Ferris wheel, a carousel, a race track, a
+  castle, a house, a bonsai through the seasons, a volcano, a lighthouse, a rain cloud) and fun
+  (dice, a marble maze, fireworks, a snow globe, a snowman, a campfire, an aquarium, a jellyfish,
+  butterflies, a lava lamp, a treasure chest, a robot, a penguin, a toy train, a birthday cake).
+  [The full list](docs/content.md#the-models).
 - **Move your wrist:** flick, shake or twist it, and the model reacts. Buttons do the same.
 - **Any size:** pinch, scroll or `+` and `−`; full screen with `F`.
 - **Private:** the camera's image is processed in the browser and never leaves the device. No

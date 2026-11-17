@@ -24,8 +24,8 @@ the axis gizmo for any other ID. It works the same on a phone (rear camera) and 
 - **The watch shows only the mapped IDs:** `tools/generate-content-ids.mjs` writes them into
   `watch/source/MarkerContent.mc`, which its next and previous buttons and its automatic cycle
   step through. Run it after changing the mapping; CI fails while the watch's list is stale.
-- **An ID without an entry** shows the axis gizmo, and the status says "no content": the
-  marker page shows every ID, the watch only the mapped ones.
+- **Every ID has a model**, 0 to 49. An ID without an entry (in a changed mapping) would show
+  the axis gizmo, and the status would say it has no model yet.
 - **Size:** each model is built 2.5 times the marker's size (`?scale=` sets it), so that it reads
   well at arm's length; it may reach well beyond the watch. Two fingers pinching, the mouse
   wheel or a trackpad's pinch make it larger or smaller (0.3 to 6 times that), a double tap or
@@ -36,7 +36,7 @@ the axis gizmo for any other ID. It works the same on a phone (rear camera) and 
   on a dark watch face instead of the marker. Detection still reads the camera's own image. In
   the debug view the marker shows through; `?screen=0` leaves it visible.
 - **What the status says:** the model's name and its hint ("Dice · Tap it, flick or shake your
-  wrist to roll"), "Marker 23 has no model yet" for an ID without one, and tips when the watch
+  wrist to roll"), "Marker N has no model yet" for an ID without one, and tips when the watch
   hasn't been seen for 6 seconds. Buttons under a model do what its gestures do (`MODEL_GUIDES` in
   `js/models.js`).
 - **Help, keys, full screen:** the **Help** dialog (also `?`) explains the steps, tips, gestures
@@ -52,12 +52,12 @@ the axis gizmo for any other ID. It works the same on a phone (rear camera) and 
 All of them are generated in code with three.js (`js/models.js`, `js/sky-models.js`,
 `js/fun-models.js`, `js/aviation-models.js`, `js/clock-models.js`, `js/nature-models.js`,
 `js/pose-models.js`, `js/scene-models.js`, `js/science-models.js`, `js/play-models.js`,
-`js/life-models.js`, `js/fair-models.js`), so there are no asset files and nothing to license apart
-from this project's own code (GPL-3.0) and Natural Earth's land, which is in the public domain. Each
-stands on the marker's face, sized from the marker's side, and moves a little so that it reads as
-3D. The pictures are rendered from the models themselves, at a fixed date
-(`viewer/tools/render-models.mjs`): run it after adding or changing a model; a test fails while a
-mapped model has no picture.
+`js/life-models.js`, `js/fair-models.js`, `js/home-models.js`, `js/wonder-models.js`), so there are
+no asset files and nothing to license apart from this project's own code (GPL-3.0) and Natural
+Earth's land, which is in the public domain. Each stands on the marker's face, sized from the
+marker's side, and moves a little so that it reads as 3D. The pictures are rendered from the models
+themselves, at a fixed date (`viewer/tools/render-models.mjs`): run it after adding or changing a
+model; a test fails while a mapped model has no picture.
 
 | ID  | Picture                                              | Model           | What                                                                                                                                                                 |
 |-----|------------------------------------------------------|-----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -104,6 +104,13 @@ mapped model has no picture.
 | 40  | ![Satellite](images/models/satellite.webp)           | `satellite`     | A satellite circling the Earth (day and night as now) on the space station's inclined orbit, an orbit in 20 seconds; a tap pings it                                  |
 | 41  | ![Sundial](images/models/sundial.webp)               | `sundial`       | A garden sundial set for 50° north: the shadow falls where the sun would put it at your clock's time, none at night; a tap reads it                                  |
 | 42  | ![Lava lamp](images/models/lavaLamp.webp)            | `lavaLamp`      | A lava lamp, wax blobs rising and sinking and stretching; a tap changes its colors                                                                                   |
+| 43  | ![Castle](images/models/castle.webp)                 | `castle`        | A castle on a hill: four towers with flags in the wind, walls with battlements, a keep; a tap raises or lowers the drawbridge                                        |
+| 44  | ![House](images/models/house.webp)                   | `house`         | A house in its garden, smoke from the chimney, its windows lit after dark (18 to 7 o'clock); a tap switches the lights                                               |
+| 45  | ![Snowman](images/models/snowman.webp)               | `snowman`       | A snowman with a hat and a scarf in the wind, snow falling; a tap makes it tip its hat                                                                               |
+| 46  | ![Puzzle cube](images/models/puzzleCube.webp)        | `puzzleCube`    | A 3 by 3 by 3 twisting puzzle that scrambles itself in twelve turns and solves itself, turn by turn; a tap hurries it                                                |
+| 47  | ![Black hole](images/models/blackHole.webp)          | `blackHole`     | A black hole with a ring of light and a disk of glowing gas, faster and hotter inside; a tap feeds it a star that spirals in                                         |
+| 48  | ![Treasure chest](images/models/treasureChest.webp)  | `treasureChest` | A treasure chest on the sand, gold glowing, sparkles rising; a tap closes or opens it                                                                                |
+| 49  | ![Rain cloud](images/models/raincloud.webp)          | `raincloud`     | A rain cloud over a meadow: twelve seconds of rain, then a rainbow; a tap brings lightning                                                                           |
 
 ### How the watch is held
 
