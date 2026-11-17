@@ -55,65 +55,55 @@ All of them are generated in code with three.js (`js/models.js`, `js/sky-models.
 `js/life-models.js`, `js/fair-models.js`), so there are no asset files and nothing to license apart
 from this project's own code (GPL-3.0) and Natural Earth's land, which is in the public domain. Each
 stands on the marker's face, sized from the marker's side, and moves a little so that it reads as
-3D.
+3D. The pictures are rendered from the models themselves, at a fixed date
+(`viewer/tools/render-models.mjs`): run it after adding or changing a model; a test fails while a
+mapped model has no picture.
 
-![The moon on 2026-11-16, the Earth at noon UTC that day, the robot and the snow globe](images/models.png)
-
-![The planets on 2026-11-16, the landing at its flare, the fireworks](images/models-2.png)
-
-![The world clock at 14:23 UTC, the watch movement, the hourglass and the helicopter hovering](images/models-3.png)
-
-![Dice rolling in, the campfire, the aquarium and the rocket lifting off](images/models-4.png)
-
-![The attitude indicator banked 31° left, the marble maze, the penguin, the windmill, the sailboat, the Ferris wheel lit at night, the bonsai in spring and in winter](images/models-5.png)
-
-![The atom, the DNA, the Newton's cradle, the metronome, the volcano erupting, the UFO beaming up the cow, the toy train and the birthday cake](images/models-6.png)
-
-| ID  | Model           | What                                                                                                                                                                 |
-|-----|-----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 0   | `moon`          | The moon in its phase now, lit from the sun's side wherever the camera is; a label with the lit share and the next full or new moon                                  |
-| 1   | `earth`         | The Earth with day and night as they are now, the terminator moving; a yellow meridian at the viewer's time zone                                                     |
-| 2   | `robot`         | A robot mascot: it bobs, looks around, blinks and waves                                                                                                              |
-| 3   | `snowglobe`     | A snow globe with a fir tree, the snow drifting down                                                                                                                 |
-| 4   | `cube`          | Placeholder: a cube with a color per face, turning slowly                                                                                                            |
-| 5   | `knot`          | Placeholder: a torus knot above the marker, turning                                                                                                                  |
-| 6   | `planet`        | Placeholder: a planet with a ring and a moon orbiting it                                                                                                             |
-| 7   | `crystal`       | Placeholder: a flat-shaded crystal floating up and down                                                                                                              |
-| 8   | `orrery`        | The planets around the sun as they stand today: true directions, distances not to scale; a label with the date                                                       |
-| 9   | `landing`       | A plane landing on a runway along the watch: approach, flare, touchdown, rollout, with edge and approach lights                                                      |
-| 10  | `fireworks`     | Rockets rising from the watch and bursting, the sparks falling and fading                                                                                            |
-| 11  | `worldClock`    | The Earth seen from above the North Pole, day and night as they are now, and eight cities around it at their longitudes with their local time                        |
-| 12  | `movement`      | An open mechanical movement under a glass dome: the gear train turning, the escape wheel stepping, the balance swinging at 2.5 Hz, the hands showing the time now    |
-| 13  | `hourglass`     | An hourglass that runs out every minute and turns over at the full minute                                                                                            |
-| 14  | `helicopter`    | A helicopter on a helipad: the rotor spins up, it lifts off, hovers turning once around, lands and spins down; the pad's lights chase while it's away                |
-| 15  | `dice`          | Two dice thrown onto the watch every five seconds: they tumble in, bounce and land on a new roll                                                                     |
-| 16  | `campfire`      | A campfire in a ring of stones: flickering flames, rising embers and a flickering orange light                                                                       |
-| 17  | `aquarium`      | A glass bowl with sand, swaying plants, three fish swimming their rounds and bubbles rising                                                                          |
-| 18  | `lighthouse`    | A red and white lighthouse on a rock in the sea, its beam turning every six seconds                                                                                  |
-| 19  | `balloon`       | A striped hot-air balloon drifting above the watch, the burner firing every eight seconds                                                                            |
-| 20  | `rocket`        | A rocket launch every 14 seconds: the countdown, ignition and smoke, lift-off out of sight                                                                           |
-| 21  | `attitude`      | An aircraft's attitude indicator: its ball stays level with the camera's image, so turning the wrist banks it and tilting the watch pitches it; a label reads both   |
-| 22  | `maze`          | A round labyrinth: tilt the watch away from the camera on one side and the ball rolls that way, through the walls' gaps to the middle; a label says how long it took |
-| 23  | `penguin`       | A penguin on an ice floe: it shifts from foot to foot, blinks, flaps, and keeps upright in the image as the wrist turns, swaying back; a tap makes it hop            |
-| 24  | `windmill`      | A Dutch windmill among tulips, its sails turning in a wind that swells now and then; a tap brings a gust                                                             |
-| 25  | `sailboat`      | A sailboat sailing in circles on waves, heeling and rocking; a tap makes it come about and sail the other way                                                        |
-| 26  | `ferrisWheel`   | A Ferris wheel turning, its gondolas hanging level; the rim's lights chase after dark (18 to 7 o'clock), or for a while after a tap                                  |
-| 27  | `bonsai`        | A bonsai as the season is today: blossoms in spring, green in summer, orange leaves falling in autumn, snow in winter; a tap shakes it                               |
-| 28  | `atom`          | A carbon atom as Bohr drew it: twelve nucleons, six electrons on three tilted orbits; a tap excites them                                                             |
-| 29  | `dna`           | A strand of DNA turning, its base pairs colored by base; a tap unzips it in the middle for a moment                                                                  |
-| 30  | `newtonsCradle` | A Newton's cradle: the outer ball swings in, the one at the other end swings out, losing a little each time; a tap lifts one more (up to three)                      |
-| 31  | `metronome`     | A metronome ticking at 60 to 144 beats a minute, a light on each beat (no sound); a tap sets the next tempo                                                          |
-| 32  | `volcano`       | A volcano on an island, smoking; every 15 seconds it erupts, glowing bombs flying in arcs; a tap erupts it                                                           |
-| 33  | `ufo`           | A UFO over a meadow: its beam lifts the cow up and lets it down again, unharmed; a tap starts the beam                                                               |
-| 34  | `train`         | A toy steam train going round a circular track, puffing smoke; a tap blows the whistle and it speeds up                                                              |
-| 35  | `cake`          | A birthday cake with six flickering candles; a tap blows them out, smoke rises, and they light again                                                                 |
-| 36  | `jellyfish`     | A glowing jellyfish over rocks, its bell pulsing, tentacles trailing, rising with each pulse; a tap makes it swim up                                                 |
-| 37  | `butterflies`   | Three butterflies fluttering over a patch of flowers, each on its own path; a tap scatters them                                                                      |
-| 38  | `carousel`      | A carousel: a striped roof with chasing lights, six horses going up and down; a tap speeds it up                                                                     |
-| 39  | `raceTrack`     | Two race cars lapping an oval, the lead changing; a label counts the laps; a tap boosts the red one                                                                  |
-| 40  | `satellite`     | A satellite circling the Earth (day and night as now) on the space station's inclined orbit, an orbit in 20 seconds; a tap pings it                                  |
-| 41  | `sundial`       | A garden sundial set for 50° north: the shadow falls where the sun would put it at your clock's time, none at night; a tap reads it                                  |
-| 42  | `lavaLamp`      | A lava lamp, wax blobs rising and sinking and stretching; a tap changes its colors                                                                                   |
+| ID  | Picture                                              | Model           | What                                                                                                                                                                 |
+|-----|------------------------------------------------------|-----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 0   | ![Moon phase](images/models/moon.webp)               | `moon`          | The moon in its phase now, lit from the sun's side wherever the camera is; a label with the lit share and the next full or new moon                                  |
+| 1   | ![Earth, day and night](images/models/earth.webp)    | `earth`         | The Earth with day and night as they are now, the terminator moving; a yellow meridian at the viewer's time zone                                                     |
+| 2   | ![Robot](images/models/robot.webp)                   | `robot`         | A robot mascot: it bobs, looks around, blinks and waves                                                                                                              |
+| 3   | ![Snow globe](images/models/snowglobe.webp)          | `snowglobe`     | A snow globe with a fir tree, the snow drifting down                                                                                                                 |
+| 4   | ![Cube](images/models/cube.webp)                     | `cube`          | Placeholder: a cube with a color per face, turning slowly                                                                                                            |
+| 5   | ![Torus knot](images/models/knot.webp)               | `knot`          | Placeholder: a torus knot above the marker, turning                                                                                                                  |
+| 6   | ![Planet](images/models/planet.webp)                 | `planet`        | Placeholder: a planet with a ring and a moon orbiting it                                                                                                             |
+| 7   | ![Crystal](images/models/crystal.webp)               | `crystal`       | Placeholder: a flat-shaded crystal floating up and down                                                                                                              |
+| 8   | ![The planets today](images/models/orrery.webp)      | `orrery`        | The planets around the sun as they stand today: true directions, distances not to scale; a label with the date                                                       |
+| 9   | ![Landing](images/models/landing.webp)               | `landing`       | A plane landing on a runway along the watch: approach, flare, touchdown, rollout, with edge and approach lights                                                      |
+| 10  | ![Fireworks](images/models/fireworks.webp)           | `fireworks`     | Rockets rising from the watch and bursting, the sparks falling and fading                                                                                            |
+| 11  | ![World clock](images/models/worldClock.webp)        | `worldClock`    | The Earth seen from above the North Pole, day and night as they are now, and eight cities around it at their longitudes with their local time                        |
+| 12  | ![Watch movement](images/models/movement.webp)       | `movement`      | An open mechanical movement under a glass dome: the gear train turning, the escape wheel stepping, the balance swinging at 2.5 Hz, the hands showing the time now    |
+| 13  | ![Hourglass](images/models/hourglass.webp)           | `hourglass`     | An hourglass that runs out every minute and turns over at the full minute                                                                                            |
+| 14  | ![Helicopter](images/models/helicopter.webp)         | `helicopter`    | A helicopter on a helipad: the rotor spins up, it lifts off, hovers turning once around, lands and spins down; the pad's lights chase while it's away                |
+| 15  | ![Dice](images/models/dice.webp)                     | `dice`          | Two dice thrown onto the watch every five seconds: they tumble in, bounce and land on a new roll                                                                     |
+| 16  | ![Campfire](images/models/campfire.webp)             | `campfire`      | A campfire in a ring of stones: flickering flames, rising embers and a flickering orange light                                                                       |
+| 17  | ![Aquarium](images/models/aquarium.webp)             | `aquarium`      | A glass bowl with sand, swaying plants, three fish swimming their rounds and bubbles rising                                                                          |
+| 18  | ![Lighthouse](images/models/lighthouse.webp)         | `lighthouse`    | A red and white lighthouse on a rock in the sea, its beam turning every six seconds                                                                                  |
+| 19  | ![Hot-air balloon](images/models/balloon.webp)       | `balloon`       | A striped hot-air balloon drifting above the watch, the burner firing every eight seconds                                                                            |
+| 20  | ![Rocket launch](images/models/rocket.webp)          | `rocket`        | A rocket launch every 14 seconds: the countdown, ignition and smoke, lift-off out of sight                                                                           |
+| 21  | ![Attitude indicator](images/models/attitude.webp)   | `attitude`      | An aircraft's attitude indicator: its ball stays level with the camera's image, so turning the wrist banks it and tilting the watch pitches it; a label reads both   |
+| 22  | ![Marble maze](images/models/maze.webp)              | `maze`          | A round labyrinth: tilt the watch away from the camera on one side and the ball rolls that way, through the walls' gaps to the middle; a label says how long it took |
+| 23  | ![Penguin](images/models/penguin.webp)               | `penguin`       | A penguin on an ice floe: it shifts from foot to foot, blinks, flaps, and keeps upright in the image as the wrist turns, swaying back; a tap makes it hop            |
+| 24  | ![Windmill](images/models/windmill.webp)             | `windmill`      | A Dutch windmill among tulips, its sails turning in a wind that swells now and then; a tap brings a gust                                                             |
+| 25  | ![Sailboat](images/models/sailboat.webp)             | `sailboat`      | A sailboat sailing in circles on waves, heeling and rocking; a tap makes it come about and sail the other way                                                        |
+| 26  | ![Ferris wheel](images/models/ferrisWheel.webp)      | `ferrisWheel`   | A Ferris wheel turning, its gondolas hanging level; the rim's lights chase after dark (18 to 7 o'clock), or for a while after a tap                                  |
+| 27  | ![Bonsai](images/models/bonsai.webp)                 | `bonsai`        | A bonsai as the season is today: blossoms in spring, green in summer, orange leaves falling in autumn, snow in winter; a tap shakes it                               |
+| 28  | ![Atom](images/models/atom.webp)                     | `atom`          | A carbon atom as Bohr drew it: twelve nucleons, six electrons on three tilted orbits; a tap excites them                                                             |
+| 29  | ![DNA](images/models/dna.webp)                       | `dna`           | A strand of DNA turning, its base pairs colored by base; a tap unzips it in the middle for a moment                                                                  |
+| 30  | ![Newton's cradle](images/models/newtonsCradle.webp) | `newtonsCradle` | A Newton's cradle: the outer ball swings in, the one at the other end swings out, losing a little each time; a tap lifts one more (up to three)                      |
+| 31  | ![Metronome](images/models/metronome.webp)           | `metronome`     | A metronome ticking at 60 to 144 beats a minute, a light on each beat (no sound); a tap sets the next tempo                                                          |
+| 32  | ![Volcano](images/models/volcano.webp)               | `volcano`       | A volcano on an island, smoking; every 15 seconds it erupts, glowing bombs flying in arcs; a tap erupts it                                                           |
+| 33  | ![UFO](images/models/ufo.webp)                       | `ufo`           | A UFO over a meadow: its beam lifts the cow up and lets it down again, unharmed; a tap starts the beam                                                               |
+| 34  | ![Toy train](images/models/train.webp)               | `train`         | A toy steam train going round a circular track, puffing smoke; a tap blows the whistle and it speeds up                                                              |
+| 35  | ![Birthday cake](images/models/cake.webp)            | `cake`          | A birthday cake with six flickering candles; a tap blows them out, smoke rises, and they light again                                                                 |
+| 36  | ![Jellyfish](images/models/jellyfish.webp)           | `jellyfish`     | A glowing jellyfish over rocks, its bell pulsing, tentacles trailing, rising with each pulse; a tap makes it swim up                                                 |
+| 37  | ![Butterflies](images/models/butterflies.webp)       | `butterflies`   | Three butterflies fluttering over a patch of flowers, each on its own path; a tap scatters them                                                                      |
+| 38  | ![Carousel](images/models/carousel.webp)             | `carousel`      | A carousel: a striped roof with chasing lights, six horses going up and down; a tap speeds it up                                                                     |
+| 39  | ![Race track](images/models/raceTrack.webp)          | `raceTrack`     | Two race cars lapping an oval, the lead changing; a label counts the laps; a tap boosts the red one                                                                  |
+| 40  | ![Satellite](images/models/satellite.webp)           | `satellite`     | A satellite circling the Earth (day and night as now) on the space station's inclined orbit, an orbit in 20 seconds; a tap pings it                                  |
+| 41  | ![Sundial](images/models/sundial.webp)               | `sundial`       | A garden sundial set for 50° north: the shadow falls where the sun would put it at your clock's time, none at night; a tap reads it                                  |
+| 42  | ![Lava lamp](images/models/lavaLamp.webp)            | `lavaLamp`      | A lava lamp, wax blobs rising and sinking and stretching; a tap changes its colors                                                                                   |
 
 ### How the watch is held
 

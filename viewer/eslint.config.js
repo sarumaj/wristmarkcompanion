@@ -8,6 +8,11 @@ export default [
     languageOptions: { globals: globals.browser },
   },
   {
+    // Node scripts whose page.evaluate() callbacks run in the browser, as the tests'.
+    files: ["tools/**/*.mjs"],
+    languageOptions: { globals: { ...globals.node, ...globals.browser } },
+  },
+  {
     files: ["eslint.config.js"],
     languageOptions: { globals: globals.node },
   },

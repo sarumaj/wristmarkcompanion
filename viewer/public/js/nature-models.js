@@ -2,26 +2,10 @@
 // the time alone, from three.js's shapes.
 import * as THREE from "../vendor/three/three.module.js";
 import { standing } from "./standing.js";
+import { dot } from "./dot.js";
 
 // A smooth, never-repeating-looking wobble from a few sines: -1 to 1.
 const wobble = (t, seed) => (Math.sin(t * 7.1 + seed) + Math.sin(t * 11.3 + seed * 2.1) * 0.6 + Math.sin(t * 17.9 + seed * 3.7) * 0.3) / 1.9;
-
-// A soft round dot, white, for points to be drawn with instead of squares; made once.
-let dotTexture = null;
-function dot() {
-  if (dotTexture) return dotTexture;
-  const canvas = document.createElement("canvas");
-  canvas.width = canvas.height = 64;
-  const context = canvas.getContext("2d");
-  const gradient = context.createRadialGradient(32, 32, 0, 32, 32, 32);
-  gradient.addColorStop(0, "rgba(255, 255, 255, 1)");
-  gradient.addColorStop(0.5, "rgba(255, 255, 255, 0.8)");
-  gradient.addColorStop(1, "rgba(255, 255, 255, 0)");
-  context.fillStyle = gradient;
-  context.fillRect(0, 0, 64, 64);
-  dotTexture = new THREE.CanvasTexture(canvas);
-  return dotTexture;
-}
 
 // Points that rise and fade in a loop, each from where `start(i)` puts it: embers,
 // bubbles. Their places are functions of the time, so they need no state.
