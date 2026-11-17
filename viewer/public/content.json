@@ -20,6 +20,13 @@
     "17": { "model": "aquarium", "name": "Aquarium" },
     "18": { "model": "lighthouse", "name": "Lighthouse" },
     "19": { "model": "balloon", "name": "Hot-air balloon" },
-    "20": { "model": "rocket", "name": "Rocket launch" }
+    "20": { "model": "rocket", "name": "Rocket launch" },
+    "21": { "model": "attitude", "name": "Attitude indicator" },
+    "22": { "model": "maze", "name": "Marble maze" },
+    "23": { "model": "penguin", "name": "Penguin" },
+    "24": { "model": "windmill", "name": "Windmill" },
+    "25": { "model": "sailboat", "name": "Sailboat" },
+    "26": { "model": "ferrisWheel", "name": "Ferris wheel" },
+    "27": { "model": "bonsai", "name": "Bonsai" }
   }
 }

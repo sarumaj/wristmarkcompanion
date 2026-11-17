@@ -80,11 +80,13 @@ picture. It is new: tell us how it works for you.
 
 ## The models
 
-21 of them, from the sky to a campfire: the moon in tonight's phase, the Earth with day and night
+28 of them, from the sky to a campfire: the moon in tonight's phase, the Earth with day and night
 as they are now, the planets around the sun as they stand today, a world clock, an open watch
-movement showing the time, an hourglass, a landing, a helicopter, a hot-air balloon, a rocket
-launch, dice, fireworks, a snow globe, a campfire, an aquarium, a lighthouse, a robot, and four
-simple shapes. [The full list](content.md#the-models) says what each one does.
+movement showing the time, an hourglass, an aircraft's attitude indicator that follows your
+wrist, a landing, a helicopter, a hot-air balloon, a rocket launch, a windmill, a sailboat, a
+Ferris wheel lit at night, a bonsai in today's season, dice, a marble maze you tilt, fireworks,
+a snow globe, a campfire, an aquarium, a lighthouse, a robot, a penguin, and four simple
+shapes. [The full list](content.md#the-models) says what each one does.
 
 ## When something doesn't work
 

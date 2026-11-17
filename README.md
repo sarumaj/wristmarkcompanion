@@ -17,10 +17,11 @@ The [user guide](docs/user-guide.md) has the gestures, the tips for a steady mod
 when something doesn't work. No watch at hand? The viewer's **Markers** page shows them on any
 screen.
 
-- **21 models**, all made in code: the sky (the moon's phase, the Earth with day and night, the
-  planets, a world clock), time (a watch movement, an hourglass), flight (a landing, a
-  helicopter, a balloon, a rocket launch) and fun (dice, fireworks, a snow globe, a campfire, an
-  aquarium, a lighthouse, a robot). [The full list](docs/content.md#the-models).
+- **28 models**, all made in code: the sky (the moon's phase, the Earth with day and night, the
+  planets, a world clock), time (a watch movement, an hourglass), flight (an attitude indicator,
+  a landing, a helicopter, a balloon, a rocket launch), places (a windmill, a sailboat, a Ferris
+  wheel, a bonsai through the seasons) and fun (dice, a marble maze, fireworks, a snow globe, a
+  campfire, an aquarium, a lighthouse, a robot, a penguin). [The full list](docs/content.md#the-models).
 - **Move your wrist:** flick, shake or twist it, and the model reacts. Buttons do the same.
 - **Any size:** pinch, scroll or `+` and `−`; full screen with `F`.
 - **Private:** the camera's image is processed in the browser and never leaves the device. No
