@@ -1,10 +1,1035 @@
 [
  {
+  "id": "approachs50",
+  "name": "Approach® S50",
+  "family": "round-390x390",
+  "api": "5.1.0",
+  "icon": "56x56",
+  "memory": 786432
+ },
+ {
+  "id": "approachs7042mm",
+  "name": "Approach® S70 42mm",
+  "family": "round-390x390",
+  "api": "5.1.0",
+  "icon": "60x60",
+  "memory": 786432
+ },
+ {
+  "id": "approachs7047mm",
+  "name": "Approach® S70 47mm",
+  "family": "round-454x454",
+  "api": "5.1.0",
+  "icon": "70x70",
+  "memory": 786432
+ },
+ {
+  "id": "approachs7243mm",
+  "name": "Approach® S72 43mm",
+  "family": "round-416x416",
+  "api": "6.0.3",
+  "icon": "60x60",
+  "memory": 786432
+ },
+ {
+  "id": "approachs7247mm",
+  "name": "Approach® S72 47mm",
+  "family": "round-454x454",
+  "api": "6.0.3",
+  "icon": "65x65",
+  "memory": 786432
+ },
+ {
+  "id": "d2airx10",
+  "name": "D2™ Air X10",
+  "family": "round-416x416",
+  "api": "5.0.0",
+  "icon": "70x70",
+  "memory": 786432
+ },
+ {
   "id": "d2mach1",
   "name": "D2™ Mach 1",
   "family": "round-416x416",
-  "api": "5.0.0",
+  "api": "5.2.0",
   "icon": "60x60",
+  "memory": 786432
+ },
+ {
+  "id": "d2mach2",
+  "name": "D2™ Mach 2",
+  "family": "round-454x454",
+  "api": "6.0.3",
+  "icon": "65x65",
+  "memory": 786432
+ },
+ {
+  "id": "d2mach2pro",
+  "name": "D2™ Mach 2 Pro",
+  "family": "round-454x454",
+  "api": "6.0.3",
+  "icon": "65x65",
+  "memory": 786432
+ },
+ {
+  "id": "descentg2",
+  "name": "Descent™ G2",
+  "family": "round-390x390",
+  "api": "5.1.0",
+  "icon": "60x60",
+  "memory": 786432
+ },
+ {
+  "id": "descentmk2",
+  "name": "Descent™ Mk2 / Mk2i",
+  "family": "round-280x280",
+  "api": "3.4.5",
+  "icon": "40x40",
+  "memory": 1310720
+ },
+ {
+  "id": "descentmk2s",
+  "name": "Descent™ Mk2 S",
+  "family": "round-240x240",
+  "api": "3.4.5",
+  "icon": "40x40",
+  "memory": 1310720
+ },
+ {
+  "id": "descentmk343mm",
+  "name": "Descent™ Mk3 43mm / Mk3i 43mm",
+  "family": "round-390x390",
+  "api": "5.1.0",
+  "icon": "60x60",
+  "memory": 786432
+ },
+ {
+  "id": "descentmk351mm",
+  "name": "Descent™ Mk3i 51mm",
+  "family": "round-454x454",
+  "api": "5.1.0",
+  "icon": "60x60",
+  "memory": 786432
+ },
+ {
+  "id": "edge1030",
+  "name": "Edge® 1030",
+  "family": "rectangle-282x470",
+  "api": "3.3.1",
+  "icon": "36x36",
+  "memory": 1048576
+ },
+ {
+  "id": "edge1030bontrager",
+  "name": "Edge® 1030 / Bontrager",
+  "family": "rectangle-282x470",
+  "api": "3.3.1",
+  "icon": "36x36",
+  "memory": 1048576
+ },
+ {
+  "id": "edge1030plus",
+  "name": "Edge® 1030 Plus",
+  "family": "rectangle-282x470",
+  "api": "3.3.6",
+  "icon": "36x36",
+  "memory": 1048576
+ },
+ {
+  "id": "edge1040",
+  "name": "Edge® 1040 / 1040 Solar",
+  "family": "rectangle-282x470",
+  "api": "6.0.0",
+  "icon": "40x40",
+  "memory": 1048576
+ },
+ {
+  "id": "edge1050",
+  "name": "Edge® 1050",
+  "family": "rectangle-480x800",
+  "api": "6.0.3",
+  "icon": "68x68",
+  "memory": 1048576
+ },
+ {
+  "id": "edge1060",
+  "name": "Edge® 1060",
+  "family": "rectangle-480x800",
+  "api": "6.0.3",
+  "icon": "62x62",
+  "memory": 1048576
+ },
+ {
+  "id": "edge530",
+  "name": "Edge® 530",
+  "family": "rectangle-246x322",
+  "api": "3.3.6",
+  "icon": "35x35",
+  "memory": 1048576
+ },
+ {
+  "id": "edge540",
+  "name": "Edge® 540 / 540 Solar",
+  "family": "rectangle-246x322",
+  "api": "6.0.0",
+  "icon": "35x35",
+  "memory": 1048576
+ },
+ {
+  "id": "edge550",
+  "name": "Edge® 550",
+  "family": "rectangle-420x600",
+  "api": "6.0.3",
+  "icon": "56x56",
+  "memory": 1048576
+ },
+ {
+  "id": "edge830",
+  "name": "Edge® 830",
+  "family": "rectangle-246x322",
+  "api": "3.3.6",
+  "icon": "35x35",
+  "memory": 1048576
+ },
+ {
+  "id": "edge840",
+  "name": "Edge® 840 / 840 Solar",
+  "family": "rectangle-246x322",
+  "api": "6.0.0",
+  "icon": "35x35",
+  "memory": 1048576
+ },
+ {
+  "id": "edge850",
+  "name": "Edge® 850",
+  "family": "rectangle-420x600",
+  "api": "6.0.3",
+  "icon": "56x56",
+  "memory": 1048576
+ },
+ {
+  "id": "edgeexplore2",
+  "name": "Edge® Explore 2",
+  "family": "rectangle-240x400",
+  "api": "5.1.0",
+  "icon": "36x36",
+  "memory": 1048576
+ },
+ {
+  "id": "edgeexplore3",
+  "name": "Edge® Explore 3",
+  "family": "rectangle-360x640",
+  "api": "6.0.3",
+  "icon": "39x39",
+  "memory": 1048576
+ },
+ {
+  "id": "edgeexplore3plus",
+  "name": "Edge® Explore 3 Plus",
+  "family": "rectangle-360x640",
+  "api": "6.0.3",
+  "icon": "39x39",
+  "memory": 1048576
+ },
+ {
+  "id": "edgemtb",
+  "name": "Edge® MTB",
+  "family": "rectangle-240x320",
+  "api": "6.0.3",
+  "icon": "36x36",
+  "memory": 1048576
+ },
+ {
+  "id": "enduro",
+  "name": "Enduro™",
+  "family": "round-280x280",
+  "api": "3.4.2",
+  "icon": "40x40",
+  "memory": 131072
+ },
+ {
+  "id": "enduro3",
+  "name": "Enduro™ 3",
+  "family": "round-280x280",
+  "api": "6.0.3",
+  "icon": "40x40",
+  "memory": 786432
+ },
+ {
+  "id": "enduro4",
+  "name": "Enduro™ 4",
+  "family": "round-280x280",
+  "api": "6.0.3",
+  "icon": "40x40",
+  "memory": 786432
+ },
+ {
+  "id": "epix2",
+  "name": "epix™ (Gen 2) / quatix® 7 Sapphire",
+  "family": "round-416x416",
+  "api": "5.2.0",
+  "icon": "60x60",
+  "memory": 786432
+ },
+ {
+  "id": "epix2pro42mm",
+  "name": "epix™ Pro (Gen 2) 42mm",
+  "family": "round-390x390",
+  "api": "5.2.0",
+  "icon": "60x60",
+  "memory": 786432
+ },
+ {
+  "id": "epix2pro47mm",
+  "name": "epix™ Pro (Gen 2) 47mm / quatix® 7 Pro",
+  "family": "round-416x416",
+  "api": "5.2.0",
+  "icon": "60x60",
+  "memory": 786432
+ },
+ {
+  "id": "epix2pro51mm",
+  "name": "epix™ Pro (Gen 2) 51mm / D2™ Mach 1 Pro / tactix® 7 – AMOLED Edition",
+  "family": "round-454x454",
+  "api": "5.2.0",
+  "icon": "60x60",
+  "memory": 786432
+ },
+ {
+  "id": "etrextouch",
+  "name": "eTrex® Touch",
+  "family": "rectangle-240x400",
+  "api": "5.1.1",
+  "icon": "38x33",
+  "memory": 2359296
+ },
+ {
+  "id": "fenix5plus",
+  "name": "fēnix® 5 Plus",
+  "family": "round-240x240",
+  "api": "3.3.3",
+  "icon": "40x40",
+  "memory": 1310720
+ },
+ {
+  "id": "fenix5splus",
+  "name": "fēnix® 5S Plus",
+  "family": "round-240x240",
+  "api": "3.3.3",
+  "icon": "40x40",
+  "memory": 1310720
+ },
+ {
+  "id": "fenix5xplus",
+  "name": "fēnix® 5X Plus",
+  "family": "round-240x240",
+  "api": "3.3.3",
+  "icon": "40x40",
+  "memory": 1310720
+ },
+ {
+  "id": "fenix6",
+  "name": "fēnix® 6 / 6 Solar / 6 Dual Power",
+  "family": "round-260x260",
+  "api": "3.4.5",
+  "icon": "40x40",
+  "memory": 131072
+ },
+ {
+  "id": "fenix6pro",
+  "name": "fēnix® 6 Pro / 6 Sapphire / 6 Pro Solar / 6 Pro Dual Power / quatix® 6",
+  "family": "round-260x260",
+  "api": "3.4.5",
+  "icon": "40x40",
+  "memory": 1310720
+ },
+ {
+  "id": "fenix6s",
+  "name": "fēnix® 6S / 6S Solar / 6S Dual Power",
+  "family": "round-240x240",
+  "api": "3.4.5",
+  "icon": "40x40",
+  "memory": 131072
+ },
+ {
+  "id": "fenix6spro",
+  "name": "fēnix® 6S Pro / 6S Sapphire / 6S Pro Solar / 6S Pro Dual Power",
+  "family": "round-240x240",
+  "api": "3.4.5",
+  "icon": "40x40",
+  "memory": 1310720
+ },
+ {
+  "id": "fenix6xpro",
+  "name": "fēnix® 6X Pro / 6X Sapphire / 6X Pro Solar / tactix® Delta Sapphire / Delta Solar / Delta Solar - Ballistics Edition / quatix® 6X / 6X Solar / 6X Dual Power",
+  "family": "round-280x280",
+  "api": "3.4.5",
+  "icon": "40x40",
+  "memory": 1310720
+ },
+ {
+  "id": "fenix7",
+  "name": "fēnix® 7 / quatix® 7",
+  "family": "round-260x260",
+  "api": "5.2.0",
+  "icon": "40x40",
+  "memory": 786432
+ },
+ {
+  "id": "fenix7pro",
+  "name": "fēnix® 7 Pro",
+  "family": "round-260x260",
+  "api": "5.2.0",
+  "icon": "40x40",
+  "memory": 786432
+ },
+ {
+  "id": "fenix7pronowifi",
+  "name": "fēnix® 7 Pro - Solar Edition (no Wi-Fi)",
+  "family": "round-260x260",
+  "api": "5.2.0",
+  "icon": "40x40",
+  "memory": 786432
+ },
+ {
+  "id": "fenix7s",
+  "name": "fēnix® 7S",
+  "family": "round-240x240",
+  "api": "5.2.0",
+  "icon": "40x40",
+  "memory": 786432
+ },
+ {
+  "id": "fenix7spro",
+  "name": "fēnix® 7S Pro",
+  "family": "round-240x240",
+  "api": "5.2.0",
+  "icon": "40x40",
+  "memory": 786432
+ },
+ {
+  "id": "fenix7x",
+  "name": "fēnix® 7X / tactix® 7 / quatix® 7X Solar / Enduro™ 2",
+  "family": "round-280x280",
+  "api": "5.2.0",
+  "icon": "40x40",
+  "memory": 786432
+ },
+ {
+  "id": "fenix7xpro",
+  "name": "fēnix® 7X Pro",
+  "family": "round-280x280",
+  "api": "5.2.0",
+  "icon": "40x40",
+  "memory": 786432
+ },
+ {
+  "id": "fenix7xpronowifi",
+  "name": "fēnix® 7X Pro - Solar Edition (no Wi-Fi)",
+  "family": "round-280x280",
+  "api": "5.2.0",
+  "icon": "40x40",
+  "memory": 786432
+ },
+ {
+  "id": "fenix843mm",
+  "name": "fēnix® 8 43mm",
+  "family": "round-416x416",
+  "api": "6.0.3",
+  "icon": "60x60",
+  "memory": 786432
+ },
+ {
+  "id": "fenix847mm",
+  "name": "fēnix® 8 47mm / 51mm / tactix® 8 47mm / 51mm / quatix® 8 47mm / 51mm",
+  "family": "round-454x454",
+  "api": "6.0.3",
+  "icon": "65x65",
+  "memory": 786432
+ },
+ {
+  "id": "fenix8pro47mm",
+  "name": "fēnix® 8 Pro 47mm / 51mm / MicroLED / quatix® 8 Pro 47mm / 51mm",
+  "family": "round-454x454",
+  "api": "6.0.3",
+  "icon": "65x65",
+  "memory": 786432
+ },
+ {
+  "id": "fenix8solar47mm",
+  "name": "fēnix® 8 Solar 47mm",
+  "family": "round-260x260",
+  "api": "6.0.3",
+  "icon": "40x40",
+  "memory": 786432
+ },
+ {
+  "id": "fenix8solar51mm",
+  "name": "fēnix® 8 Solar 51mm / tactix® 8 Solar 51mm",
+  "family": "round-280x280",
+  "api": "6.0.3",
+  "icon": "40x40",
+  "memory": 786432
+ },
+ {
+  "id": "fenix943mm",
+  "name": "fēnix® 9 43mm",
+  "family": "round-416x416",
+  "api": "6.0.3",
+  "icon": "60x60",
+  "memory": 786432
+ },
+ {
+  "id": "fenix947mm",
+  "name": "fēnix® 9 47mm / 51mm",
+  "family": "round-454x454",
+  "api": "6.0.3",
+  "icon": "65x65",
+  "memory": 786432
+ },
+ {
+  "id": "fenix9pro43mm",
+  "name": "fēnix® 9 Pro 43mm",
+  "family": "round-416x416",
+  "api": "6.0.3",
+  "icon": "60x60",
+  "memory": 786432
+ },
+ {
+  "id": "fenix9pro47mm",
+  "name": "fēnix® 9 Pro 47mm",
+  "family": "round-454x454",
+  "api": "6.0.3",
+  "icon": "65x65",
+  "memory": 786432
+ },
+ {
+  "id": "fenix9pro51mm",
+  "name": "fēnix® 9 Pro 51mm",
+  "family": "round-466x466",
+  "api": "6.0.3",
+  "icon": "65x65",
+  "memory": 786432
+ },
+ {
+  "id": "fenix9prosolar47mm",
+  "name": "fēnix® 9 Pro Solar 47mm",
+  "family": "round-260x260",
+  "api": "6.0.3",
+  "icon": "40x40",
+  "memory": 786432
+ },
+ {
+  "id": "fenix9prosolar51mm",
+  "name": "fēnix® 9 Pro Solar 51mm",
+  "family": "round-280x280",
+  "api": "6.0.3",
+  "icon": "40x40",
+  "memory": 786432
+ },
+ {
+  "id": "fenixe",
+  "name": "fēnix® E",
+  "family": "round-416x416",
+  "api": "6.0.3",
+  "icon": "60x60",
+  "memory": 786432
+ },
+ {
+  "id": "fr165",
+  "name": "Forerunner® 165",
+  "family": "round-390x390",
+  "api": "5.2.0",
+  "icon": "54x54",
+  "memory": 786432
+ },
+ {
+  "id": "fr165m",
+  "name": "Forerunner® 165 Music",
+  "family": "round-390x390",
+  "api": "5.2.0",
+  "icon": "54x54",
+  "memory": 786432
+ },
+ {
+  "id": "fr170",
+  "name": "Forerunner® 170",
+  "family": "round-390x390",
+  "api": "6.0.3",
+  "icon": "54x54",
+  "memory": 786432
+ },
+ {
+  "id": "fr170m",
+  "name": "Forerunner® 170 Music",
+  "family": "round-390x390",
+  "api": "6.0.3",
+  "icon": "54x54",
+  "memory": 786432
+ },
+ {
+  "id": "fr245",
+  "name": "Forerunner® 245",
+  "family": "round-240x240",
+  "api": "3.3.6",
+  "icon": "40x40",
+  "memory": 131072
+ },
+ {
+  "id": "fr245m",
+  "name": "Forerunner® 245 Music",
+  "family": "round-240x240",
+  "api": "3.3.6",
+  "icon": "40x40",
+  "memory": 1310720
+ },
+ {
+  "id": "fr255",
+  "name": "Forerunner® 255",
+  "family": "round-260x260",
+  "api": "5.2.0",
+  "icon": "40x40",
+  "memory": 524288
+ },
+ {
+  "id": "fr255m",
+  "name": "Forerunner® 255 Music",
+  "family": "round-260x260",
+  "api": "5.2.0",
+  "icon": "40x40",
+  "memory": 786432
+ },
+ {
+  "id": "fr255s",
+  "name": "Forerunner® 255s",
+  "family": "round-218x218",
+  "api": "5.2.0",
+  "icon": "40x40",
+  "memory": 524288
+ },
+ {
+  "id": "fr255sm",
+  "name": "Forerunner® 255s Music",
+  "family": "round-218x218",
+  "api": "5.2.0",
+  "icon": "40x40",
+  "memory": 786432
+ },
+ {
+  "id": "fr265",
+  "name": "Forerunner® 265",
+  "family": "round-416x416",
+  "api": "5.2.0",
+  "icon": "60x60",
+  "memory": 786432
+ },
+ {
+  "id": "fr265s",
+  "name": "Forerunner® 265s",
+  "family": "round-360x360",
+  "api": "5.2.0",
+  "icon": "60x60",
+  "memory": 786432
+ },
+ {
+  "id": "fr55",
+  "name": "Forerunner® 55",
+  "family": "round-208x208",
+  "api": "3.4.6",
+  "icon": "35x35",
+  "memory": 131072
+ },
+ {
+  "id": "fr57042mm",
+  "name": "Forerunner® 570 42mm",
+  "family": "round-390x390",
+  "api": "6.0.3",
+  "icon": "54x54",
+  "memory": 786432
+ },
+ {
+  "id": "fr57047mm",
+  "name": "Forerunner® 570 47mm",
+  "family": "round-454x454",
+  "api": "6.0.3",
+  "icon": "65x65",
+  "memory": 786432
+ },
+ {
+  "id": "fr70",
+  "name": "Forerunner® 70",
+  "family": "round-390x390",
+  "api": "6.0.3",
+  "icon": "54x54",
+  "memory": 786432
+ },
+ {
+  "id": "fr745",
+  "name": "Forerunner® 745",
+  "family": "round-240x240",
+  "api": "3.3.6",
+  "icon": "40x40",
+  "memory": 1310720
+ },
+ {
+  "id": "fr945",
+  "name": "Forerunner® 945",
+  "family": "round-240x240",
+  "api": "3.3.6",
+  "icon": "40x40",
+  "memory": 1310720
+ },
+ {
+  "id": "fr945lte",
+  "name": "Forerunner® 945 LTE",
+  "family": "round-240x240",
+  "api": "3.4.3",
+  "icon": "40x40",
+  "memory": 1310720
+ },
+ {
+  "id": "fr955",
+  "name": "Forerunner® 955 / Solar",
+  "family": "round-260x260",
+  "api": "5.2.0",
+  "icon": "40x40",
+  "memory": 786432
+ },
+ {
+  "id": "fr965",
+  "name": "Forerunner® 965",
+  "family": "round-454x454",
+  "api": "5.2.0",
+  "icon": "65x65",
+  "memory": 786432
+ },
+ {
+  "id": "fr970",
+  "name": "Forerunner® 970",
+  "family": "round-454x454",
+  "api": "6.0.3",
+  "icon": "65x65",
+  "memory": 786432
+ },
+ {
+  "id": "gpsmaph1",
+  "name": "GPSMAP® H1 / H1i Plus",
+  "family": "rectangle-282x470",
+  "api": "5.0.0",
+  "icon": "32x32",
+  "memory": 2359296
+ },
+ {
+  "id": "instinct3amoled45mm",
+  "name": "Instinct® 3 AMOLED 45mm",
+  "family": "round-390x390",
+  "api": "6.0.2",
+  "icon": "60x60",
+  "memory": 786432
+ },
+ {
+  "id": "instinct3amoled50mm",
+  "name": "Instinct® 3 AMOLED 50mm",
+  "family": "round-416x416",
+  "api": "6.0.2",
+  "icon": "60x60",
+  "memory": 786432
+ },
+ {
+  "id": "instinct3solar45mm",
+  "name": "Instinct® 3 Solar / Solar Tactical 45mm / 50mm",
+  "family": "semioctagon-176x176",
+  "api": "6.0.2",
+  "icon": "62x62",
+  "memory": 131072
+ },
+ {
+  "id": "instinctcrossoveramoled",
+  "name": "Instinct® Crossover AMOLED",
+  "family": "round-390x390",
+  "api": "6.0.2",
+  "icon": "38x38",
+  "memory": 786432
+ },
+ {
+  "id": "instincte40mm",
+  "name": "Instinct® E 40mm",
+  "family": "semioctagon-166x166",
+  "api": "6.0.2",
+  "icon": "52x52",
+  "memory": 131072
+ },
+ {
+  "id": "instincte45mm",
+  "name": "Instinct® E 45mm",
+  "family": "semioctagon-176x176",
+  "api": "6.0.2",
+  "icon": "62x62",
+  "memory": 131072
+ },
+ {
+  "id": "legacyherocaptainmarvel",
+  "name": "Captain Marvel",
+  "family": "round-218x218",
+  "api": "3.3.6",
+  "icon": "30x30",
+  "memory": 1048576
+ },
+ {
+  "id": "legacyherofirstavenger",
+  "name": "First Avenger",
+  "family": "round-260x260",
+  "api": "3.3.6",
+  "icon": "35x35",
+  "memory": 1048576
+ },
+ {
+  "id": "legacysagadarthvader",
+  "name": "Darth Vader™",
+  "family": "round-260x260",
+  "api": "3.3.6",
+  "icon": "35x35",
+  "memory": 1048576
+ },
+ {
+  "id": "legacysagarey",
+  "name": "Rey™",
+  "family": "round-218x218",
+  "api": "3.3.6",
+  "icon": "30x30",
+  "memory": 1048576
+ },
+ {
+  "id": "marq2",
+  "name": "MARQ® (Gen 2) Athlete / Adventurer / Captain / Golfer / Carbon Edition / Commander - Carbon Edition",
+  "family": "round-390x390",
+  "api": "5.2.0",
+  "icon": "60x60",
+  "memory": 786432
+ },
+ {
+  "id": "marq2aviator",
+  "name": "MARQ® (Gen 2) Aviator",
+  "family": "round-390x390",
+  "api": "5.2.0",
+  "icon": "60x60",
+  "memory": 786432
+ },
+ {
+  "id": "marq3",
+  "name": "MARQ® (Gen 3) Athlete / Adventurer / Aviator / Commander / Golfer / Diver",
+  "family": "round-454x454",
+  "api": "6.0.3",
+  "icon": "65x65",
+  "memory": 786432
+ },
+ {
+  "id": "marqadventurer",
+  "name": "MARQ® Adventurer",
+  "family": "round-240x240",
+  "api": "3.4.5",
+  "icon": "40x40",
+  "memory": 1310720
+ },
+ {
+  "id": "marqathlete",
+  "name": "MARQ® Athlete",
+  "family": "round-240x240",
+  "api": "3.4.5",
+  "icon": "40x40",
+  "memory": 1310720
+ },
+ {
+  "id": "marqaviator",
+  "name": "MARQ® Aviator",
+  "family": "round-240x240",
+  "api": "3.4.5",
+  "icon": "40x40",
+  "memory": 1310720
+ },
+ {
+  "id": "marqcaptain",
+  "name": "MARQ® Captain / MARQ® Captain: American Magic Edition",
+  "family": "round-240x240",
+  "api": "3.4.5",
+  "icon": "40x40",
+  "memory": 1310720
+ },
+ {
+  "id": "marqcommander",
+  "name": "MARQ® Commander",
+  "family": "round-240x240",
+  "api": "3.4.5",
+  "icon": "40x40",
+  "memory": 1310720
+ },
+ {
+  "id": "marqdriver",
+  "name": "MARQ® Driver",
+  "family": "round-240x240",
+  "api": "3.4.5",
+  "icon": "40x40",
+  "memory": 1310720
+ },
+ {
+  "id": "marqexpedition",
+  "name": "MARQ® Expedition",
+  "family": "round-240x240",
+  "api": "3.4.5",
+  "icon": "40x40",
+  "memory": 1310720
+ },
+ {
+  "id": "marqgolfer",
+  "name": "MARQ® Golfer",
+  "family": "round-240x240",
+  "api": "3.4.5",
+  "icon": "40x40",
+  "memory": 1310720
+ },
+ {
+  "id": "venu",
+  "name": "Venu®",
+  "family": "round-390x390",
+  "api": "3.3.6",
+  "icon": "60x60",
+  "memory": 1048576
+ },
+ {
+  "id": "venu2",
+  "name": "Venu® 2",
+  "family": "round-416x416",
+  "api": "5.0.0",
+  "icon": "70x70",
+  "memory": 786432
+ },
+ {
+  "id": "venu2plus",
+  "name": "Venu® 2 Plus",
+  "family": "round-416x416",
+  "api": "5.0.0",
+  "icon": "70x70",
+  "memory": 786432
+ },
+ {
+  "id": "venu2s",
+  "name": "Venu® 2S",
+  "family": "round-360x360",
+  "api": "5.0.0",
+  "icon": "61x61",
+  "memory": 786432
+ },
+ {
+  "id": "venu3",
+  "name": "Venu® 3",
+  "family": "round-454x454",
+  "api": "5.2.0",
+  "icon": "70x70",
+  "memory": 786432
+ },
+ {
+  "id": "venu3s",
+  "name": "Venu® 3S",
+  "family": "round-390x390",
+  "api": "5.2.0",
+  "icon": "70x70",
+  "memory": 786432
+ },
+ {
+  "id": "venu441mm",
+  "name": "Venu® 4 41mm",
+  "family": "round-390x390",
+  "api": "6.0.3",
+  "icon": "54x54",
+  "memory": 786432
+ },
+ {
+  "id": "venu445mm",
+  "name": "Venu® 4 45mm / D2™ Air X15",
+  "family": "round-454x454",
+  "api": "6.0.3",
+  "icon": "65x65",
+  "memory": 786432
+ },
+ {
+  "id": "venud",
+  "name": "Venu® Mercedes-Benz® Collection",
+  "family": "round-390x390",
+  "api": "3.3.6",
+  "icon": "60x60",
+  "memory": 1048576
+ },
+ {
+  "id": "venusq",
+  "name": "Venu® Sq",
+  "family": "rectangle-240x240",
+  "api": "3.3.6",
+  "icon": "36x36",
+  "memory": 131072
+ },
+ {
+  "id": "venusq2",
+  "name": "Venu® Sq 2",
+  "family": "rectangle-320x360",
+  "api": "5.0.0",
+  "icon": "40x40",
+  "memory": 786432
+ },
+ {
+  "id": "venusq2m",
+  "name": "Venu® Sq 2 Music",
+  "family": "rectangle-320x360",
+  "api": "5.0.0",
+  "icon": "40x40",
+  "memory": 786432
+ },
+ {
+  "id": "venusqm",
+  "name": "Venu® Sq. Music Edition",
+  "family": "rectangle-240x240",
+  "api": "3.3.6",
+  "icon": "36x36",
+  "memory": 1048576
+ },
+ {
+  "id": "venux1",
+  "name": "Venu® X1",
+  "family": "rectangle-448x486",
+  "api": "6.0.3",
+  "icon": "65x65",
+  "memory": 786432
+ },
+ {
+  "id": "vivoactive4",
+  "name": "vívoactive® 4",
+  "family": "round-260x260",
+  "api": "3.3.6",
+  "icon": "35x35",
+  "memory": 1048576
+ },
+ {
+  "id": "vivoactive4s",
+  "name": "vívoactive® 4S",
+  "family": "round-218x218",
+  "api": "3.3.6",
+  "icon": "30x30",
+  "memory": 1048576
+ },
+ {
+  "id": "vivoactive5",
+  "name": "vívoactive® 5",
+  "family": "round-390x390",
+  "api": "5.2.0",
+  "icon": "56x56",
+  "memory": 786432
+ },
+ {
+  "id": "vivoactive6",
+  "name": "vívoactive® 6",
+  "family": "round-390x390",
+  "api": "6.0.3",
+  "icon": "54x54",
   "memory": 786432
  }
 ]
+
