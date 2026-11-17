@@ -1,0 +1,73 @@
+apply plugin: 'com.android.application'
+
+// The version from APP_VERSION (X.Y.Z, the release tag without its v; docs/android.md),
+// its code X·10000 + Y·100 + Z; 0.0.1 for a build without one (the code must be above 0).
+def appVersion = System.getenv("APP_VERSION") ?: "0.0.1"
+def (major, minor, patch) = appVersion.tokenize(".").collect { it as int }
+// The release signing key (docs/android.md#signing): a PKCS12 keystore whose path and
+// password CI passes; without them the release build stays unsigned.
+def keystore = System.getenv("ANDROID_KEYSTORE_FILE")
+
+android {
+    namespace = "org.ciepiela.wristmark"
+    compileSdk = rootProject.ext.compileSdkVersion
+    defaultConfig {
+        applicationId "org.ciepiela.wristmark"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode major * 10000 + minor * 100 + patch
+        versionName appVersion
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        aaptOptions {
+             // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
+             // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
+            ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+    }
+    signingConfigs {
+        release {
+            if (keystore) {
+                storeFile file(keystore)
+                storeType "PKCS12"
+                storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD")
+                keyAlias "wristmark"
+                keyPassword System.getenv("ANDROID_KEYSTORE_PASSWORD")
+            }
+        }
+    }
+    // No dependency metadata in the APK's signing block: Google's encrypted blob, which
+    // F-Droid's scanner refuses (docs/android.md#f-droid).
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
+    buildTypes {
+        release {
+            if (keystore) {
+                signingConfig signingConfigs.release
+            }
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+repositories {
+    flatDir{
+        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
+    implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
+    implementation project(':capacitor-android')
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    implementation project(':capacitor-cordova-android-plugins')
+}
+
+apply from: 'capacitor.build.gradle'

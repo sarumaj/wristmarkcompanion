@@ -721,7 +721,11 @@ function showRemote(r) {
   document.body.dataset.remote = r.state;
   remoteToggle.classList.toggle("is-on", connected);
 }
+// The relay: on the viewer's own origin; from the Android app (app/, Capacitor, its pages
+// at https://localhost), at the viewer's public address, which allows the app's origin.
+const RELAY = globalThis.Capacitor?.isNativePlatform?.() ? "https://wristmark.apps.ciepiela.org/relay/v1" : "relay/v1";
 const remote = new Remote({
+  base: RELAY,
   onChange: showRemote,
   onEvent: (message) => {
     if (message.op === "button") acknowledge(`Watch: ${message.key}`, { tick: false });
@@ -752,7 +756,7 @@ remoteButtons.addEventListener("click", (event) => {
 // Offered only where the relay runs: its health says "ok". Until it is deployed beside
 // the viewer, nginx answers the same path with "off" (nginx.conf), and the Watch button
 // stays hidden.
-fetch("relay/v1/healthz", { cache: "no-store" })
+fetch(`${RELAY}/healthz`, { cache: "no-store" })
   .then((response) => (response.ok ? response.json() : null))
   .then((health) => {
     if (health?.status !== "ok") return;

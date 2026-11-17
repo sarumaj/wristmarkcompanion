@@ -143,8 +143,25 @@ func New() *Relay {
 	return r
 }
 
+// appOrigin is the Android app's pages' origin (app/, Capacitor's WebView): the only one
+// besides the viewer's own allowed to call the relay from a page (CORS). Every request
+// still needs its channel's token; the origin only lets the app's page read the answer.
+const appOrigin = "https://localhost"
+
 func (r *Relay) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Cache-Control", "no-store")
+	if req.Header.Get("Origin") == appOrigin {
+		h := w.Header()
+		h.Set("Access-Control-Allow-Origin", appOrigin)
+		h.Add("Vary", "Origin")
+		if req.Method == http.MethodOptions {
+			h.Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
+			h.Set("Access-Control-Allow-Headers", "Authorization, Content-Type, Last-Event-ID")
+			h.Set("Access-Control-Max-Age", "600")
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+	}
 	r.mux.ServeHTTP(w, req)
 }
 

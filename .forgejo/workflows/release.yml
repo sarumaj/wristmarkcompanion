@@ -1,6 +1,6 @@
-# A release, on a version tag (vX.Y.Z): the watch's store package, the viewer's
-# files and the release notes from CHANGELOG.md on a Forgejo release, and the
-# viewer deployed to the app host (docs/deployment.md). Nothing else is uploaded.
+# A release, on a version tag (vX.Y.Z): the watch's store package, the Android app's
+# APK, the viewer's files and the release notes from CHANGELOG.md on a Forgejo release,
+# and the viewer deployed to the app host (docs/deployment.md). Nothing else is uploaded.
 name: release
 'on':
   push:
@@ -79,6 +79,40 @@ jobs:
           printf '%s' "$CONNECTIQ_DEVELOPER_KEY" | base64 -d > "$key"
           CONNECTIQ_KEY=$key tools/build-watch.sh --package "$CONNECTIQ_SDK" "$RUNNER_TEMP/watch"
           cp "$RUNNER_TEMP/watch/wristmark.iq" "$RUNNER_TEMP/release/wristmark-$TAG.iq"
+
+      # The Android app (docs/android.md): the release APK, signed with the key in the
+      # secrets (written for this step only), its certificate checked against the one
+      # docs/android.md#signing names, so that a wrong key never goes out.
+      - name: Set up Node.js
+        uses: https://github.com/actions/setup-node@v5
+        with:
+          node-version: '24'
+
+      - name: Build the Android app
+        env:
+          ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          CERTIFICATE_SHA256: b3295ca076aaa3baa9e1f1a56a7e696b85777e2a15e22765014a4b7aa0ea243b
+        run: |
+          if [ -z "$ANDROID_KEYSTORE" ] || [ -z "$ANDROID_KEYSTORE_PASSWORD" ]; then
+            echo "::error::The Actions secrets ANDROID_KEYSTORE and ANDROID_KEYSTORE_PASSWORD are missing (docs/android.md#signing)"
+            exit 1
+          fi
+          keystore=$(mktemp)
+          trap 'rm -f "$keystore"' EXIT
+          printf '%s' "$ANDROID_KEYSTORE" | base64 -d > "$keystore"
+          export ANDROID_HOME="$RUNNER_TEMP/android-sdk"
+          tools/install-android-sdk.sh "$ANDROID_HOME"
+          npm ci --prefix viewer --ignore-scripts --no-audit --no-fund
+          APP_VERSION="${TAG#v}" ANDROID_KEYSTORE_FILE="$keystore" tools/build-android.sh release "$RUNNER_TEMP/apk"
+          apk="$RUNNER_TEMP/apk/app-release.apk"
+          signer=$("$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs "$apk" \
+            | sed -n 's/^Signer #1 certificate SHA-256 digest: //p')
+          if [ "$signer" != "$CERTIFICATE_SHA256" ]; then
+            echo "::error::The APK is signed by $signer, not the release key $CERTIFICATE_SHA256"
+            exit 1
+          fi
+          cp "$apk" "$RUNNER_TEMP/release/wristmark-$TAG.apk"
 
       # The files the image serves, libraries included, as one archive.
       - name: Pack the viewer

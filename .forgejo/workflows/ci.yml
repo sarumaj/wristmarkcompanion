@@ -173,3 +173,41 @@ jobs:
 
       - name: Build the watch app
         run: tools/build-watch.sh "$CONNECTIQ_SDK" "$RUNNER_TEMP/watch"
+
+  # The Android app (app/, docs/android.md): its debug APK built from the viewer's files,
+  # to see that it builds; nothing is kept. The SDK and Gradle's downloads are cached.
+  android:
+    runs-on: docker
+    timeout-minutes: 30
+    container:
+      image: node:24-bookworm
+    env:
+      ANDROID_HOME: /root/android-sdk
+    steps:
+      - name: Check out repository
+        uses: https://github.com/actions/checkout@v7
+
+      - name: Set up Java
+        uses: https://github.com/actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Cache the Android SDK and Gradle
+        uses: https://github.com/actions/cache@v4
+        with:
+          path: |
+            /root/android-sdk
+            /root/.gradle/caches
+            /root/.gradle/wrapper
+          key: android-${{ hashFiles('tools/install-android-sdk.sh', 'app/android/**/*.gradle', 'app/android/gradle/wrapper/gradle-wrapper.properties') }}
+
+      - name: Install the Android SDK
+        run: tools/install-android-sdk.sh "$ANDROID_HOME"
+
+      - name: Build the debug APK
+        run: |
+          npm ci --prefix viewer --ignore-scripts --no-audit --no-fund
+          tools/build-android.sh debug "$RUNNER_TEMP/apk"
+          ls -l "$RUNNER_TEMP/apk"
+
