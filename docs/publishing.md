@@ -180,13 +180,14 @@ Your watch, in 3D. WristMarkCompanion shows a marker on your watch's display. Op
 https://wristmark.apps.ciepiela.org in the browser of a phone or a laptop with a camera, point
 the camera at the watch, and a 3D model stands on your wrist and follows it as you move.
 
-36 models, one per marker: the moon in tonight's phase, the Earth with day and night as they
+43 models, one per marker: the moon in tonight's phase, the Earth with day and night as they
 are now, the planets as they stand today, a world clock, a watch movement showing the time, an
 hourglass, an attitude indicator that follows your wrist, a landing, a helicopter, a hot-air
 balloon, a rocket launch, a windmill, a sailboat, a Ferris wheel lit at night, a bonsai in
 today's season, a volcano, an atom, DNA, a Newton's cradle, a metronome, dice, a marble maze
 you tilt, fireworks, a snow globe, a campfire, an aquarium, a lighthouse, a UFO, a toy train, a
-birthday cake, a robot and a penguin.
+birthday cake, a carousel, a race track, a satellite, a sundial, a jellyfish, butterflies, a lava
+lamp, a robot and a penguin.
 
 Move your wrist and they react: flick it to roll the dice or launch a firework, shake it to stir
 the snow or the fire, twist it to move the planets a month. Pinch to resize; full screen on a
@@ -221,14 +222,15 @@ Viewer unter https://wristmark.apps.ciepiela.org im Browser eines Handys oder La
 Kamera, richte die Kamera auf die Uhr, und ein 3D-Modell steht auf deinem Handgelenk und folgt
 ihm, wenn du dich bewegst.
 
-36 Modelle, eins pro Marker: der Mond in der Phase von heute Nacht, die Erde mit Tag und Nacht,
+43 Modelle, eins pro Marker: der Mond in der Phase von heute Nacht, die Erde mit Tag und Nacht,
 wie sie gerade sind, die Planeten, wie sie heute stehen, eine Weltzeituhr, ein Uhrwerk, das die
 Zeit zeigt, eine Sanduhr, ein künstlicher Horizont, der deinem Handgelenk folgt, eine Landung,
 ein Hubschrauber, ein Heißluftballon, ein Raketenstart, eine Windmühle, ein Segelboot, ein
 Riesenrad, das nachts leuchtet, ein Bonsai in der Jahreszeit von heute, Würfel, ein
 Kugellabyrinth zum Kippen, ein Vulkan, ein Atom, eine DNA, ein Kugelstoßpendel, ein Metronom,
 ein Feuerwerk, eine Schneekugel, ein Lagerfeuer, ein Aquarium, ein Leuchtturm, ein UFO, eine
-Spielzeugeisenbahn, eine Geburtstagstorte, ein Roboter und ein Pinguin.
+Spielzeugeisenbahn, eine Geburtstagstorte, ein Karussell, eine Rennstrecke, ein Satellit, eine
+Sonnenuhr, eine Qualle, Schmetterlinge, eine Lavalampe, ein Roboter und ein Pinguin.
 
 Beweg dein Handgelenk, und sie reagieren: Ein schneller Dreh würfelt oder schießt eine Rakete,
 Schütteln wirbelt den Schnee oder das Feuer auf, ein Drehen um die Uhr verschiebt die Planeten

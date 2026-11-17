@@ -79,6 +79,13 @@ The models with a tap of their own:
 | UFO             | The beam comes on, between abductions                                |
 | Toy train       | The whistle: a burst of steam, faster for four seconds               |
 | Birthday cake   | The candles go out, smoke rises; they light again after five seconds |
+| Jellyfish       | It pulses hard and swims up                                          |
+| Butterflies     | They scatter, higher and faster, for three seconds                   |
+| Carousel        | Faster for five seconds                                              |
+| Race track      | The red car gets a boost for two seconds                             |
+| Satellite       | A ping: its light flashes, a ring spreads                            |
+| Sundial         | It says the time it reads, or that it's night                        |
+| Lava lamp       | The next colors: sunset, ocean, lime                                 |
 
 ## Further ideas
 

@@ -6,8 +6,8 @@
 // the orrery show (default: the clock).
 import * as THREE from "../vendor/three/three.module.js";
 import { standing } from "./standing.js";
-import { earth, moon, orrery, worldClock } from "./sky-models.js";
-import { hourglass, movement } from "./clock-models.js";
+import { earth, moon, orrery, satellite, worldClock } from "./sky-models.js";
+import { hourglass, movement, sundial } from "./clock-models.js";
 import { dice, fireworks, robot, snowglobe } from "./fun-models.js";
 import { aquarium, campfire, lighthouse } from "./nature-models.js";
 import { balloon, helicopter, landing, rocket } from "./aviation-models.js";
@@ -15,6 +15,8 @@ import { attitude, maze, penguin } from "./pose-models.js";
 import { bonsai, ferrisWheel, sailboat, windmill } from "./scene-models.js";
 import { atom, dna, metronome, newtonsCradle } from "./science-models.js";
 import { cake, train, ufo, volcano } from "./play-models.js";
+import { butterflies, jellyfish } from "./life-models.js";
+import { carousel, lavaLamp, raceTrack } from "./fair-models.js";
 
 const MODELS = {
   moon,
@@ -49,6 +51,13 @@ const MODELS = {
   ufo,
   train,
   cake,
+  jellyfish,
+  butterflies,
+  carousel,
+  raceTrack,
+  satellite,
+  sundial,
+  lavaLamp,
 
   // A cube with a color per face, on the marker, turning slowly.
   cube(size) {
@@ -158,6 +167,13 @@ export const MODEL_GUIDES = {
   ufo: { hint: "Tap it to beam the cow up", actions: [{ label: "Beam", touch: true }] },
   train: { hint: "Tap it to blow the whistle", actions: [{ label: "Whistle", touch: true }] },
   cake: { hint: "Tap it to blow out the candles", actions: [{ label: "Blow out", touch: true }] },
+  jellyfish: { hint: "Tap it and it swims up", actions: [{ label: "Swim", touch: true }] },
+  butterflies: { hint: "Tap them and they scatter", actions: [{ label: "Scatter", touch: true }] },
+  carousel: { hint: "Tap it to go faster", actions: [{ label: "Faster", touch: true }] },
+  raceTrack: { hint: "Tap it to boost the red car", actions: [{ label: "Boost red", touch: true }] },
+  satellite: { hint: "Tap it to ping the satellite", actions: [{ label: "Ping", touch: true }] },
+  sundial: { hint: "The shadow of your clock's time; tap it to read it", actions: [{ label: "Read", touch: true }] },
+  lavaLamp: { hint: "Tap it for other colors", actions: [{ label: "Colors", touch: true }] },
   orrery: {
     hint: "Tap a planet for its name; twist your wrist to move a month",
     actions: [

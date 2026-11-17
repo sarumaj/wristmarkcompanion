@@ -190,6 +190,13 @@ where it's day now?
 | 33  | UFO                  |                    |         |       |
 | 34  | Toy train            |                    |         |       |
 | 35  | Birthday cake        |                    |         |       |
+| 36  | Jellyfish            |                    |         |       |
+| 37  | Butterflies          |                    |         |       |
+| 38  | Carousel             |                    |         |       |
+| 39  | Race track           |                    |         |       |
+| 40  | Satellite            |                    |         |       |
+| 41  | Sundial              |                    |         |       |
+| 42  | Lava lamp            |                    |         |       |
 
 ## 5. Anything else
 

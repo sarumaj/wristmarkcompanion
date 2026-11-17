@@ -51,10 +51,11 @@ the axis gizmo for any other ID. It works the same on a phone (rear camera) and 
 
 All of them are generated in code with three.js (`js/models.js`, `js/sky-models.js`,
 `js/fun-models.js`, `js/aviation-models.js`, `js/clock-models.js`, `js/nature-models.js`,
-`js/pose-models.js`, `js/scene-models.js`, `js/science-models.js`, `js/play-models.js`), so
-there are no asset files and nothing to license apart from this project's own code (GPL-3.0)
-and Natural Earth's land, which is in the public domain. Each stands on the marker's face,
-sized from the marker's side, and moves a little so that it reads as 3D.
+`js/pose-models.js`, `js/scene-models.js`, `js/science-models.js`, `js/play-models.js`,
+`js/life-models.js`, `js/fair-models.js`), so there are no asset files and nothing to license apart
+from this project's own code (GPL-3.0) and Natural Earth's land, which is in the public domain. Each
+stands on the marker's face, sized from the marker's side, and moves a little so that it reads as
+3D.
 
 ![The moon on 2026-11-16, the Earth at noon UTC that day, the robot and the snow globe](images/models.png)
 
@@ -106,6 +107,13 @@ sized from the marker's side, and moves a little so that it reads as 3D.
 | 33  | `ufo`           | A UFO over a meadow: its beam lifts the cow up and lets it down again, unharmed; a tap starts the beam                                                               |
 | 34  | `train`         | A toy steam train going round a circular track, puffing smoke; a tap blows the whistle and it speeds up                                                              |
 | 35  | `cake`          | A birthday cake with six flickering candles; a tap blows them out, smoke rises, and they light again                                                                 |
+| 36  | `jellyfish`     | A glowing jellyfish over rocks, its bell pulsing, tentacles trailing, rising with each pulse; a tap makes it swim up                                                 |
+| 37  | `butterflies`   | Three butterflies fluttering over a patch of flowers, each on its own path; a tap scatters them                                                                      |
+| 38  | `carousel`      | A carousel: a striped roof with chasing lights, six horses going up and down; a tap speeds it up                                                                     |
+| 39  | `raceTrack`     | Two race cars lapping an oval, the lead changing; a label counts the laps; a tap boosts the red one                                                                  |
+| 40  | `satellite`     | A satellite circling the Earth (day and night as now) on the space station's inclined orbit, an orbit in 20 seconds; a tap pings it                                  |
+| 41  | `sundial`       | A garden sundial set for 50° north: the shadow falls where the sun would put it at your clock's time, none at night; a tap reads it                                  |
+| 42  | `lavaLamp`      | A lava lamp, wax blobs rising and sinking and stretching; a tap changes its colors                                                                                   |
 
 ### How the watch is held
 

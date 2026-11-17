@@ -8,6 +8,9 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Seven more models (markers 36 to 42): a jellyfish, butterflies, a carousel, a race track, a
+  satellite on the space station's orbit, a sundial reading the clock and a lava lamp, each set
+  off by a tap.
 - Eight more models (markers 28 to 35): an atom, DNA, a Newton's cradle, a metronome, a volcano,
   a UFO with a cow, a toy train and a birthday cake, each set off by a tap. Rising smoke, embers
   and bubbles are soft dots instead of squares.

@@ -177,7 +177,16 @@ test("the models that react to a tap take it, and the action buttons reach them"
     ufo: "Beam",
     train: "Whistle",
     cake: "Make a wish",
+    jellyfish: "Swim",
+    butterflies: "Scattered",
+    carousel: "Faster",
+    raceTrack: "Boost",
+    satellite: "Ping",
+    // What the sundial reads depends on the clock.
+    sundial: result.reacting.sundial,
+    lavaLamp: "Ocean",
   });
+  assert.match(result.reacting.sundial, /^(The sundial reads \d\d:\d\d|Night: no shadow)$/);
   assert.deepEqual(result.orphans, []);
   assert.match(result.mars, /^Mars, 1\.[3-7]\d au from the Sun$/);
   assert.deepEqual(problems, []);
