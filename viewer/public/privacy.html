@@ -47,6 +47,9 @@
       <li><strong>The phone's tilt</strong>, if you switch it on for a model that follows how
         the watch is held, is read from its motion sensors in your browser, used for that moment
         and kept nowhere.</li>
+      <li><strong>Controlling the watch</strong>, if you pair one: your browser keeps the
+        session's keys (in a form its own scripts can't read) and when it was paired and last
+        used, until you disconnect, 7 days without use or 30 days at most.</li>
       <li><strong>Hand tracking</strong>, if you switch it on, looks for your hands in the same
         images, also only in your browser. Its program and model are downloaded from this
         address when you switch it on; your hands' positions are used for that moment and
@@ -70,8 +73,14 @@
       shortened IP addresses (kept for up to 395 days). None of it is shared with anyone.</p>
 
     <h2>The watch app</h2>
-    <p>The app on your Garmin watch shows a marker and nothing else. It collects no data, asks
-      for no permissions and connects to nothing.</p>
+    <p>The app on your Garmin watch shows a marker. It collects no data. Only if you pair it with
+      a viewer (its menu, <em>Pair a viewer</em>) does it connect, through your phone and only
+      while the app is open, to this address's relay, to receive the viewer's commands and to
+      tell it which marker it shows. The messages are encrypted on the watch and in your browser
+      with keys only those two have: the relay passes them on without being able to read them,
+      keeps them in memory only until they are delivered, and logs nothing. The watch keeps a
+      paired viewer's keys until you forget it in its menu, 7 days without use or 30 days at
+      most.</p>
 
     <h2>Contact</h2>
     <p>Dawid Ciepiela, <a href="mailto:contact@ciepiela.org">contact@ciepiela.org</a></p>
@@ -90,6 +99,10 @@
         <li><strong>Die Neigung des Handys</strong> wird, wenn du sie für ein Modell einschaltest,
           das der Haltung der Uhr folgt, in deinem Browser aus seinen Bewegungssensoren gelesen,
           nur im Moment verwendet und nirgends aufbewahrt.</li>
+        <li><strong>Die Steuerung der Uhr</strong>, wenn du eine koppelst: Dein Browser behält die
+          Schlüssel der Sitzung (so, dass seine eigenen Skripte sie nicht lesen können) und wann sie
+          gekoppelt und zuletzt genutzt wurde, bis du trennst, 7 Tage ohne Nutzung oder höchstens 30
+          Tage.</li>
         <li><strong>Die Handerkennung</strong> sucht, wenn du sie einschaltest, deine Hände in
           denselben Bildern, ebenfalls nur in deinem Browser. Ihr Programm und ihr Modell werden
           beim Einschalten von dieser Adresse geladen; die Lage deiner Hände wird nur im Moment
@@ -115,8 +128,14 @@
         Tage aufbewahrt). Nichts davon wird an jemanden weitergegeben.</p>
 
       <h3>Die App auf der Uhr</h3>
-      <p>Die App auf deiner Garmin-Uhr zeigt einen Marker und sonst nichts. Sie sammelt keine
-        Daten, verlangt keine Berechtigungen und verbindet sich mit nichts.</p>
+      <p>Die App auf deiner Garmin-Uhr zeigt einen Marker. Sie sammelt keine Daten. Nur wenn du sie
+        mit einem Viewer koppelst (ihr Menü, <em>Pair a viewer</em>), verbindet sie sich über dein
+        Handy und nur, solange die App offen ist, mit dem Relay unter dieser Adresse, um die Befehle
+        des Viewers zu empfangen und ihm zu sagen, welchen Marker sie zeigt. Die Nachrichten werden
+        auf der Uhr und in deinem Browser mit Schlüsseln verschlüsselt, die nur diese beiden haben:
+        Das Relay reicht sie weiter, ohne sie lesen zu können, hält sie nur bis zur Zustellung im
+        Speicher und protokolliert nichts. Die Uhr behält die Schlüssel eines gekoppelten Viewers,
+        bis du ihn in ihrem Menü vergisst, 7 Tage ohne Nutzung oder höchstens 30 Tage.</p>
 
       <h3>Kontakt</h3>
       <p>Dawid Ciepiela, <a href="mailto:contact@ciepiela.org">contact@ciepiela.org</a></p>

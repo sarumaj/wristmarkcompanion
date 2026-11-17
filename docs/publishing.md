@@ -201,9 +201,9 @@ button press shows it again. Night mode (red light) works too.
 What you need: a phone or laptop with a camera and a current web browser, and an internet
 connection to load the viewer once. No account, nothing else to install.
 
-Privacy: the watch app collects nothing and connects to nothing. The viewer runs entirely in
-your browser: the camera images never leave your device. No ads, no tracking. Details:
-https://wristmark.apps.ciepiela.org/privacy.html
+Privacy: the watch app collects nothing; it connects only if you pair it with a viewer, through your
+phone, end-to-end encrypted. The viewer runs entirely in your browser: the camera images never leave
+your device. No ads, no tracking. Details: https://wristmark.apps.ciepiela.org/privacy.html
 
 Support: questions and problems by e-mail to contact@ciepiela.org.
 ```
@@ -246,9 +246,10 @@ Tastendruck zeigt ihn wieder. Der Nachtmodus (Rotlicht) funktioniert auch.
 Du brauchst: ein Handy oder einen Laptop mit Kamera und einem aktuellen Webbrowser, und eine
 Internetverbindung, um den Viewer einmal zu laden. Kein Konto, sonst nichts zu installieren.
 
-Datenschutz: Die App auf der Uhr sammelt nichts und verbindet sich mit nichts. Der Viewer läuft
-ganz in deinem Browser: Die Kamerabilder verlassen dein Gerät nie. Keine Werbung, kein
-Tracking. Details: https://wristmark.apps.ciepiela.org/privacy.html
+Datenschutz: Die App auf der Uhr sammelt nichts; sie verbindet sich nur, wenn du sie mit einem
+Viewer koppelst, über dein Handy und Ende-zu-Ende-verschlüsselt. Der Viewer läuft ganz in deinem
+Browser: Die Kamerabilder verlassen dein Gerät nie. Keine Werbung, kein Tracking. Details:
+https://wristmark.apps.ciepiela.org/privacy.html
 
 Support: Fragen und Probleme per E-Mail an contact@ciepiela.org.
 ```
@@ -285,9 +286,11 @@ closest to this app:
 
 ## 10. Privacy
 
-- A privacy policy is required "If your Application will collect any data from users" (DA
-  Exhibit A I.a). The watch app collects nothing and has no permissions, so the store's rule
-  doesn't apply to it.
+- A privacy policy is required "If your Application will collect any data from users" (DA Exhibit A
+  I.a). The watch app collects nothing. It asks for one permission, Communications, for the control
+  channel: paired with a viewer, it passes that viewer's end-to-end encrypted commands through the
+  phone ([004](decisions/004-control-channel.md)). The privacy page describes it, so the listing
+  links it in any case.
 - The viewer still gets a privacy page, which the description links to: what stays in the
 browser, and what the app host's proxy logs
 ([deployment](deployment.md#what-the-privacy-page-must-say)). It's `viewer/public/privacy.html`.

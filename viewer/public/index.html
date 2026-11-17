@@ -54,6 +54,10 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9.6 9.3a2.5 2.5 0 1 1 3.4 2.3c-.7.3-1 .8-1 1.5v.4M12 16.6v.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         <span class="chip-label">Help</span>
       </button>
+      <button id="remote-toggle" class="chip" type="button" aria-expanded="false" aria-controls="remote" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="5" width="10" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 5V2h6v3M9 19v3h6v-3M12 10v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <span class="chip-label">Watch</span>
+      </button>
       <button id="debug-toggle" class="chip" type="button" aria-pressed="false">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         <span class="chip-label">Debug</span>
@@ -123,6 +127,22 @@
       <div id="actions" class="model-actions" role="group" aria-label="Model actions" hidden></div>
       <p id="status" class="status" role="status">Point the camera at the watch's display.</p>
     </div>
+    <section id="remote" class="remote" aria-labelledby="remote-title" hidden>
+      <div class="remote-head">
+        <h2 id="remote-title">Control the watch</h2>
+        <span id="remote-badge" class="remote-badge" hidden>Connected</span>
+      </div>
+      <p id="remote-text" aria-live="polite"></p>
+      <progress id="remote-progress" max="13" value="0" hidden></progress>
+      <div id="remote-buttons" class="remote-buttons" role="group" aria-label="Watch controls" hidden>
+        <button type="button" data-op="previous">Previous</button>
+        <button type="button" data-op="next">Next</button>
+        <button type="button" data-op="cycle" aria-pressed="false">Auto cycle</button>
+        <button type="button" data-op="buzz">Find the watch</button>
+        <button type="button" data-op="disconnect" class="danger">Disconnect</button>
+      </div>
+      <p class="remote-actions"><button id="remote-pair" class="primary" type="button">Pair with the watch</button></p>
+    </section>
     <section id="guide" class="guide" aria-label="Device test" hidden></section>
   </main>
 
@@ -185,6 +205,12 @@
       <div><dt><kbd>D</kbd></dt><dd>the debug view: what the camera detects</dd></div>
       <div><dt><kbd>?</kbd></dt><dd>this help</dd></div>
     </dl>
+
+    <h3>Steer the watch</h3>
+    <p>Where the <strong>Watch</strong> button shows: on the watch, open the menu and choose
+      <em>Pair a viewer</em>; here, tap <em>Pair with the watch</em> and hold the watch 15 to 25 cm
+      from the camera. Then the buttons step through its markers, start its cycle or make it buzz.
+      End-to-end encrypted.</p>
 
     <h3>No watch at hand?</h3>
     <p>Open the <a href="markers.html">markers</a> on another screen and point the camera at them.</p>

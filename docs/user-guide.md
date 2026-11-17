@@ -112,6 +112,21 @@ list](content.md#the-models) says what each one does.
 | At night, in red light (night mode) | It works; hold the watch a little closer                                                                    |
 | More than one camera, the wrong one | The switch button on the camera image changes it                                                            |
 
+## Steer the watch from the viewer
+
+Where it's offered (the **Watch** button at the top), the viewer can control the watch: the
+next or previous marker, the automatic cycle, and a buzz to find it.
+
+1. On the watch, open the menu (hold the up button) and choose **Pair a viewer**. It shows a
+   pairing code: four small markers that change three times a second.
+2. In the viewer, open **Watch**, tap **Pair with the watch**, and hold the watch 15 to 25 cm
+   from the camera until the count reaches 13 of 13.
+3. The watch buzzes, shows its marker again, and the viewer says "Connected".
+
+The pairing is kept on both sides: next time it connects by itself while the app is open. A
+watch keeps up to four viewers; forget one in its menu, or tap **Disconnect** in the viewer.
+Unused for 7 days, or after 30 days, a pairing ends. The messages are encrypted end to end.
+
 ## Without a watch
 
 The viewer's **Markers without a watch** page shows the same markers on any screen: open it on a
@@ -119,9 +134,10 @@ laptop or a tablet and point the phone's camera at it.
 
 ## Privacy
 
-The camera's image is processed in your browser and never sent, saved or recorded. The viewer has
-no accounts, no cookies and no tracking; the watch app collects nothing and connects nowhere.
-The [privacy page](../viewer/public/privacy.html) has the details.
+The camera's image is processed in your browser and never sent, saved or recorded. The viewer has no
+accounts, no cookies and no tracking; the watch app collects nothing, and connects only when you
+pair it with a viewer, end-to-end encrypted. The [privacy page](../viewer/public/privacy.html) has
+the details.
 
 ## Questions
 

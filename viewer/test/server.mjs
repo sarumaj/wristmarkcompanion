@@ -58,6 +58,12 @@ export async function serve() {
   await handModel();
   const server = createServer(async (request, response) => {
     const path = decodeURIComponent(new URL(request.url, "http://localhost").pathname);
+    // As nginx.conf answers while the relay isn't deployed.
+    if (path === "/relay/v1/healthz") {
+      response.writeHead(200, { "Content-Type": "application/json", "Content-Security-Policy": csp });
+      response.end('{"status":"off"}');
+      return;
+    }
     const [prefix, root] = ROUTES.find(([route]) => path.startsWith(route));
     // A route to a single file serves it as is.
     const relative = path === prefix ? "." : normalize(path.slice(prefix.length) || "index.html");
