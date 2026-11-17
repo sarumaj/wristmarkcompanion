@@ -50,7 +50,8 @@ the axis gizmo for any other ID. It works the same on a phone (rear camera) and 
 ## The models
 
 All of them are generated in code with three.js (`js/models.js`, `js/sky-models.js`,
-`js/fun-models.js`, `js/aviation-models.js`, `js/clock-models.js`, `js/nature-models.js`), so
+`js/fun-models.js`, `js/aviation-models.js`, `js/clock-models.js`, `js/nature-models.js`,
+`js/pose-models.js`, `js/scene-models.js`), so
 there are no asset files and nothing to license apart from this project's own code (GPL-3.0)
 and Natural Earth's land, which is in the public domain. Each stands on the marker's face,
 sized from the marker's side, and moves a little so that it reads as 3D.
@@ -63,29 +64,47 @@ sized from the marker's side, and moves a little so that it reads as 3D.
 
 ![Dice rolling in, the campfire, the aquarium and the rocket lifting off](images/models-4.png)
 
-| ID  | Model        | What                                                                                                                                                              |
-|-----|--------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 0   | `moon`       | The moon in its phase now, lit from the sun's side wherever the camera is; a label with the lit share and the next full or new moon                               |
-| 1   | `earth`      | The Earth with day and night as they are now, the terminator moving; a yellow meridian at the viewer's time zone                                                  |
-| 2   | `robot`      | A robot mascot: it bobs, looks around, blinks and waves                                                                                                           |
-| 3   | `snowglobe`  | A snow globe with a fir tree, the snow drifting down                                                                                                              |
-| 4   | `cube`       | Placeholder: a cube with a color per face, turning slowly                                                                                                         |
-| 5   | `knot`       | Placeholder: a torus knot above the marker, turning                                                                                                               |
-| 6   | `planet`     | Placeholder: a planet with a ring and a moon orbiting it                                                                                                          |
-| 7   | `crystal`    | Placeholder: a flat-shaded crystal floating up and down                                                                                                           |
-| 8   | `orrery`     | The planets around the sun as they stand today: true directions, distances not to scale; a label with the date                                                    |
-| 9   | `landing`    | A plane landing on a runway along the watch: approach, flare, touchdown, rollout, with edge and approach lights                                                   |
-| 10  | `fireworks`  | Rockets rising from the watch and bursting, the sparks falling and fading                                                                                         |
-| 11  | `worldClock` | The Earth seen from above the North Pole, day and night as they are now, and eight cities around it at their longitudes with their local time                     |
-| 12  | `movement`   | An open mechanical movement under a glass dome: the gear train turning, the escape wheel stepping, the balance swinging at 2.5 Hz, the hands showing the time now |
-| 13  | `hourglass`  | An hourglass that runs out every minute and turns over at the full minute                                                                                         |
-| 14  | `helicopter` | A helicopter on a helipad: the rotor spins up, it lifts off, hovers turning once around, lands and spins down; the pad's lights chase while it's away             |
-| 15  | `dice`       | Two dice thrown onto the watch every five seconds: they tumble in, bounce and land on a new roll                                                                  |
-| 16  | `campfire`   | A campfire in a ring of stones: flickering flames, rising embers and a flickering orange light                                                                    |
-| 17  | `aquarium`   | A glass bowl with sand, swaying plants, three fish swimming their rounds and bubbles rising                                                                       |
-| 18  | `lighthouse` | A red and white lighthouse on a rock in the sea, its beam turning every six seconds                                                                               |
-| 19  | `balloon`    | A striped hot-air balloon drifting above the watch, the burner firing every eight seconds                                                                         |
-| 20  | `rocket`     | A rocket launch every 14 seconds: the countdown, ignition and smoke, lift-off out of sight                                                                        |
+![The attitude indicator banked 31° left, the marble maze, the penguin, the windmill, the sailboat, the Ferris wheel lit at night, the bonsai in spring and in winter](images/models-5.png)
+
+| ID  | Model         | What                                                                                                                                                                 |
+|-----|---------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 0   | `moon`        | The moon in its phase now, lit from the sun's side wherever the camera is; a label with the lit share and the next full or new moon                                  |
+| 1   | `earth`       | The Earth with day and night as they are now, the terminator moving; a yellow meridian at the viewer's time zone                                                     |
+| 2   | `robot`       | A robot mascot: it bobs, looks around, blinks and waves                                                                                                              |
+| 3   | `snowglobe`   | A snow globe with a fir tree, the snow drifting down                                                                                                                 |
+| 4   | `cube`        | Placeholder: a cube with a color per face, turning slowly                                                                                                            |
+| 5   | `knot`        | Placeholder: a torus knot above the marker, turning                                                                                                                  |
+| 6   | `planet`      | Placeholder: a planet with a ring and a moon orbiting it                                                                                                             |
+| 7   | `crystal`     | Placeholder: a flat-shaded crystal floating up and down                                                                                                              |
+| 8   | `orrery`      | The planets around the sun as they stand today: true directions, distances not to scale; a label with the date                                                       |
+| 9   | `landing`     | A plane landing on a runway along the watch: approach, flare, touchdown, rollout, with edge and approach lights                                                      |
+| 10  | `fireworks`   | Rockets rising from the watch and bursting, the sparks falling and fading                                                                                            |
+| 11  | `worldClock`  | The Earth seen from above the North Pole, day and night as they are now, and eight cities around it at their longitudes with their local time                        |
+| 12  | `movement`    | An open mechanical movement under a glass dome: the gear train turning, the escape wheel stepping, the balance swinging at 2.5 Hz, the hands showing the time now    |
+| 13  | `hourglass`   | An hourglass that runs out every minute and turns over at the full minute                                                                                            |
+| 14  | `helicopter`  | A helicopter on a helipad: the rotor spins up, it lifts off, hovers turning once around, lands and spins down; the pad's lights chase while it's away                |
+| 15  | `dice`        | Two dice thrown onto the watch every five seconds: they tumble in, bounce and land on a new roll                                                                     |
+| 16  | `campfire`    | A campfire in a ring of stones: flickering flames, rising embers and a flickering orange light                                                                       |
+| 17  | `aquarium`    | A glass bowl with sand, swaying plants, three fish swimming their rounds and bubbles rising                                                                          |
+| 18  | `lighthouse`  | A red and white lighthouse on a rock in the sea, its beam turning every six seconds                                                                                  |
+| 19  | `balloon`     | A striped hot-air balloon drifting above the watch, the burner firing every eight seconds                                                                            |
+| 20  | `rocket`      | A rocket launch every 14 seconds: the countdown, ignition and smoke, lift-off out of sight                                                                           |
+| 21  | `attitude`    | An aircraft's attitude indicator: its ball stays level with the camera's image, so turning the wrist banks it and tilting the watch pitches it; a label reads both   |
+| 22  | `maze`        | A round labyrinth: tilt the watch away from the camera on one side and the ball rolls that way, through the walls' gaps to the middle; a label says how long it took |
+| 23  | `penguin`     | A penguin on an ice floe: it shifts from foot to foot, blinks, flaps, and keeps upright in the image as the wrist turns, swaying back; a tap makes it hop            |
+| 24  | `windmill`    | A Dutch windmill among tulips, its sails turning in a wind that swells now and then; a tap brings a gust                                                             |
+| 25  | `sailboat`    | A sailboat sailing in circles on waves, heeling and rocking; a tap makes it come about and sail the other way                                                        |
+| 26  | `ferrisWheel` | A Ferris wheel turning, its gondolas hanging level; the rim's lights chase after dark (18 to 7 o'clock), or for a while after a tap                                  |
+| 27  | `bonsai`      | A bonsai as the season is today: blossoms in spring, green in summer, orange leaves falling in autumn, snow in winter; a tap shakes it                               |
+
+### How the watch is held
+
+The attitude indicator, the maze and the penguin respond to the watch's pose as the camera sees
+it (`js/seen.js`): without the phone's sensors, the camera is taken as upright, so the image's
+down stands in for gravity. The attitude indicator and the penguin keep level with the image;
+the maze is looked into, so its "down" is the camera's line of sight, and the ball rolls toward
+the side tilted away from the camera. Each reads the camera's direction in its own frame just
+before it is drawn (`onBeforeRender`), with no other data from the viewer.
 
 ### The moon, the Earth and the planets
 

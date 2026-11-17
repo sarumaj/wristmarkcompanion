@@ -8,6 +8,10 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Seven more models (markers 21 to 27): an attitude indicator that stays level with the camera's
+  image as the wrist turns, a marble maze tilted by the watch, a penguin keeping its balance, a
+  windmill among tulips, a sailboat on the waves, a Ferris wheel lit after dark and a bonsai in
+  today's season. Each reacts to a tap; the watch shows them too (`MarkerContent.mc`).
 - Hand tracking, to try (`js/hands.js`, the hand button or `H`): MediaPipe's hand landmarker in
   the browser finds the hand not wearing the watch; pointing at the model taps it, a pinch on it
   grabs and turns it. Loaded from the viewer's own origin on first use; the CSP allows

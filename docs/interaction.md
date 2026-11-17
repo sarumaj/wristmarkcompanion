@@ -59,12 +59,18 @@ The other hand's way in, on a phone its thumb, on a laptop a mouse (`js/touch.js
 
 The models with a tap of their own:
 
-| Model    | Tap                                                              |
-|----------|------------------------------------------------------------------|
-| Orrery   | A planet says its name and its distance from the sun on the date |
-| Aquarium | The fish dart off, four times as fast, for two seconds           |
-| Balloon  | The burner fires, between burns                                  |
-| Rocket   | The countdown starts at T-3, while the pad waits                 |
+| Model        | Tap                                                              |
+|--------------|------------------------------------------------------------------|
+| Orrery       | A planet says its name and its distance from the sun on the date |
+| Aquarium     | The fish dart off, four times as fast, for two seconds           |
+| Balloon      | The burner fires, between burns                                  |
+| Rocket       | The countdown starts at T-3, while the pad waits                 |
+| Maze         | The ball goes back to the start                                  |
+| Penguin      | It hops, flapping                                                |
+| Windmill     | A gust: the sails speed up for three seconds                     |
+| Sailboat     | It comes about and sails the other way round                     |
+| Ferris wheel | The rim's lights chase for six seconds, by day too               |
+| Bonsai       | Shaken: petals, leaves or snow come down, as the season has them |
 
 ## Further ideas
 

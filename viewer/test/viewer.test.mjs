@@ -150,7 +150,7 @@ test("the models that react to a tap take it, and the action buttons reach them"
       if (answer) reacting[name] = typeof answer === "string" ? answer : answer.text;
     }
     // Each touch action belongs to a model that has a touch.
-    const actions = Object.entries(MODEL_GUIDES).filter(([, guide]) => guide.actions.some((action) => action.touch));
+    const actions = Object.entries(MODEL_GUIDES).filter(([, guide]) => (guide.actions ?? []).some((action) => action.touch));
     const orphans = actions.filter(([name]) => !createModel(name, 20).touch).map(([name]) => name);
     // A planet tapped says its distance.
     const orrery = createModel("orrery", 20);
@@ -158,7 +158,18 @@ test("the models that react to a tap take it, and the action buttons reach them"
     orrery.object.traverse((node) => (mars ??= node.userData.planet === "mars" ? node : null));
     return { reacting, orphans, mars: orrery.touch({ object: mars }).text };
   });
-  assert.deepEqual(result.reacting, { orrery: "The Sun", aquarium: "Startled", balloon: "Burner", rocket: "Countdown" });
+  assert.deepEqual(result.reacting, {
+    orrery: "The Sun",
+    aquarium: "Startled",
+    balloon: "Burner",
+    rocket: "Countdown",
+    maze: "Ball back",
+    penguin: "Hop",
+    windmill: "Gust",
+    sailboat: "Coming about",
+    ferrisWheel: "Lights",
+    bonsai: "Shaken",
+  });
   assert.deepEqual(result.orphans, []);
   assert.match(result.mars, /^Mars, 1\.[3-7]\d au from the Sun$/);
   assert.deepEqual(problems, []);
@@ -333,8 +344,8 @@ test("hand tracking loads under the CSP, from the viewer's own origin, and looks
 });
 
 test("a marker without content gets the gizmo and says so", async () => {
-  await withCamera(23, "/index.html?autostart", async (page) => {
-    assert.equal(await page.locator("#status").textContent(), "Marker 23 has no model yet");
+  await withCamera(49, "/index.html?autostart", async (page) => {
+    assert.equal(await page.locator("#status").textContent(), "Marker 49 has no model yet");
     assert.equal(await page.locator("body").getAttribute("data-model"), null);
     assert.equal(await page.locator("body").getAttribute("data-screen"), null);
     assert.equal(await page.locator("#debug").isHidden(), true);

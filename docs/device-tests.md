@@ -175,6 +175,13 @@ where it's day now?
 | 18  | Lighthouse           |                    |         |       |
 | 19  | Hot-air balloon      |                    |         |       |
 | 20  | Rocket launch        |                    |         |       |
+| 21  | Attitude indicator   |                    |         |       |
+| 22  | Marble maze          |                    |         |       |
+| 23  | Penguin              |                    |         |       |
+| 24  | Windmill             |                    |         |       |
+| 25  | Sailboat             |                    |         |       |
+| 26  | Ferris wheel         |                    |         |       |
+| 27  | Bonsai               |                    |         |       |
 
 ## 5. Anything else
 

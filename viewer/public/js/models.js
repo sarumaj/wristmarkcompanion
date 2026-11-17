@@ -11,6 +11,8 @@ import { hourglass, movement } from "./clock-models.js";
 import { dice, fireworks, robot, snowglobe } from "./fun-models.js";
 import { aquarium, campfire, lighthouse } from "./nature-models.js";
 import { balloon, helicopter, landing, rocket } from "./aviation-models.js";
+import { attitude, maze, penguin } from "./pose-models.js";
+import { bonsai, ferrisWheel, sailboat, windmill } from "./scene-models.js";
 
 const MODELS = {
   moon,
@@ -30,6 +32,13 @@ const MODELS = {
   lighthouse,
   balloon,
   rocket,
+  attitude,
+  maze,
+  penguin,
+  windmill,
+  sailboat,
+  ferrisWheel,
+  bonsai,
 
   // A cube with a color per face, on the marker, turning slowly.
   cube(size) {
@@ -124,6 +133,13 @@ export const MODEL_GUIDES = {
   aquarium: { hint: "Tap the glass to startle the fish", actions: [{ label: "Startle", touch: true }] },
   balloon: { hint: "Tap it to fire the burner", actions: [{ label: "Burner", touch: true }] },
   rocket: { hint: "Tap it to count down the next launch", actions: [{ label: "Count down", touch: true }] },
+  attitude: { hint: "Turn your wrist to bank, tilt the watch to pitch" },
+  maze: { hint: "Tilt the watch to roll the ball to the middle", actions: [{ label: "Ball back", touch: true }] },
+  penguin: { hint: "Turn your wrist and it keeps its balance; tap it to hop", actions: [{ label: "Hop", touch: true }] },
+  windmill: { hint: "Tap it for a gust of wind", actions: [{ label: "Gust", touch: true }] },
+  sailboat: { hint: "Tap it to come about", actions: [{ label: "Come about", touch: true }] },
+  ferrisWheel: { hint: "Lit after dark; tap it for the lights", actions: [{ label: "Lights", touch: true }] },
+  bonsai: { hint: "The season of today; tap it to shake it", actions: [{ label: "Shake", touch: true }] },
   orrery: {
     hint: "Tap a planet for its name; twist your wrist to move a month",
     actions: [
