@@ -49,6 +49,13 @@ With the other hand, a finger on the phone's screen or the mouse:
 - **Drag around the watch** to turn the model, like a dial; let go and it spins on a little.
   The arrow keys turn it too.
 
+## The phone's tilt
+
+The attitude indicator, the marble maze and the penguin follow how you hold the watch. On a phone,
+**Use the phone's tilt** under them lets them use its motion sensors (an iPhone asks first): the
+horizon stays level with the real one, and the maze's ball rolls downhill, so hold the watch flat
+and look down at it. Without it they take the phone as held upright.
+
 ## Your other hand in the picture (to try)
 
 When the watch is held still, for example the phone on a stand or a laptop's camera, switch on

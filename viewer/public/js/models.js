@@ -151,7 +151,9 @@ export const MODEL_NAMES = Object.keys(MODELS);
 // What the viewer tells about a model while it shows: a hint for its gestures and
 // taps, and buttons that do the same (for whoever can't or won't move the wrist or
 // tap; the keyboard reaches them too). Each action is the gesture the model would
-// get, or its tap (`touch`). A tap on a model with one gesture action does that.
+// get, or its tap (`touch`). A tap on a model with one gesture action does that. A
+// `sensor` action switches on the phone's motion sensors for the models that follow how
+// the watch is held (js/seen.js).
 export const MODEL_GUIDES = {
   dice: { hint: "Tap it, flick or shake your wrist to roll", actions: [{ label: "Roll", gesture: "flick" }] },
   snowglobe: { hint: "Tap it or shake your wrist to stir the snow", actions: [{ label: "Shake", gesture: "shake" }] },
@@ -161,9 +163,9 @@ export const MODEL_GUIDES = {
   aquarium: { hint: "Tap the glass to startle the fish", actions: [{ label: "Startle", touch: true }] },
   balloon: { hint: "Tap it to fire the burner", actions: [{ label: "Burner", touch: true }] },
   rocket: { hint: "Tap it to count down the next launch", actions: [{ label: "Count down", touch: true }] },
-  attitude: { hint: "Turn your wrist to bank, tilt the watch to pitch" },
-  maze: { hint: "Tilt the watch to roll the ball to the middle", actions: [{ label: "Ball back", touch: true }] },
-  penguin: { hint: "Turn your wrist and it keeps its balance; tap it to hop", actions: [{ label: "Hop", touch: true }] },
+  attitude: { hint: "Turn your wrist to bank, tilt the watch to pitch", actions: [{ label: "Use the phone's tilt", sensor: true }] },
+  maze: { hint: "Tilt the watch to roll the ball to the middle", actions: [{ label: "Ball back", touch: true }, { label: "Use the phone's tilt", sensor: true }] },
+  penguin: { hint: "Turn your wrist and it keeps its balance; tap it to hop", actions: [{ label: "Hop", touch: true }, { label: "Use the phone's tilt", sensor: true }] },
   windmill: { hint: "Tap it for a gust of wind", actions: [{ label: "Gust", touch: true }] },
   sailboat: { hint: "Tap it to come about", actions: [{ label: "Come about", touch: true }] },
   ferrisWheel: { hint: "Lit after dark; tap it for the lights", actions: [{ label: "Lights", touch: true }] },

@@ -8,6 +8,9 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- The phone's tilt for the attitude indicator, the maze and the penguin: a button switches on its
+  motion sensors (`deviceorientation`), and gravity comes from them instead of the image's down.
+  The Permissions-Policy allows the sensors for the viewer's origin; the privacy page says so.
 - The model's size you choose is kept in the browser for your next visit; putting it back to
   normal forgets it. The privacy page says so.
 - The last seven models (markers 43 to 49): a castle with a drawbridge, a house lit after dark, a
@@ -61,6 +64,7 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
+- Elements marked hidden stay hidden where a style sets their display (the action bar did not).
 - After the first device test ([results](docs/device-tests/2026-11-17-laptop.md)): the viewer
   detects once per camera frame, not at every display refresh (the FPS read 120 on a 30-frame
   camera); the detection's width grows toward the camera's own where it is fast, for range and
