@@ -27,6 +27,14 @@
     "24": { "model": "windmill", "name": "Windmill" },
     "25": { "model": "sailboat", "name": "Sailboat" },
     "26": { "model": "ferrisWheel", "name": "Ferris wheel" },
-    "27": { "model": "bonsai", "name": "Bonsai" }
+    "27": { "model": "bonsai", "name": "Bonsai" },
+    "28": { "model": "atom", "name": "Atom" },
+    "29": { "model": "dna", "name": "DNA" },
+    "30": { "model": "newtonsCradle", "name": "Newton's cradle" },
+    "31": { "model": "metronome", "name": "Metronome" },
+    "32": { "model": "volcano", "name": "Volcano" },
+    "33": { "model": "ufo", "name": "UFO" },
+    "34": { "model": "train", "name": "Toy train" },
+    "35": { "model": "cake", "name": "Birthday cake" }
   }
 }

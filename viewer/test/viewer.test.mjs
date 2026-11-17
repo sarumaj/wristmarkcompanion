@@ -169,6 +169,14 @@ test("the models that react to a tap take it, and the action buttons reach them"
     sailboat: "Coming about",
     ferrisWheel: "Lights",
     bonsai: "Shaken",
+    atom: "Excited",
+    dna: "Unzipped",
+    newtonsCradle: "2 balls",
+    metronome: "120 a minute",
+    volcano: "Erupting",
+    ufo: "Beam",
+    train: "Whistle",
+    cake: "Make a wish",
   });
   assert.deepEqual(result.orphans, []);
   assert.match(result.mars, /^Mars, 1\.[3-7]\d au from the Sun$/);

@@ -13,6 +13,8 @@ import { aquarium, campfire, lighthouse } from "./nature-models.js";
 import { balloon, helicopter, landing, rocket } from "./aviation-models.js";
 import { attitude, maze, penguin } from "./pose-models.js";
 import { bonsai, ferrisWheel, sailboat, windmill } from "./scene-models.js";
+import { atom, dna, metronome, newtonsCradle } from "./science-models.js";
+import { cake, train, ufo, volcano } from "./play-models.js";
 
 const MODELS = {
   moon,
@@ -39,6 +41,14 @@ const MODELS = {
   sailboat,
   ferrisWheel,
   bonsai,
+  atom,
+  dna,
+  newtonsCradle,
+  metronome,
+  volcano,
+  ufo,
+  train,
+  cake,
 
   // A cube with a color per face, on the marker, turning slowly.
   cube(size) {
@@ -140,6 +150,14 @@ export const MODEL_GUIDES = {
   sailboat: { hint: "Tap it to come about", actions: [{ label: "Come about", touch: true }] },
   ferrisWheel: { hint: "Lit after dark; tap it for the lights", actions: [{ label: "Lights", touch: true }] },
   bonsai: { hint: "The season of today; tap it to shake it", actions: [{ label: "Shake", touch: true }] },
+  atom: { hint: "Tap it to excite the electrons", actions: [{ label: "Excite", touch: true }] },
+  dna: { hint: "Tap it to unzip the strands", actions: [{ label: "Unzip", touch: true }] },
+  newtonsCradle: { hint: "Tap it to lift another ball", actions: [{ label: "Another ball", touch: true }] },
+  metronome: { hint: "Tap it for the next tempo", actions: [{ label: "Tempo", touch: true }] },
+  volcano: { hint: "Tap it and it erupts", actions: [{ label: "Erupt", touch: true }] },
+  ufo: { hint: "Tap it to beam the cow up", actions: [{ label: "Beam", touch: true }] },
+  train: { hint: "Tap it to blow the whistle", actions: [{ label: "Whistle", touch: true }] },
+  cake: { hint: "Tap it to blow out the candles", actions: [{ label: "Blow out", touch: true }] },
   orrery: {
     hint: "Tap a planet for its name; twist your wrist to move a month",
     actions: [
