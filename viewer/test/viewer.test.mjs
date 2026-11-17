@@ -4,7 +4,8 @@
 //   at an angle and rotated;
 // - a frontal marker's pose gives the distance the camera model predicts;
 // - the viewer, fed a marker through Chromium's fake camera, shows its model (or
-//   the gizmo for an ID without content) and the debug overlay;
+//   the gizmo for an ID without content) and the debug overlay, with the marker's
+//   outline drawn and the search around it;
 // - content.json passes its check, and the models stand on the marker;
 // - the guided device test measures a step and reports it;
 // - a camera that can't be opened shows the error card;
@@ -294,9 +295,21 @@ test("the viewer shows the model content.json gives the camera's marker, and the
     assert.match(await row("detection"), /^\d+ %$/);
     assert.match(await row("camera"), /^640x480$/);
     assert.equal(await page.locator("#debug .debug-chart").count(), 1);
+    // Once found, the marker is looked for around where it was, at the camera's resolution.
+    assert.match(await row("detected-at"), /around the watch at \d+x\d+/);
+    // The marker's outline is drawn over the image, in green.
+    const green = await page.evaluate(() => {
+      const canvas = document.getElementById("marks");
+      const data = canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height).data;
+      let count = 0;
+      for (let i = 0; i < data.length; i += 4) if (data[i + 1] > 180 && data[i] < 120 && data[i + 3] > 200) count++;
+      return count;
+    });
+    assert.ok(green > 50, `${green} green pixels`);
     // The toggle hides it.
     await page.locator("#debug-toggle").click();
     assert.equal(await page.locator("#debug").isHidden(), true);
+    assert.equal(await page.locator("#marks").isHidden(), true);
   });
 });
 

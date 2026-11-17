@@ -88,6 +88,12 @@ export class Turntable {
     if (Math.abs(this.#velocity) < 0.00005) this.#velocity = 0;
   }
 
+  // A push: the model coasts from `velocity` (radians a millisecond), as after a drag.
+  spin(velocity) {
+    if (this.dragging) return;
+    this.#velocity = velocity;
+  }
+
   // For the keyboard: a fixed turn.
   turn(radians) {
     this.angle += radians;

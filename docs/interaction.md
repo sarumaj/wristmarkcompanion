@@ -17,10 +17,18 @@ overlay shows the last one; a chip on the stage confirms a gesture the model rea
 | Hold    | It stays still (under 20°/s and 30 mm/s) for 0.7 s after moving           |
 
 - **Not twice in a row:** a gesture isn't recognized again within 0.6 s.
-- **The planar flip isn't a flick:** a jump of the face by more than 30° in one frame starts the
-  recognizer afresh, as does a gap in tracking over 0.25 s. Only the smoothed pose drives it.
-- **Tested** (`viewer/test/gestures.test.mjs`) on made-up movements at 30 frames a second: each
-  gesture, and that a hand holding still, a slow turn and the flip make none.
+- **The turn's speed over 60 ms**, not frame to frame: the pose's jitter divided by one frame's
+  time would look like a turn.
+- **The planar flip isn't a flick:** a jump of the face by more than 45° in one frame, or more
+  than 20° straight out of stillness, starts the recognizer afresh, as does a gap in tracking
+  over 0.25 s. Only the smoothed pose drives it.
+- **Turned out of sight:** a marker lost within 0.15 s of turning at 60 % of a flick's speed
+  was turned away in a flick: a quick turn blurs the marker or turns it edge on.
+- **Steady enough** since the pose's stability work
+  ([003](decisions/003-pose.md#stability)): before it, a still watch's jitter read as flicks.
+- **Tested** on made-up movements at 30 frames a second (`viewer/test/gestures.test.mjs`): each
+  gesture, and that a hand holding still, a slow turn and the flip make none. And end to end on
+  rendered frames (`viewer/test/tracking.test.mjs`).
 
 Which models react:
 
@@ -134,8 +142,20 @@ watch) can touch the model. It suits a held-still watch: a phone on a stand, a l
   next. An open hand passing over the model does nothing.
 - **Pinch the model** (thumb and index meet on it), then move: it turns as a drag does, from
   wherever the hand goes; opening the fingers, or the hand leaving the picture, lets go.
+- **Wave** an open hand (all four fingers out), its palm back and forth, turning three times
+  within 1.3 s, each swing over a third of the palm's length: the models' shake, for when the
+  wrist can't.
+- **Swipe** an open hand across the picture: the palm across at least 1.6 palm lengths and 15 %
+  of the picture within 0.4 s, mostly sideways. With the watch connected
+  ([004](decisions/004-control-channel.md)) its next or previous marker; otherwise the model
+  spins that way. After a swipe or a wave, neither comes again for 0.9 s.
 - **A cursor** shows the free hand's fingertip: a ring, filled over the model, small while
-  pinching, in the accent while it holds the model.
+  pinching, in the accent while it holds the model. The pointer is smoothed by a One Euro
+  filter, as the watch's pose is.
+- **The debug view draws what the tracking sees** (`js/marks.js`): each hand's 21 points and
+  bones, the free hand's in the accent with its state (open, pointing, pinching, grabbing), the
+  hand wearing the watch in grey, and the pointer. The marker's outline, the region it was
+  found in, and the watch's turn speed against a flick's.
 - **Depth is a guess** from one camera, so the touch is on the image: where the finger covers
   the model. Reaching behind the model counts as touching it.
 
