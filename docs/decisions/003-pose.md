@@ -1,4 +1,4 @@
-# 003: Pose: coplanar POSIT, assumed intrinsics, flip-aware smoothing
+# 003: Pose: coplanar POSIT, refined; assumed intrinsics; flip-aware smoothing
 
 Status: accepted (milestone 2), to be checked against the device tests (milestone 4).
 
@@ -19,9 +19,11 @@ image's center. The focal length in pixels is then `width / 2 / tan(fov / 2)`
 ## Pose
 
 js-aruco2's coplanar POSIT (`posit1.js`, Oberkampf, DeMenthon and Davis) takes the marker's four
-corners, its side in millimeters and the focal length. It returns the pose with the smaller
-reprojection error and the other solution of the planar ambiguity. The translation is in
-millimeters.
+corners, its side in millimeters and the focal length. It returns two poses, the planar
+ambiguity's two solutions, approximately. Each is then refined (`pose-refine.js`): a few
+Levenberg-Marquardt steps that minimize the distance in pixels between the corners seen and the
+ones the pose projects. The better fit is the best solution, the other the alternative. The
+translation is in millimeters. A pixel's center is at its index plus half a pixel.
 
 `smoothing.js` converts POSIT's frame (x right, y up, z away from the camera) to three.js's
 camera frame (z toward the viewer) as `S R S` with `S = diag(1, 1, -1)`, which keeps a proper
@@ -35,17 +37,51 @@ model flips. The smoother (`PoseSmoother`):
 
 - **Keeps the closer solution:** of the two, the one whose orientation is closest to the current
   smoothed pose, as long as its error is at most twice the better one's plus a pixel.
-- **Eases toward each frame:** position by linear interpolation and orientation by spherical
-  interpolation, halfway each frame (`alpha` 0.5), which damps the corners' pixel noise.
+- **Filters with a One Euro filter** (Casiez, Roussel and Vogel, CHI 2012): position by linear
+  and orientation by spherical interpolation toward each frame, by a share that grows with the
+  speed. Still, the cutoff is 1.5 Hz, which smooths the jitter away; turning, it rises by 0.03 Hz
+  per degree a second (moving, 0.02 Hz per millimeter a second), so a flick comes through
+  nearly without lag.
+- **Waits on a jump:** a turn over 45° in one frame is taken only when the next frame agrees
+  (the flip, when only the wrong solution is found, lasts one frame); then without filtering.
 - **Holds briefly:** the pose stays for 300 ms after the marker is lost, and a detection after
   that starts afresh with POSIT's better solution.
 
-These values are first guesses. The debug overlay (milestone 3) and the device tests (milestone
-4) are where they get tuned.
+## Stability {#stability}
+
+The first device tests found the pose too unsteady for the wrist's gestures: a still watch's
+face jumped by degrees from frame to frame, enough to read as a flick. Four changes:
+
+1. **Corners to a fraction of a pixel** (`refine.js`): js-aruco2 finds the corners on its
+   thresholded outline, to the nearest pixel. Each edge is found again in the grey image, at up
+   to 24 points along it, where the brightness rises fastest from the black border to the white
+   quiet zone (a parabola through the samples around the peak); a line is fitted through them,
+   and the corners are where the lines meet.
+2. **The pose refined** against those corners, as above.
+3. **The One Euro filter** instead of halfway each frame.
+4. **The marker's region at full resolution** (`app.js`, `searchRegion`): once found, the next
+   frame is looked at first around where it was (0.9 of the marker's side beyond it each way),
+   cropped from the camera's full resolution, at most 480 pixels across. A marker 16 pixels
+   wide at the detection's 640 is 48 at the camera's 1920, at a fraction of the cost of the
+   whole frame. Where it isn't found there, the whole frame is searched. `?region=0` turns it
+   off. The detection's width adapts to the whole frame's search time only.
+
+Measured on made-up frames (`viewer/test/support/camera.mjs`: the watch rendered at a known pose
+with lens blur, motion blur, sensor noise of 12 grey levels and a hand's tremor), at 640 pixels:
+
+| What                                          | Before       | After         |
+|-----------------------------------------------|--------------|---------------|
+| Corners' error at 40 cm (rms)                 | 0.6 px       | 0.25 px       |
+| Still at 35 cm: the face between frames (rms) | 6.8°, to 26° | 0.5°, to 1°   |
+| Still at 45 cm: the same                      | 4.0°, to 20° | 1.2°, to 3.5° |
+| Gestures read from a still or a slow turn     | flicks       | none          |
+
+The values are tuned on those frames; the device tests are where they get checked.
 
 ## Verified
 
 `viewer/test/viewer.test.mjs` draws a 120-pixel marker facing a 640-pixel-wide camera model.
 The distance comes out within 3 % of `focal length × 20 mm / 120 px`, and the orientation within
-3 degrees of facing the camera. The flip handling has no test yet: it needs a sequence of frames
-at an angle.
+3 degrees of facing the camera. `viewer/test/tracking.test.mjs` runs sequences of made-up frames
+through the whole pipeline: the corners' refinement, a still watch's steadiness, and that a quick
+turn is a flick (also one that turns the marker out of sight) and a slow one isn't.

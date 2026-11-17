@@ -4,6 +4,8 @@
 // in millimeters too.
 /* global AR, POS */
 import { DICTIONARY, MAX_HAMMING_DISTANCE, markerDictionary } from "./markers.js";
+import { refinePose } from "./pose-refine.js";
+import { refineCorners } from "./refine.js";
 
 // The focal length in pixels of an image `width` pixels wide whose camera sees
 // `fovDegrees` across. Browsers don't expose the real intrinsics, so the viewer
@@ -23,9 +25,12 @@ export class MarkerTracker {
   }
 
   // The markers in an ImageData: [{id, corners: [{x, y}] (clockwise from the
-  // marker's own top left, in image pixels)}].
-  detect(image) {
-    return this.detector.detectImage(image.width, image.height, image.data);
+  // marker's own top left, in image pixels: a pixel's center at its index)}], the
+  // corners refined to a fraction of a pixel (js/refine.js) unless `refine` is false.
+  detect(image, { refine = true } = {}) {
+    const markers = this.detector.detectImage(image.width, image.height, image.data);
+    if (refine) for (const marker of markers) marker.corners = refineCorners(this.detector.grey, marker.corners);
+    return markers;
   }
 
   // The marker's pose, or null when POSIT finds none: {best, alternative}, each
@@ -37,15 +42,26 @@ export class MarkerTracker {
       this.posit = new POS.Posit(this.markerSize, focalLength(width, this.fovDegrees));
       this.positWidth = width;
     }
-    // POSIT wants the corners around the image's center, y up.
-    const points = marker.corners.map((corner) => ({ x: corner.x - width / 2, y: height / 2 - corner.y }));
+    // POSIT wants the corners around the image's center, y up; a pixel's center is half
+    // a pixel past its index.
+    const points = marker.corners.map((corner) => ({ x: corner.x + 0.5 - width / 2, y: height / 2 - corner.y - 0.5 }));
     const pose = this.posit.pose(points);
+    const focal = focalLength(width, this.fovDegrees);
+    // Each of POSIT's solutions refined to fit the corners best (js/pose-refine.js);
+    // its error is then the corners' distance in pixels.
     const solution = (rotation, translation, error) =>
-      error >= 0 && translation.every(Number.isFinite) ? { rotation, translation, error } : null;
-    const best = solution(pose.bestRotation, pose.bestTranslation, pose.bestError);
-    if (!best) {
+      error >= 0 && translation.every(Number.isFinite) && rotation.flat().every(Number.isFinite)
+        ? refinePose({ rotation, translation }, points, this.markerSize, focal)
+        : null;
+    const solutions = [
+      solution(pose.bestRotation, pose.bestTranslation, pose.bestError),
+      solution(pose.alternativeRotation, pose.alternativeTranslation, pose.alternativeError),
+    ]
+      .filter((s) => s && Number.isFinite(s.error) && s.translation[2] > 0)
+      .sort((a, b) => a.error - b.error);
+    if (!solutions.length) {
       return null;
     }
-    return { best, alternative: solution(pose.alternativeRotation, pose.alternativeTranslation, pose.alternativeError) };
+    return { best: solutions[0], alternative: solutions[1] ?? null };
   }
 }

@@ -20,8 +20,18 @@ export const STILL_DEGREES_PER_SECOND = 20;
 export const STILL_MM_PER_SECOND = 30;
 // After a gesture, the same one isn't recognized again for this long.
 export const REFRACTORY_MS = 600;
-// A jump of the face by more than this in one frame is the planar flip, not a movement.
-export const FLIP_DEGREES = 30;
+// A jump of the face by more than this in one frame is the planar flip, not a movement;
+// so is one by more than SUDDEN_DEGREES straight out of stillness (below STILL_STEP).
+export const FLIP_DEGREES = 45;
+export const SUDDEN_DEGREES = 20;
+export const STILL_STEP_DEGREES = 4;
+// The turn's speed is measured over at least this long, not frame to frame: the pose's
+// jitter, divided by one frame's time, would look like a turn.
+export const SPEED_WINDOW_MS = 60;
+// A marker lost within this long after turning at least LOST_FLICK_SHARE of a flick's
+// speed was turned away in a flick (a quick turn blurs it, or turns it edge on).
+export const LOST_FLICK_MS = 150;
+export const LOST_FLICK_SHARE = 0.6;
 // A gap in tracking longer than this starts afresh.
 export const GAP_MS = 250;
 
@@ -55,6 +65,7 @@ export class GestureRecognizer {
 
   reset() {
     this.history = [];
+    this.turning = null;
     this.moved = false;
     this.stillSince = null;
   }
@@ -68,34 +79,47 @@ export class GestureRecognizer {
   // A frame in; the gestures it completes out (an array, usually empty).
   update(frame) {
     if (!frame.tracked) {
+      const events = [];
+      // Lost just after a quick turn: the turn was a flick.
+      if (this.turning && frame.t - this.turning.t <= LOST_FLICK_MS) {
+        events.push(this.fire("flick", frame.t, { direction: this.turning.direction }));
+        this.turning = null;
+      }
       if (this.history.length && frame.t - this.history.at(-1).t > GAP_MS) this.reset();
-      return [];
+      return events.filter(Boolean);
     }
     const normal = rotate(frame.quaternion, [0, 0, 1]);
     const xAxis = rotate(frame.quaternion, [1, 0, 0]);
     const rollAngle = Math.atan2(xAxis[1], xAxis[0]) * DEG;
     const previous = this.history.at(-1);
-    if (previous && (frame.t - previous.t > GAP_MS || angle(previous.normal, normal) > FLIP_DEGREES)) {
-      this.reset();
+    if (previous) {
+      const step = angle(previous.normal, normal);
+      const sudden = step > SUDDEN_DEGREES && (previous.step ?? 0) < STILL_STEP_DEGREES;
+      if (frame.t - previous.t > GAP_MS || step > FLIP_DEGREES || sudden) this.reset();
     }
     const before = this.history.at(-1);
     if (before) this.roll += wrap(rollAngle - before.rollAngle);
-    const sample = { t: frame.t, position: frame.position, normal, rollAngle, roll: this.roll };
+    const sample = { t: frame.t, position: frame.position, normal, rollAngle, roll: this.roll, step: before ? angle(before.normal, normal) : 0 };
     this.history.push(sample);
     while (this.history.length && this.history[0].t < frame.t - 1000) this.history.shift();
     if (!before) return [];
 
     const events = [];
     const dt = Math.max(1, frame.t - before.t) / 1000;
-    const turnSpeed = angle(before.normal, normal) / dt;
+    // The turn since the last sample at least SPEED_WINDOW_MS old (or the oldest).
+    const from = this.history.findLast((s) => s.t <= frame.t - SPEED_WINDOW_MS) ?? this.history[0];
+    const turnSpeed = from === sample ? 0 : angle(from.normal, normal) / (Math.max(1, frame.t - from.t) / 1000);
     const velocity = frame.position.map((value, axis) => (value - before.position[axis]) / dt);
     const speed = Math.hypot(...velocity);
     sample.vx = velocity[0];
 
+    // Which way the face turned, in the image: its change across the screen.
+    const direction = [normal[0] - from.normal[0], normal[1] - from.normal[1]];
     if (turnSpeed > FLICK_DEGREES_PER_SECOND) {
-      // Which way the face turned, in the image: its change across the screen.
-      const direction = [normal[0] - before.normal[0], normal[1] - before.normal[1]];
       events.push(this.fire("flick", frame.t, { direction }));
+      this.turning = null;
+    } else {
+      this.turning = turnSpeed > LOST_FLICK_SHARE * FLICK_DEGREES_PER_SECOND ? { t: frame.t, direction } : null;
     }
 
     const twistFrom = this.history.find((s) => s.t >= frame.t - TWIST_WITHIN_MS);

@@ -66,6 +66,9 @@ for a few seconds. Then, with your free hand in front of the camera:
 - **Point** at the model with your index finger: it reacts as to a tap.
 - **Pinch** it, thumb and index finger together on the model, and move your hand: it turns. Open
   your fingers to let go.
+- **Wave** your open hand: the model reacts as to shaking the watch.
+- **Swipe** your open hand across the picture: with the watch connected (below), its next or
+  previous model; otherwise the model spins.
 
 A ring shows where your fingertip is. It works best in good light, with the hand fully in the
 picture. It is new: tell us how it works for you.
@@ -78,14 +81,14 @@ picture. It is new: tell us how it works for you.
 - The models may reach well beyond the watch; that's on purpose, so that they read at arm's
   length.
 
-| Key         | Does                                                  |
-|-------------|-------------------------------------------------------|
-| `+` `−` `0` | Larger, smaller, as it was (the size and the turn)    |
-| `←` `→`     | Turn the model                                        |
-| `F`, `Esc`  | Full screen, and back                                 |
-| `H`         | Hand tracking on or off                               |
-| `D`         | The debug view: what the camera detects, and how fast |
-| `?`         | Help                                                  |
+| Key         | Does                                                                    |
+|-------------|-------------------------------------------------------------------------|
+| `+` `−` `0` | Larger, smaller, as it was (the size and the turn)                      |
+| `←` `→`     | Turn the model                                                          |
+| `F`, `Esc`  | Full screen, and back                                                   |
+| `H`         | Hand tracking on or off                                                 |
+| `D`         | The debug view: what the camera and the hand tracking see, and how fast |
+| `?`         | Help                                                                    |
 
 ## The models
 

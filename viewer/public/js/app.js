@@ -12,6 +12,7 @@ import { zoomControl } from "./zoom.js";
 import { GestureRecognizer } from "./gestures.js";
 import { touchControl, Turntable } from "./touch.js";
 import { HandInteraction } from "./hands.js";
+import { drawMarks } from "./marks.js";
 import { sensing, startMotion } from "./seen.js";
 import { Remote } from "./remote.js";
 import { FRAMES } from "./pairing.js";
@@ -40,6 +41,14 @@ const DETECT_WIDTHS = params.has("detect") ? [Number(params.get("detect"))] : [6
 // Faster than this on average (ms), the next width; slower than the second, the one before.
 const DETECT_FAST_MS = 6;
 const DETECT_SLOW_MS = 18;
+// Once the watch is found, the next frame is looked at first around where it was: a
+// region this many of the marker's sides beyond it on each side, cropped from the
+// camera's full resolution (at most REGION_MAX pixels across), so the marker has all the
+// camera's pixels at a fraction of the whole frame's cost (docs/decisions/003-pose.md#stability).
+// Where it isn't found there, the whole frame is searched as before. ?region=0 turns it off.
+const REGION_MARGIN = 0.9;
+const REGION_MAX = 480;
+const USE_REGION = params.get("region") !== "0";
 // The date the moon and the globe show: now, or ?date= (e.g. 2026-12-24T18:00Z) to
 // see another day, the clock running on from it.
 const DATE_OFFSET = params.has("date") ? Date.parse(params.get("date")) - Date.now() : 0;
@@ -60,8 +69,10 @@ const TIPS_AFTER_MS = 6000;
 // ?capture= and ?countdown= shorten its measurements (seconds), for the tests.
 let guide = null;
 
+const marks = document.getElementById("marks");
 function showDebug(visible) {
   debugPanel.hidden = !visible;
+  marks.hidden = !visible;
   debugToggle.setAttribute("aria-pressed", String(visible));
 }
 showDebug(params.has("debug"));
@@ -305,6 +316,8 @@ async function run() {
   guide?.cameraStarted();
   const frame = document.createElement("canvas");
   const context = frame.getContext("2d", { willReadFrequently: true });
+  const crop = document.createElement("canvas");
+  const cropContext = crop.getContext("2d", { willReadFrequently: true });
   const tracker = new MarkerTracker({ markerSize: MARKER_SIZE, fovDegrees: FOV_DEGREES });
   let smoother = new PoseSmoother();
   const view = scene();
@@ -364,6 +377,38 @@ async function run() {
   let smoothed = null;
   let detectMs = 0;
   let image = null;
+  // The whole frame's search time (ms, smoothed), which the width adapts to; and where
+  // the marker was in the last frame (the frame's pixels), for the region's search.
+  let searchMs = 0;
+  let lastCorners = null;
+  let regionFound = false;
+  // The region last looked in (the frame's pixels), for the debug view.
+  let region = null;
+
+  // The marker searched for around `corners` at the camera's resolution: the markers
+  // found, their corners in the frame's pixels, or [] (none, or the region is most of
+  // the frame anyway).
+  const searchRegion = (corners, width, height) => {
+    const xs = corners.map((c) => c.x);
+    const ys = corners.map((c) => c.y);
+    const side = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys));
+    const left = Math.max(0, Math.min(...xs) - REGION_MARGIN * side);
+    const top = Math.max(0, Math.min(...ys) - REGION_MARGIN * side);
+    const w = Math.min(width, Math.max(...xs) + REGION_MARGIN * side) - left;
+    const h = Math.min(height, Math.max(...ys) + REGION_MARGIN * side) - top;
+    if (w * h > 0.5 * width * height || w < 8 || h < 8) return [];
+    region = { left, top, w, h };
+    const k = video.videoWidth / width;
+    const scale = Math.min(1, REGION_MAX / (Math.max(w, h) * k));
+    crop.width = Math.max(8, Math.round(w * k * scale));
+    crop.height = Math.max(8, Math.round(h * k * scale));
+    cropContext.drawImage(video, left * k, top * k, w * k, h * k, 0, 0, crop.width, crop.height);
+    const found = tracker.detect(cropContext.getImageData(0, 0, crop.width, crop.height));
+    // A pixel's center is half a pixel past its index, in the crop and in the frame.
+    const back = (c) => ({ x: left + ((c.x + 0.5) * w) / crop.width - 0.5, y: top + ((c.y + 0.5) * h) / crop.height - 0.5 });
+    for (const marker of found) marker.corners = marker.corners.map(back);
+    return found;
+  };
 
   // The detection's width, as DETECT_WIDTHS allows and the camera has, looked at again
   // every two seconds.
@@ -372,8 +417,10 @@ async function run() {
   const adaptWidth = (now) => {
     if (now - widthCheckedAt < 2000) return;
     widthCheckedAt = now;
-    const { detectMs: average, fps } = stats.summary();
-    if (!fps) return;
+    const { fps } = stats.summary();
+    // The whole frame's search time: the region's is no measure of it.
+    const average = searchMs;
+    if (!fps || !average) return;
     const next = DETECT_WIDTHS[widthIndex + 1];
     if (average < DETECT_FAST_MS && next && next <= video.videoWidth) widthIndex++;
     else if (average > DETECT_SLOW_MS && widthIndex > 0) widthIndex--;
@@ -396,14 +443,27 @@ async function run() {
 
     const fresh = freshFrame();
     if (fresh) {
-      context.drawImage(video, 0, 0, width, height);
       const detectStart = performance.now();
-      image = context.getImageData(0, 0, width, height);
-      const found = tracker.detect(image);
+      // Around where the marker was first; the whole frame where it isn't there, while
+      // pairing (the code's four markers) and for the guided test (its image).
+      region = null;
+      let found = USE_REGION && lastCorners && remote.state !== "pairing" ? searchRegion(lastCorners, width, height) : [];
+      regionFound = found.length > 0;
+      if (!regionFound || guide) {
+        context.drawImage(video, 0, 0, width, height);
+        image = context.getImageData(0, 0, width, height);
+      }
+      if (!regionFound) {
+        const searchStart = performance.now();
+        found = tracker.detect(image);
+        const ms = performance.now() - searchStart;
+        searchMs = searchMs ? 0.8 * searchMs + 0.2 * ms : ms;
+      }
       // While pairing, the markers are the watch's code, not models.
       if (remote.state === "pairing") remote.read(found);
-      marker = remote.state === "pairing" ? null : (found[0] ?? null);
+      marker = remote.state === "pairing" ? null : (found.find((m) => m.id === shownId) ?? found[0] ?? null);
       pose = marker ? tracker.pose(marker, width, height) : null;
+      lastCorners = pose ? marker.corners : null;
       detectMs = performance.now() - detectStart;
       stats.frame(now, detectMs, Boolean(pose));
 
@@ -472,8 +532,17 @@ async function run() {
         distance,
         camera: `${video.videoWidth}x${video.videoHeight}`,
         gesture: lastGesture ? `${lastGesture.name}, ${((now - lastGesture.t) / 1000).toFixed(1)} s ago` : "–",
-        detection: `${width}x${height}`,
-        hands: handTracker && handsWanted ? `${handsSeen} seen, ${handsMs.toFixed(0)} ms` : "off",
+        detection: `${width}x${height}${regionFound ? `, around the watch at ${crop.width}x${crop.height}` : ""}, ${searchMs.toFixed(0)} ms a search`,
+        hands: handTracker && handsWanted ? `${handsSeen} seen, ${handsMs.toFixed(0)} ms${lastHandGesture ? `, ${lastHandGesture.type} ${((now - lastHandGesture.t) / 1000).toFixed(1)} s ago` : ""}` : "off",
+      });
+      drawMarks(marks, {
+        frame: { width, height },
+        marker: pose ? marker : null,
+        region: regionFound ? region : null,
+        hands: handTracker && handsWanted ? handInteraction.seen : [],
+        state: handInteraction.state && { ...handInteraction.state, grabbing: handInteraction.cursor?.grabbing },
+        cursor: handTracker && handsWanted ? handInteraction.cursor : null,
+        turnSpeed: smoother.turnSpeed,
       });
     }
     if (handTracker && handsWanted && now - handsAt >= HAND_INTERVAL_MS) {
@@ -554,6 +623,8 @@ let handsWanted = false;
 // For the debug view: the tracker's time per look (smoothed) and the hands it saw.
 let handsMs = 0;
 let handsSeen = 0;
+// The free hand's last swipe or wave, for the debug view.
+let lastHandGesture = null;
 async function setHands(on) {
   handsWanted = on;
   handsButton.setAttribute("aria-pressed", String(on));
@@ -583,7 +654,7 @@ async function setHands(on) {
   }
   if (!handsWanted) return;
   document.body.dataset.hands = "on";
-  acknowledge("Hand tracking on: point at the model, or pinch it to turn it", { tick: false });
+  acknowledge("Hand tracking on: point at the model, pinch it to turn it, wave or swipe", { tick: false });
 }
 handsButton.addEventListener("click", () => setHands(!handsWanted));
 
@@ -612,6 +683,23 @@ function followHands(view, entry, now, tracked) {
     if (event.type === "release") {
       turntable.release();
       continue;
+    }
+    if (event.type === "wave" || event.type === "swipe") lastHandGesture = { ...event, t: now };
+    // A wave is the models' shake, for when the wrist can't (docs/interaction.md).
+    if (event.type === "wave") {
+      const handled = view.model?.gesture?.({ name: "shake", t: now, by: "hand" }) === true;
+      if (handled || !debugPanel.hidden) acknowledge("Wave");
+    }
+    // A swipe: the watch's next or previous marker when it's connected (the control
+    // channel); otherwise the model spun that way.
+    if (event.type === "swipe") {
+      if (remote.state === "connected") {
+        remote.send({ op: "step", delta: event.direction }).catch((error) => acknowledge(error.message, { tick: false }));
+        acknowledge(event.direction > 0 ? "Next" : "Previous");
+      } else if (tracked) {
+        turntable.spin(-0.008 * event.direction);
+        acknowledge("Spin");
+      }
     }
     const at = client(event.x, event.y);
     if (event.type === "tap") tapModel(view, entry, at.x, at.y, now);

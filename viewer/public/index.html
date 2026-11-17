@@ -69,6 +69,7 @@
     <div class="stage">
       <video id="camera" playsinline muted aria-hidden="true"></video>
       <canvas id="overlay" aria-hidden="true"></canvas>
+      <canvas id="marks" aria-hidden="true" hidden></canvas>
       <div id="debug" class="debug" hidden></div>
       <div class="stage-controls">
         <button id="switch-camera" class="icon-button" type="button" aria-label="Switch camera" title="Switch camera" hidden>
@@ -193,6 +194,8 @@
     <dl class="help-gestures">
       <div><dt>Point</dt><dd>at the model with your index finger: like a tap</dd></div>
       <div><dt>Pinch</dt><dd>thumb and index on the model, then move: turn it; open to let go</dd></div>
+      <div><dt>Wave</dt><dd>an open hand: the model reacts as to shaking the watch</dd></div>
+      <div><dt>Swipe</dt><dd>an open hand across: the watch's next or previous model when connected, else a spin</dd></div>
     </dl>
 
     <h3>Size and keys</h3>
