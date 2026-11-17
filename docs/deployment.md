@@ -40,6 +40,27 @@ flowchart LR
 Why not a webhook: a webhook deploys every push to the branch, and the spec wants deploys on tags
 only. CI on the tag deploys exactly the tagged commit, after its checks.
 
+### With the relay {#with-the-relay}
+
+The control channel ([004](decisions/004-control-channel.md)) needs its relay on the viewer's
+origin. `compose.yaml` runs both: the viewer's image built with `RELAY=on`, whose nginx passes
+`/relay/` to the relay's container (unbuffered, for the event stream and the long-poll; not in
+its access log), and the relay, read-only, without capabilities. Only the viewer is exposed.
+Without it (the plain `Dockerfile` app, `RELAY=off`), nginx answers the relay's health with
+`"off"` and the viewer doesn't offer pairing; nothing else changes.
+
+To switch the app over, in the panel (once, by hand):
+
+1. The app's **build pack** from Dockerfile to **Docker Compose**, base directory `/`, compose
+   file `compose.yaml`.
+2. The app's **domain** on the service `viewer`, port 8080 (the relay gets none).
+3. Deploy (the release workflow, or by hand). `https://<address>/relay/v1/healthz` then answers
+   `{"status":"ok"}`, and the viewer shows its **Watch** button.
+
+The relay keeps everything in memory: a restart or a new deployment drops the queues, and the
+viewer and the watch create their channels again (`PUT`). If the app sleeps (`HOMELAB_SLEEP`),
+the relay sleeps with it; a watch's long-poll wakes it like any request.
+
 ### Health check
 
 The image has a `HEALTHCHECK` on `/healthz` (busybox `wget`, already in the image, as the smoke

@@ -304,7 +304,8 @@ origin, the CSP and the panel's single domain stay as they are.
 
 Built so far:
 
-- **The relay** (`relay/`, step 3), with its tests and its image; not deployed yet. Until it
+- **The relay** (`relay/`, step 3), with its tests and its image, and `compose.yaml` to run it
+  beside the viewer ([deployment](../deployment.md#with-the-relay)); not deployed yet. Until it
   is, nginx answers its health with `{"status":"off"}` and the viewer doesn't offer pairing.
 - **The cryptography** and the shared test vectors (step 2), with the pairing frames.
 - **The viewer's side** (step 4): pairing through the camera (`js/pairing.js`), the session in

@@ -1,0 +1,21 @@
+# The viewer with the control channel's relay (docs/deployment.md#with-the-relay): the app
+# panel's "Docker Compose" build pack. The viewer's nginx serves the page and passes
+# /relay/ to the relay, so both share one origin, and the CSP's connect-src 'self' holds.
+# Only the viewer is exposed (port 8080, the app's domain); the relay is reached through it.
+services:
+  viewer:
+    build:
+      context: viewer
+      args:
+        RELAY: "on"
+    depends_on:
+      relay:
+        condition: service_healthy
+    restart: unless-stopped
+
+  relay:
+    build: relay
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]

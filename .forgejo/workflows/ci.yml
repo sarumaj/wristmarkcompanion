@@ -125,10 +125,19 @@ jobs:
           done
           docker exec "relay-${GITHUB_RUN_ID}" /relay -check
 
+      # Both together, as the panel runs them (compose.yaml): the relay's health through
+      # the viewer's nginx.
+      - name: The viewer with the relay
+        run: |
+          docker compose -p "ci-${GITHUB_RUN_ID}" up -d --build --wait
+          docker compose -p "ci-${GITHUB_RUN_ID}" exec -T viewer wget -q -O - http://127.0.0.1:8080/relay/v1/healthz \
+            | grep -q '"status":"ok"'
+
       - name: Remove the images
         if: always()
         run: |
           docker rm -f "relay-${GITHUB_RUN_ID}" || true
+          docker compose -p "ci-${GITHUB_RUN_ID}" down -v --rmi local || true
           docker image rm -f "wristmark-viewer:ci-${GITHUB_RUN_ID}" "wristmark-relay:ci-${GITHUB_RUN_ID}" || true
 
   # The watch app compiled for every device in its manifest. The Connect IQ SDK
