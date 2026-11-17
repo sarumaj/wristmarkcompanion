@@ -50,7 +50,7 @@ export class DebugStats {
 
   // The overlay's rows, [key, label, value, health or null], with what the viewer
   // adds (ID, distance, sizes).
-  rows({ id, distance, camera, detection, gesture }) {
+  rows({ id, distance, camera, detection, gesture, hands }) {
     const { fps, rate, detectMs } = this.summary();
     return [
       ["id", "Marker", id === null || id === undefined ? "–" : String(id), id === null || id === undefined ? "poor" : "good"],
@@ -61,6 +61,8 @@ export class DebugStats {
       ["camera", "Camera", camera, null],
       ["detected-at", "Detected at", detection, null],
       ["gesture", "Gesture", gesture ?? "–", null],
+      // The hand tracking's time per look, when on (js/hands.js): it shares the frames.
+      ["hands", "Hands", hands ?? "off", null],
     ];
   }
 

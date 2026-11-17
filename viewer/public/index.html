@@ -70,6 +70,9 @@
         <button id="switch-camera" class="icon-button" type="button" aria-label="Switch camera" title="Switch camera" hidden>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z M9 13a3 3 0 0 1 5.2-2M15 13a3 3 0 0 1-5.2 2M14 9.5v1.6h-1.6M10 16.5v-1.6h1.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>
         </button>
+        <button id="hands" class="icon-button" type="button" aria-label="Hand tracking" title="Hand tracking (H)" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V11M11 10.5v-6a1.5 1.5 0 0 1 3 0V11M14 10.5V6a1.5 1.5 0 0 1 3 0v7.5M8 12.5 6.6 11a1.6 1.6 0 0 0-2.4 2.1l3.3 4.6A6 6 0 0 0 12.4 20h.6a4 4 0 0 0 4-4v-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
         <button id="expand" class="icon-button" type="button" aria-label="Full screen" title="Full screen (F)" aria-pressed="false">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
@@ -114,6 +117,7 @@
         <button id="retry" class="primary" type="button">Try again</button>
         <p id="failure-detail" class="failure-detail"></p>
       </section>
+      <div id="hand-cursor" class="hand-cursor" aria-hidden="true" hidden></div>
       <p id="zoom" class="zoom-chip" hidden></p>
       <p id="gesture" class="gesture-chip" aria-live="polite" hidden></p>
       <div id="actions" class="model-actions" role="group" aria-label="Model actions" hidden></div>
@@ -162,12 +166,22 @@
       <div><dt>Drag</dt><dd>around the watch: turn the model; the arrow keys do it too</dd></div>
     </dl>
 
+    <h3>Your other hand in the picture</h3>
+    <p>With the watch held still, e.g. the phone on a stand or a laptop's camera, switch on hand
+      tracking (the hand button, or <kbd>H</kbd>) and use your free hand in front of the camera.
+      It runs in your browser too.</p>
+    <dl class="help-gestures">
+      <div><dt>Point</dt><dd>at the model with your index finger: like a tap</dd></div>
+      <div><dt>Pinch</dt><dd>thumb and index on the model, then move: turn it; open to let go</dd></div>
+    </dl>
+
     <h3>Size and keys</h3>
     <dl class="help-gestures">
       <div><dt>Pinch</dt><dd>with two fingers, or the mouse wheel: resize the model; a double tap puts it back</dd></div>
       <div><dt><kbd>+</kbd> <kbd>−</kbd> <kbd>0</kbd></dt><dd>larger, smaller, as it was (size and turn)</dd></div>
       <div><dt><kbd>←</kbd> <kbd>→</kbd></dt><dd>turn the model</dd></div>
       <div><dt><kbd>F</kbd></dt><dd>full screen; <kbd>Esc</kbd> leaves it</dd></div>
+      <div><dt><kbd>H</kbd></dt><dd>hand tracking on or off</dd></div>
       <div><dt><kbd>D</kbd></dt><dd>the debug view: what the camera detects</dd></div>
       <div><dt><kbd>?</kbd></dt><dd>this help</dd></div>
     </dl>

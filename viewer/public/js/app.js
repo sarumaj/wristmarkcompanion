@@ -11,6 +11,7 @@ import { DebugStats } from "./debug.js";
 import { zoomControl } from "./zoom.js";
 import { GestureRecognizer } from "./gestures.js";
 import { touchControl, Turntable } from "./touch.js";
+import { HandInteraction } from "./hands.js";
 
 const params = new URLSearchParams(location.search);
 // The marker's black square, in millimeters: about the D2 Mach 1's (the watch's
@@ -185,13 +186,8 @@ function acknowledge(text, { tick = true } = {}) {
 // `touch(hit)` (a label, or {text, tick: false} to tell something), else the one action
 // its guide has (the dice roll). Every hit gives a little hop, so a tap never goes
 // unnoticed. Returns whether the model was hit.
-const raycaster = new THREE.Raycaster();
 function tapModel(view, entry, x, y, t) {
-  if (!view.model || !view.anchor.visible) return false;
-  const box = overlay.getBoundingClientRect();
-  const pointer = new THREE.Vector2(((x - box.left) / box.width) * 2 - 1, -((y - box.top) / box.height) * 2 + 1);
-  raycaster.setFromCamera(pointer, view.camera);
-  const hit = raycaster.intersectObject(view.model.object, true).find(({ object }) => isShown(object));
+  const hit = modelAt(view, x, y);
   if (!hit) return false;
   view.hop = t;
   document.body.dataset.touched = hit.object.name || hit.object.type;
@@ -207,6 +203,16 @@ function tapModel(view, entry, x, y, t) {
     if (view.model.gesture?.({ name: gesture, direction, t })) acknowledge(label);
   }
   return true;
+}
+
+// The model's nearest shown part at (x, y) in the window, or null.
+const raycaster = new THREE.Raycaster();
+function modelAt(view, x, y) {
+  if (!view.model || !view.anchor.visible) return null;
+  const box = overlay.getBoundingClientRect();
+  const pointer = new THREE.Vector2(((x - box.left) / box.width) * 2 - 1, -((y - box.top) / box.height) * 2 + 1);
+  raycaster.setFromCamera(pointer, view.camera);
+  return raycaster.intersectObject(view.model.object, true).find(({ object }) => isShown(object)) ?? null;
 }
 
 // Shown, its parents included: the raycaster also finds hidden meshes.
@@ -292,6 +298,8 @@ async function run() {
   });
   report("Looking for the watch…", "searching");
   let previous = performance.now();
+  let handsAt = -Infinity;
+  if (params.has("hands")) setHands(true);
 
   const loop = (now) => {
     const width = DETECT_WIDTH;
@@ -379,7 +387,12 @@ async function run() {
         camera: `${video.videoWidth}x${video.videoHeight}`,
         gesture: lastGesture ? `${lastGesture.name}, ${((now - lastGesture.t) / 1000).toFixed(1)} s ago` : "–",
         detection: `${width}x${height}`,
+        hands: handTracker && handsWanted ? `${handsSeen} seen, ${handsMs.toFixed(0)} ms` : "off",
       });
+    }
+    if (handTracker && handsWanted && now - handsAt >= HAND_INTERVAL_MS) {
+      handsAt = now;
+      followHands(view, entry, now, Boolean(smoothed));
     }
     view.renderer.render(view.world, view.camera);
     previous = now;
@@ -422,6 +435,95 @@ const zoom = zoomControl(stage, (value) => {
   zoomShown = setTimeout(() => (zoomChip.hidden = true), 1200);
 });
 
+// The other hand in the camera's image (js/hands.js), when switched on: the hand button,
+// H, or ?hands. Its library and model load on first use; the hands are looked for 20
+// times a second, which leaves the marker's detection most of the time.
+const HAND_INTERVAL_MS = 50;
+const handsButton = document.getElementById("hands");
+const handCursor = document.getElementById("hand-cursor");
+const handInteraction = new HandInteraction();
+let handTracker = null;
+let handsWanted = false;
+// For the debug view: the tracker's time per look (smoothed) and the hands it saw.
+let handsMs = 0;
+let handsSeen = 0;
+async function setHands(on) {
+  handsWanted = on;
+  handsButton.setAttribute("aria-pressed", String(on));
+  if (!on) {
+    document.body.dataset.hands = "off";
+    handCursor.hidden = true;
+    acknowledge("Hand tracking off", { tick: false });
+    return;
+  }
+  if (!handTracker) {
+    document.body.dataset.hands = "loading";
+    handsButton.setAttribute("aria-busy", "true");
+    acknowledge("Loading hand tracking…", { tick: false });
+    try {
+      const { loadHandTracker } = await import("./hands.js");
+      handTracker = await loadHandTracker();
+    } catch (error) {
+      console.warn("Hand tracking couldn't start:", error);
+      handsWanted = false;
+      handsButton.setAttribute("aria-pressed", "false");
+      document.body.dataset.hands = "failed";
+      acknowledge("Hand tracking couldn't start in this browser", { tick: false });
+      return;
+    } finally {
+      handsButton.removeAttribute("aria-busy");
+    }
+  }
+  if (!handsWanted) return;
+  document.body.dataset.hands = "on";
+  acknowledge("Hand tracking on: point at the model, or pinch it to turn it", { tick: false });
+}
+handsButton.addEventListener("click", () => setHands(!handsWanted));
+
+// One look for the hands: the free hand's taps and grabs go where a finger's would, and
+// its fingertip shows as a cursor. The image's coordinates (0 to 1) are the overlay's.
+function followHands(view, entry, now, tracked) {
+  const box = overlay.getBoundingClientRect();
+  const client = (x, y) => ({ x: box.left + x * box.width, y: box.top + y * box.height });
+  let watch = null;
+  if (tracked) {
+    const center = anchorOnScreen(view);
+    const edge = new THREE.Vector3((MARKER_SIZE * SCREEN_RATIO) / 2, 0, 0).applyMatrix4(view.anchor.matrixWorld).project(view.camera);
+    const x = (center.x - box.left) / box.width;
+    const y = (center.y - box.top) / box.height;
+    watch = { x, y, radius: Math.hypot((edge.x + 1) / 2 - x, (1 - edge.y) / 2 - y) };
+  }
+  const started = performance.now();
+  const hands = handTracker.detect(video, now);
+  handsMs = 0.8 * handsMs + 0.2 * (performance.now() - started);
+  handsSeen = hands.length;
+  const over = (x, y) => {
+    const at = client(x, y);
+    return modelAt(view, at.x, at.y) !== null;
+  };
+  for (const event of handInteraction.update(now, hands, watch, over)) {
+    if (event.type === "release") {
+      turntable.release();
+      continue;
+    }
+    const at = client(event.x, event.y);
+    if (event.type === "tap") tapModel(view, entry, at.x, at.y, now);
+    if (event.type === "drag") {
+      const center = anchorOnScreen(view);
+      turntable.drag(at.x, at.y, event.dx * box.width, event.dy * box.height, center.x, center.y, now);
+    }
+  }
+  const cursor = handInteraction.cursor;
+  handCursor.hidden = !cursor;
+  document.body.dataset.hand = cursor ? (cursor.grabbing ? "grabbing" : cursor.pinching ? "pinching" : cursor.pointing ? "pointing" : "open") : "none";
+  if (cursor) {
+    handCursor.style.setProperty("--x", `${cursor.x * 100}%`);
+    handCursor.style.setProperty("--y", `${cursor.y * 100}%`);
+    handCursor.dataset.state = document.body.dataset.hand;
+    handCursor.classList.toggle("over", cursor.over);
+  }
+}
+
 // The model's turn by hand (a drag, or the arrow keys), about the watch's center; a
 // double tap or click puts it back, with the size.
 const turntable = new Turntable();
@@ -450,7 +552,8 @@ for (const opener of document.querySelectorAll("[data-open-help]")) {
 }
 document.getElementById("help-close").addEventListener("click", () => help.close());
 
-// Keys: + and - resize, the left and right arrows turn, 0 resets both, d the debug view, f full screen, ? help, Escape
+// Keys: + and - resize, the left and right arrows turn, 0 resets both, h the hand
+// tracking, d the debug view, f full screen, ? help, Escape
 // leaves full screen. Not while typing in a field, and not with a modifier.
 document.addEventListener("keydown", (event) => {
   if (event.ctrlKey || event.metaKey || event.altKey || event.target.closest("input, textarea")) return;
@@ -465,6 +568,7 @@ document.addEventListener("keydown", (event) => {
     ArrowLeft: () => turntable.turn(Math.PI / 12),
     ArrowRight: () => turntable.turn(-Math.PI / 12),
     d: () => showDebug(debugPanel.hidden),
+    h: () => setHands(!handsWanted),
     f: () => immersive(!document.body.classList.contains("immersive")),
     "?": () => help.showModal(),
     Escape: () => immersive(false),

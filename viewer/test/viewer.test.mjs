@@ -8,6 +8,7 @@
 // - content.json passes its check, and the models stand on the marker;
 // - the guided device test measures a step and reports it;
 // - a camera that can't be opened shows the error card;
+// - hand tracking loads under the CSP;
 // - the models that react to gestures and taps take them; a tap, a drag and the
 //   arrows on the model;
 // - the icons, the manifest and the social card are served;
@@ -311,6 +312,23 @@ test("one finger on the model: a tap rolls the dice, a drag and the arrows turn 
     await page.waitForFunction(() => document.body.dataset.turn === "0");
     await page.keyboard.press("ArrowLeft");
     await page.waitForFunction(() => document.body.dataset.turn === "15");
+  });
+});
+
+test("hand tracking loads under the CSP, from the viewer's own origin, and looks for hands", async () => {
+  await withCamera(15, "/index.html?autostart&hands", async (page) => {
+    const requests = [];
+    page.on("request", (request) => requests.push(new URL(request.url()).origin));
+    await page.waitForFunction(() => ["on", "failed"].includes(document.body.dataset.hands), null, { timeout: 60000 });
+    assert.equal(await page.locator("body").getAttribute("data-hands"), "on");
+    assert.equal(await page.locator("#hands").getAttribute("aria-pressed"), "true");
+    // No hand in the picture: no cursor.
+    await page.waitForFunction(() => document.body.dataset.hand === "none");
+    assert.equal(await page.locator("#hand-cursor").isHidden(), true);
+    assert.deepEqual([...new Set(requests)].filter((origin) => origin !== new URL(page.url()).origin), []);
+    // H switches it off.
+    await page.keyboard.press("h");
+    assert.equal(await page.locator("body").getAttribute("data-hands"), "off");
   });
 });
 

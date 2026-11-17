@@ -49,6 +49,19 @@ With the other hand, a finger on the phone's screen or the mouse:
 - **Drag around the watch** to turn the model, like a dial; let go and it spins on a little.
   The arrow keys turn it too.
 
+## Your other hand in the picture (to try)
+
+When the watch is held still, for example the phone on a stand or a laptop's camera, switch on
+**hand tracking** with the hand button on the camera's image (or `H`). The first time, it loads
+for a few seconds. Then, with your free hand in front of the camera:
+
+- **Point** at the model with your index finger: it reacts as to a tap.
+- **Pinch** it, thumb and index finger together on the model, and move your hand: it turns.
+  Open your fingers to let go.
+
+A ring shows where your fingertip is. It works best in good light, with the hand fully in the
+picture. It is new: tell us how it works for you.
+
 ## Size, full screen and keys
 
 - **Pinch** with two fingers, or scroll with the mouse or a trackpad, to make the model larger
@@ -61,6 +74,7 @@ With the other hand, a finger on the phone's screen or the mouse:
 | `+` `−` `0` | Larger, smaller, as it was (the size and the turn)    |
 | `←` `→`     | Turn the model                                        |
 | `F`, `Esc`  | Full screen, and back                                 |
+| `H`         | Hand tracking on or off                               |
 | `D`         | The debug view: what the camera detects, and how fast |
 | `?`         | Help                                                  |
 

@@ -93,19 +93,37 @@ The moon, the globes, the watch movement and the hourglass hop and turn but do n
 their own on a tap yet: a city's time on the world clock, the moon's next phases, turning the
 hourglass over are candidates.
 
-## Conditional: hand gestures in front of the camera
+## Built, to try: the other hand in front of the camera
 
-Hand tracking in the browser (e.g. MediaPipe Hands, Apache-2.0, run on the device) is considered
-**only if it gives meaningful actions to the hand wearing the watch**, while the other hand holds
-the phone. Examples would be a pinch or an open palm by that hand, seen next to the watch.
+Switched on with the hand button or `H` (`?hands` from the start), off by default
+(`js/hands.js`). [MediaPipe](https://ai.google.dev/edge/mediapipe/solutions/vision/hand_landmarker)'s
+hand landmarker (Apache-2.0) finds up to two hands' 21 points in the camera's image, in the
+browser, 20 times a second; the hand that isn't wearing the watch (its wrist away from the
+watch) can touch the model. It suits a held-still watch: a phone on a stand, a laptop's camera.
 
-- **Cost:** several MB of model and WebAssembly. It has to be served from the viewer's own
-  origin, because the Content-Security-Policy allows no other, and nothing may leave the
-  browser.
-- **CPU:** it competes with marker detection for the same frames. Worth it only if the device
-  tests show spare capacity on the test phone.
-- **Overlap:** many such actions can also be done by moving the watch (above), which costs
-  nothing. Hand tracking has to offer something those movements can't.
+- **Point at the model** with the index finger (the others curled): a tap, as a finger on the
+  screen gives. Once per touch: the finger has to leave the model, and 700 ms pass, for the
+  next. An open hand passing over the model does nothing.
+- **Pinch the model** (thumb and index meet on it), then move: it turns as a drag does, from
+  wherever the hand goes; opening the fingers, or the hand leaving the picture, lets go.
+- **A cursor** shows the free hand's fingertip: a ring, filled over the model, small while
+  pinching, in the accent while it holds the model.
+- **Depth is a guess** from one camera, so the touch is on the image: where the finger covers
+  the model. Reaching behind the model counts as touching it.
+
+The cost, as foreseen:
+
+| What        | Size or effect                                                                  |
+|-------------|---------------------------------------------------------------------------------|
+| Library     | `vision_bundle.mjs`, 156 KB, from npm (`@mediapipe/tasks-vision`, pinned)       |
+| WebAssembly | 14.6 MB (gzip on), compiled under the CSP's `'wasm-unsafe-eval'`                |
+| Model       | `hand_landmarker.task`, 7.8 MB, Google's file at version 1, its SHA-256 checked |
+| Loaded      | On first switching on, from the viewer's own origin; nothing otherwise          |
+| Processor   | The GPU where the browser lets it, else the CPU; the debug view shows its time  |
+
+`hand-model.txt` holds the model's address and SHA-256, for the Dockerfile and the tests. After
+the device tests: whether the phone keeps its frame rate with it on, the thresholds (a pinch at
+0.3 of the palm's length, pointing), and whether it earns a place beyond an experiment.
 
 ## Not chosen: commands through the marker ID
 

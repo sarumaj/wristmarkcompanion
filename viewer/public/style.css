@@ -1010,6 +1010,60 @@ body[data-state="error"] .stage-controls {
   height: 22px;
 }
 
+.icon-button[aria-pressed="true"] {
+  border-color: transparent;
+  background: var(--accent);
+  color: #fff;
+}
+
+.icon-button[aria-busy="true"] svg {
+  animation: pulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+  to {
+    opacity: 0.35;
+  }
+}
+
+/* The free hand's fingertip (js/hands.js): a ring, filled on the model, small while
+   pinching, the accent while it holds the model. */
+.hand-cursor {
+  position: absolute;
+  top: var(--y, 50%);
+  left: var(--x, 50%);
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 40%);
+  pointer-events: none;
+  transition: transform 0.12s ease, background-color 0.12s ease;
+}
+
+.hand-cursor.over {
+  background: rgb(255 255 255 / 35%);
+}
+
+.hand-cursor[data-state="pinching"],
+.hand-cursor[data-state="grabbing"] {
+  transform: scale(0.6);
+}
+
+.hand-cursor[data-state="grabbing"] {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hand-cursor,
+  .icon-button[aria-busy="true"] svg {
+    transition: none;
+    animation: none;
+  }
+}
+
 /* What the model's gestures do, as buttons above the status. */
 .model-actions {
   position: absolute;

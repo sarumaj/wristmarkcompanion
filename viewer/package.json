@@ -9,6 +9,7 @@
     "test": "node --test test/"
   },
   "dependencies": {
+    "@mediapipe/tasks-vision": "1.2.2",
     "js-aruco2": "2.0.0",
     "three": "0.187.0"
   },

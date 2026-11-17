@@ -8,6 +8,10 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Hand tracking, to try (`js/hands.js`, the hand button or `H`): MediaPipe's hand landmarker in
+  the browser finds the hand not wearing the watch; pointing at the model taps it, a pinch on it
+  grabs and turns it. Loaded from the viewer's own origin on first use; the CSP allows
+  WebAssembly (`'wasm-unsafe-eval'`); the privacy page says so.
 - One finger on the model (`js/touch.js`): a drag turns it about the watch and coasts on, the
   arrow keys too; a tap makes it hop and react: the dice roll, a planet says its name and
   distance, the fish dart off, the balloon's burner fires, the rocket counts down. Buttons do

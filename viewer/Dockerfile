@@ -4,10 +4,19 @@ FROM docker.io/library/node:24-alpine AS libraries
 WORKDIR /viewer
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev --ignore-scripts --no-audit --no-fund
-RUN mkdir -p /vendor/js-aruco2 /vendor/three \
+RUN mkdir -p /vendor/js-aruco2 /vendor/three /vendor/mediapipe/wasm \
     && cp -r node_modules/js-aruco2/src/. node_modules/js-aruco2/LICENSE.txt /vendor/js-aruco2/ \
     && cp node_modules/three/build/three.module.js node_modules/three/build/three.core.js \
-       node_modules/three/LICENSE /vendor/three/
+       node_modules/three/LICENSE /vendor/three/ \
+    && cp node_modules/@mediapipe/tasks-vision/vision_bundle.mjs /vendor/mediapipe/ \
+    && cp node_modules/@mediapipe/tasks-vision/wasm/vision_wasm_internal.js \
+       node_modules/@mediapipe/tasks-vision/wasm/vision_wasm_internal.wasm /vendor/mediapipe/wasm/
+# The hand tracking's model, not on npm: Google's file at a fixed version, checked against
+# its SHA-256 (hand-model.txt, which the tests use too).
+COPY hand-model.txt ./
+RUN read -r url sha256 < hand-model.txt \
+    && wget -q -O /vendor/mediapipe/hand_landmarker.task "$url" \
+    && echo "$sha256  /vendor/mediapipe/hand_landmarker.task" | sha256sum -c -
 
 # The unprivileged image runs nginx as a non-root user on port 8080.
 FROM docker.io/nginxinc/nginx-unprivileged:1.31-alpine
