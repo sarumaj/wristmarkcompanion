@@ -9,7 +9,7 @@ module ViewersMenu {
         menu.addItem(new WatchUi.MenuItem("Pair a viewer", null, :pair, null));
         var list = link.sessions.list;
         for (var i = 0; i < list.size(); i++) {
-            menu.addItem(new WatchUi.MenuItem("Forget " + list[i]["name"], null, i, null));
+            menu.addItem(new WatchUi.MenuItem("Forget " + (list[i]["name"] as String), null, i, null));
         }
         if (list.size() > 1) {
             menu.addItem(new WatchUi.MenuItem("Forget all", null, :forgetAll, null));

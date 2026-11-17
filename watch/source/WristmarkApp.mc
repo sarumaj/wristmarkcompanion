@@ -56,7 +56,7 @@ class WristmarkApp extends Application.AppBase {
 
     //! A command from a paired viewer (docs/decisions/004-control-channel.md#messages).
     function command(session as Dictionary, message as Dictionary) as Void {
-        var op = message["op"];
+        var op = message["op"] as Object?;
         if ("show".equals(op) && message["id"] instanceof Number) {
             _view.showId(message["id"] as Number);
         } else if ("step".equals(op) && message["delta"] instanceof Number) {

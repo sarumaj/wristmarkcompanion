@@ -8,14 +8,16 @@ module Json {
     //! A flat object as compact JSON, its keys in the order given (`keys`), as the
     //! viewer's JSON.stringify writes them.
     function write(object as Dictionary, keys as Array<String>) as String {
-        var out = "{";
+        var out = "{" as String;
         for (var i = 0; i < keys.size(); i++) {
-            var value = object[keys[i]];
+            var value = object[keys[i]] as Object?;
             out += (i > 0 ? "," : "") + quote(keys[i]) + ":";
             if (value instanceof String) {
                 out += quote(value);
             } else if (value instanceof Boolean) {
                 out += value ? "true" : "false";
+            } else if (value == null) {
+                out += "null";
             } else {
                 out += value.toString();
             }
@@ -74,7 +76,7 @@ module Json {
                 while (end < chars.size() && chars[end] != ',' && chars[end] != '}' && chars[end] != ' ') {
                     end++;
                 }
-                var word = text.substring(at, end);
+                var word = text.substring(at, end) as String;
                 if (word.equals("true")) {
                     value = true;
                 } else if (word.equals("false")) {

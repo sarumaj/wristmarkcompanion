@@ -85,6 +85,6 @@ class Sessions {
             var entry = list[i];
             stored.add({ "s" => entry["s"], "name" => entry["name"], "paired" => entry["paired"], "used" => entry["used"] });
         }
-        Application.Storage.setValue(KEY, stored);
+        Application.Storage.setValue(KEY, stored as Array<Application.Storage.ValueType>);
     }
 }
