@@ -8,6 +8,9 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- The brand where customers meet it: the logo as the icon in the browser and on the home screen,
+  a web app manifest, a description and a social card for shared links, a README that starts with
+  the product, a [user guide](docs/user-guide.md), and the store descriptions updated.
 - Gestures of the wrist (`js/gestures.js`): a flick, a twist, a shake and a hold, from the
   smoothed pose. The dice, the snow globe, the robot, the fireworks, the campfire and the
   orrery react to them; the debug overlay shows the last one.

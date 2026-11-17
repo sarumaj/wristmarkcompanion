@@ -1,0 +1,91 @@
+# User guide
+
+**WristMarkCompanion: your watch, in 3D.** The app on your watch shows a marker; the viewer, a
+web page, sees it through your phone's or laptop's camera and draws a 3D model standing on your
+wrist. The viewer's **Help** button (or the `?` key) has the short version of this page.
+
+## What you need
+
+- **The watch app**, WristMarkCompanion, on your watch. Testers install it by hand
+  ([device tests](device-tests.md#the-watch-app)) until it is in the store.
+- **A phone or a laptop with a camera** and a current browser: Chrome, Safari, Firefox or Edge.
+- **The viewer's address,** <https://wristmark.apps.ciepiela.org>, and an internet connection to
+  load it once. No account, nothing to install.
+
+## Step by step
+
+1. **On the watch,** open WristMarkCompanion. It shows a black and white marker, and its number
+   below it.
+2. **On the phone or laptop,** open the viewer and tap **Start the camera**. Allow the camera
+   when the browser asks.
+3. **Point the camera at the watch,** 20 to 50 cm away, its display toward the camera. The
+   marker turns into a dark watch face with a model standing on it, and the line at the bottom
+   names it.
+4. **The watch's down and up buttons** (or a swipe) show the next and the previous model; a tap
+   or the start button cycles through them by itself.
+
+On a phone, **full screen** (the corner button) gives the model the whole display.
+
+## Move your wrist
+
+Some models react when you move the watch:
+
+| Move                                           | What happens                                                        |
+|------------------------------------------------|---------------------------------------------------------------------|
+| **Flick:** a quick turn of the wrist           | The dice roll, a firework goes up, the robot waves, the snow swirls |
+| **Shake:** a quick back and forth              | The dice roll, the snow globe swirls, the campfire flares up        |
+| **Twist:** turn the watch about its own center | The planets move a month, forward or back                           |
+
+The line at the bottom says what the model shown does, and a tag at the top confirms a move it
+took. **The buttons under the model do the same**, for when your hands are busy.
+
+## Size, full screen and keys
+
+- **Pinch** with two fingers, or scroll with the mouse or a trackpad, to make the model larger
+  or smaller. A double tap or double click puts it back.
+- The models may reach well beyond the watch; that's on purpose, so that they read at arm's
+  length.
+
+| Key         | Does                                                  |
+|-------------|-------------------------------------------------------|
+| `+` `−` `0` | Larger, smaller, as it was                            |
+| `F`, `Esc`  | Full screen, and back                                 |
+| `D`         | The debug view: what the camera detects, and how fast |
+| `?`         | Help                                                  |
+
+## The models
+
+21 of them, from the sky to a campfire: the moon in tonight's phase, the Earth with day and night
+as they are now, the planets around the sun as they stand today, a world clock, an open watch
+movement showing the time, an hourglass, a landing, a helicopter, a hot-air balloon, a rocket
+launch, dice, fireworks, a snow globe, a campfire, an aquarium, a lighthouse, a robot, and four
+simple shapes. [The full list](content.md#the-models) says what each one does.
+
+## When something doesn't work
+
+| What you see                        | What to do                                                                                                  |
+|-------------------------------------|-------------------------------------------------------------------------------------------------------------|
+| "Camera access was declined"        | Allow the camera for the viewer's address in the browser's site settings, then **Try again**                |
+| "No camera was found"               | Connect a webcam, or open the viewer on your phone                                                          |
+| "The camera is busy in another app" | Close the video call or camera app that uses it, then **Try again**                                         |
+| "Can't see the watch"               | Hold it 20 to 50 cm away, display toward the camera; more light, less glare; turn the watch's brightness up |
+| The model shakes or jumps           | Hold the phone steadier, come a little closer, or turn the watch less steeply away                          |
+| "Marker 30 has no model yet"        | The watch shows only markers with a model; this one came from the markers page, which shows every ID        |
+| The watch's display turned off      | Press a button on the watch: the marker comes back. Watches limit how long an app may keep the display on   |
+| At night, in red light (night mode) | It works; hold the watch a little closer                                                                    |
+| More than one camera, the wrong one | The switch button on the camera image changes it                                                            |
+
+## Without a watch
+
+The viewer's **Markers without a watch** page shows the same markers on any screen: open it on a
+laptop or a tablet and point the phone's camera at it.
+
+## Privacy
+
+The camera's image is processed in your browser and never sent, saved or recorded. The viewer has
+no accounts, no cookies and no tracking; the watch app collects nothing and connects nowhere.
+The [privacy page](../viewer/public/privacy.html) has the details.
+
+## Questions
+
+By e-mail to <contact@ciepiela.org>.

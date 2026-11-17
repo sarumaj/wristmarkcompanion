@@ -43,6 +43,12 @@ fetch /content.json | grep -q '"markers"' || fail "content.json is not served"
 fetch /privacy.html | grep -q "<title>WristMarkCompanion privacy</title>" || fail "the privacy page is not served"
 docker exec "$name" wget -q -S -O /dev/null http://127.0.0.1:8080/content.json 2>&1 \
     | grep -q "Content-Type: application/json" || fail "content.json is not served as JSON"
+manifest=$(docker exec "$name" wget -q -S -O /dev/null http://127.0.0.1:8080/manifest.webmanifest 2>&1)
+echo "$manifest" | grep -q "Content-Type: application/manifest+json" \
+    || fail "the web app manifest is not served as application/manifest+json"
+echo "$manifest" | grep -q "Content-Security-Policy" || fail "the manifest lost the security headers"
+fetch /icons/icon-192.png > /dev/null || fail "the icons are not served"
+fetch /social.png > /dev/null || fail "the social card is not served"
 
 headers=$(docker exec "$name" wget -q -S -O /dev/null http://127.0.0.1:8080/ 2>&1)
 echo "$headers" | grep -q "Content-Security-Policy: .*connect-src 'self'" \

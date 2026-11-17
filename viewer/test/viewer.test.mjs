@@ -9,6 +9,7 @@
 // - the guided device test measures a step and reports it;
 // - a camera that can't be opened shows the error card;
 // - the models that react to gestures take them;
+// - the icons, the manifest and the social card are served;
 // - the privacy page is served and linked.
 import { after, before, test } from "node:test";
 import assert from "node:assert/strict";
@@ -349,6 +350,28 @@ test("the models that react to the wrist's gestures take them, and keep animatin
     dice: ["flick", "shake"],
     campfire: ["shake"],
   });
+  assert.deepEqual(problems, []);
+  await context.close();
+});
+
+test("the icons, the web app manifest and the social card are served and linked", async () => {
+  const context = await browser.newContext();
+  const { page, problems } = await open(context, "/index.html");
+  const result = await page.evaluate(async () => {
+    const manifestHref = document.querySelector('link[rel="manifest"]').getAttribute("href");
+    const manifest = await (await fetch(manifestHref)).json();
+    const files = [
+      ...manifest.icons.map((icon) => icon.src),
+      document.querySelector('link[rel="apple-touch-icon"]').getAttribute("href"),
+      ...[...document.querySelectorAll('link[rel="icon"]')].map((link) => link.getAttribute("href")),
+      new URL(document.querySelector('meta[property="og:image"]').content).pathname.slice(1),
+    ];
+    const statuses = await Promise.all(files.map(async (file) => [file, (await fetch(file)).status]));
+    return { name: manifest.name, maskable: manifest.icons.some((icon) => icon.purpose === "maskable"), statuses };
+  });
+  assert.equal(result.name, "WristMarkCompanion");
+  assert.equal(result.maskable, true);
+  for (const [file, status] of result.statuses) assert.equal(status, 200, file);
   assert.deepEqual(problems, []);
   await context.close();
 });

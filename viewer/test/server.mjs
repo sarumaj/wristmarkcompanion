@@ -12,7 +12,15 @@ const ROUTES = [
   ["/vendor/three/", join(VIEWER, "node_modules/three/build")],
   ["/", join(VIEWER, "public")],
 ];
-const TYPES = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json" };
+const TYPES = {
+  ".html": "text/html",
+  ".js": "text/javascript",
+  ".css": "text/css",
+  ".json": "application/json",
+  ".png": "image/png",
+  ".svg": "image/svg+xml",
+  ".webmanifest": "application/manifest+json",
+};
 
 async function policy() {
   const config = await readFile(join(VIEWER, "nginx.conf"), "utf8");

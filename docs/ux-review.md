@@ -39,9 +39,24 @@ After the changes, axe finds **no violations** on any page or state, in either s
 ## Brand and sharing
 
 The name **WristMarkCompanion**, the tagline **"Your watch, in 3D"**, the marker-in-a-rounded-square
-logo in the accent's blue-to-violet gradient, a dark, quiet interface. The second part of this
-review gives them the places a customer meets them: the browser tab's icon, the home screen, a
-shared link's preview, the README's first screen, a guide for users, and the store's listing.
+logo in the accent's blue-to-violet gradient, a dark, quiet interface. Where a customer now meets
+them:
+
+- **The browser tab and the home screen:** the logo as the icon (`icons/logo.svg`, PNGs at 192
+  and 512 pixels, a full-bleed one for Android's adaptive icons and the iPhone's home screen), and
+  a web app manifest, so the viewer can be added to the home screen and opens without the
+  browser's bars.
+- **A shared link:** a description, and a social card (`social.png`, 1200 by 630, 60 KB): the
+  logo, the tagline, "Point your phone at your watch and a 3D model comes alive on your wrist",
+  and the viewer on a phone with the dice.
+- **The README** opens with the tagline, the card, how to use it and what it does; the developers'
+  part follows.
+- **A user guide** ([user-guide.md](user-guide.md)): what you need, the steps, the gestures, size
+  and keys, the models, what to do when something doesn't work, privacy, support.
+- **The store's descriptions** in English and German (publishing.md) say what's there now: 21
+  models, the gestures, night mode.
+- **No Garmin name** in the viewer's copy, the card or the descriptions: their use needs Garmin's
+  consent until the app is approved ([publishing](publishing.md#9-name-and-trademarks)).
 
 ## Left for later
 

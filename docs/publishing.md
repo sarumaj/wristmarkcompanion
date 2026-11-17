@@ -169,27 +169,35 @@ suggest an affiliation with Garmin (DA VIII.a, RG 4.a). The drafts below name no
 **English, short:**
 
 ```text
-Shows a marker on your watch. Open the viewer on your phone or laptop, point its camera at the
-watch, and see a 3D model standing on your wrist.
+Your watch, in 3D. Point your phone's or laptop's camera at the watch and a 3D model comes alive
+on your wrist: tonight's moon, the planets, a campfire, dice you roll with a flick.
 ```
 
 **English, long:**
 
 ```text
-WristMarkCompanion turns your watch into an anchor for augmented reality. The app shows a marker on the
-watch's display. Open the viewer at https://wristmark.apps.ciepiela.org in the browser of a
-phone or a laptop with a camera, point the camera at your watch, and a 3D model appears on
-your wrist and follows it as you move.
+Your watch, in 3D. WristMarkCompanion shows a marker on your watch's display. Open the viewer at
+https://wristmark.apps.ciepiela.org in the browser of a phone or a laptop with a camera, point
+the camera at the watch, and a 3D model stands on your wrist and follows it as you move.
 
-Each marker shows a different model: switch markers with the up and down buttons, or let the
-app cycle through them (start button or tap). The display stays on while the marker is shown,
-as long as the watch allows; press a button to show it again.
+21 models, one per marker: the moon in tonight's phase, the Earth with day and night as they
+are now, the planets as they stand today, a world clock, a watch movement showing the time, an
+hourglass, a landing, a helicopter, a hot-air balloon, a rocket launch, dice, fireworks, a snow
+globe, a campfire, an aquarium, a lighthouse and a robot.
+
+Move your wrist and they react: flick it to roll the dice or launch a firework, shake it to stir
+the snow or the fire, twist it to move the planets a month. Pinch to resize; full screen on a
+phone.
+
+On the watch, the up and down buttons switch the model; a tap or the start button cycles
+through them. The display stays on while the marker is shown, as long as the watch allows; a
+button press shows it again. Night mode (red light) works too.
 
 What you need: a phone or laptop with a camera and a current web browser, and an internet
-connection to load the viewer once.
+connection to load the viewer once. No account, nothing else to install.
 
 Privacy: the watch app collects nothing and connects to nothing. The viewer runs entirely in
-your browser: the camera images never leave your device. Details:
+your browser: the camera images never leave your device. No ads, no tracking. Details:
 https://wristmark.apps.ciepiela.org/privacy.html
 
 Support: questions and problems by e-mail to contact@ciepiela.org.
@@ -198,28 +206,38 @@ Support: questions and problems by e-mail to contact@ciepiela.org.
 **Deutsch, kurz:**
 
 ```text
-Zeigt einen Marker auf deiner Uhr. Öffne den Viewer auf Handy oder Laptop, richte die Kamera
-auf die Uhr und sieh ein 3D-Modell auf deinem Handgelenk.
+Deine Uhr in 3D. Richte die Kamera von Handy oder Laptop auf die Uhr, und ein 3D-Modell erwacht
+auf deinem Handgelenk: der Mond von heute Nacht, die Planeten, ein Lagerfeuer, Würfel per Dreh.
 ```
 
 **Deutsch, lang:**
 
 ```text
-WristMarkCompanion macht deine Uhr zum Anker für Augmented Reality. Die App zeigt einen Marker auf dem
-Display der Uhr. Öffne den Viewer unter https://wristmark.apps.ciepiela.org im Browser eines
-Handys oder Laptops mit Kamera, richte die Kamera auf deine Uhr, und ein 3D-Modell erscheint
-auf deinem Handgelenk und folgt ihm, wenn du dich bewegst.
+Deine Uhr in 3D. WristMarkCompanion zeigt einen Marker auf dem Display deiner Uhr. Öffne den
+Viewer unter https://wristmark.apps.ciepiela.org im Browser eines Handys oder Laptops mit
+Kamera, richte die Kamera auf die Uhr, und ein 3D-Modell steht auf deinem Handgelenk und folgt
+ihm, wenn du dich bewegst.
 
-Jeder Marker zeigt ein anderes Modell: Wechsle die Marker mit den Tasten oben und unten, oder
-lass die App sie nacheinander zeigen (Start-Taste oder Tippen). Das Display bleibt an, solange
-der Marker gezeigt wird und die Uhr es zulässt; ein Tastendruck zeigt ihn wieder.
+21 Modelle, eins pro Marker: der Mond in der Phase von heute Nacht, die Erde mit Tag und Nacht,
+wie sie gerade sind, die Planeten, wie sie heute stehen, eine Weltzeituhr, ein Uhrwerk, das die
+Zeit zeigt, eine Sanduhr, eine Landung, ein Hubschrauber, ein Heißluftballon, ein Raketenstart,
+Würfel, ein Feuerwerk, eine Schneekugel, ein Lagerfeuer, ein Aquarium, ein Leuchtturm und ein
+Roboter.
+
+Beweg dein Handgelenk, und sie reagieren: Ein schneller Dreh würfelt oder schießt eine Rakete,
+Schütteln wirbelt den Schnee oder das Feuer auf, ein Drehen um die Uhr verschiebt die Planeten
+um einen Monat. Mit zwei Fingern änderst du die Größe; auf dem Handy auch im Vollbild.
+
+Auf der Uhr wechseln die Tasten oben und unten das Modell; Tippen oder die Start-Taste zeigt sie
+nacheinander. Das Display bleibt an, solange der Marker gezeigt wird und die Uhr es zulässt; ein
+Tastendruck zeigt ihn wieder. Der Nachtmodus (Rotlicht) funktioniert auch.
 
 Du brauchst: ein Handy oder einen Laptop mit Kamera und einem aktuellen Webbrowser, und eine
-Internetverbindung, um den Viewer einmal zu laden.
+Internetverbindung, um den Viewer einmal zu laden. Kein Konto, sonst nichts zu installieren.
 
 Datenschutz: Die App auf der Uhr sammelt nichts und verbindet sich mit nichts. Der Viewer läuft
-ganz in deinem Browser: Die Kamerabilder verlassen dein Gerät nie. Details:
-https://wristmark.apps.ciepiela.org/privacy.html
+ganz in deinem Browser: Die Kamerabilder verlassen dein Gerät nie. Keine Werbung, kein
+Tracking. Details: https://wristmark.apps.ciepiela.org/privacy.html
 
 Support: Fragen und Probleme per E-Mail an contact@ciepiela.org.
 ```
