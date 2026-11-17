@@ -175,13 +175,17 @@ are checked against the hashes the channel was created with.
 | Method and path                 | Who    | Request                                                | Response                                                                                                                                                                  |
 |---------------------------------|--------|--------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `PUT /channels/{id}`            | either | `{"watch": sha256, "viewer": sha256}`                  | 201 created, 204 the same hashes again, 409 other hashes                                                                                                                  |
-| `POST /channels/{id}/to-watch`  | viewer | an envelope                                            | 202 `{"s": 42}`; 429 when 64 wait                                                                                                                                         |
+| `POST /channels/{id}/to-watch`  | viewer | an envelope                                            | 202 `{"q": 42}`, its place in the queue; 429 when 64 wait                                                                                                                 |
 | `POST /poll`                    | watch  | `{"wait": 25, "channels": [{"id", "token", "after"}]}` | 200 `{"messages": {"<id>": [...]}}` as soon as any channel has one, else empty after `wait` (at most 25 s); a channel the relay lost (a restart) is listed in `"unknown"` |
 | `POST /channels/{id}/to-viewer` | watch  | an envelope                                            | 202                                                                                                                                                                       |
-| `GET /channels/{id}/to-viewer`  | viewer | `Accept: text/event-stream`, `Last-Event-ID`           | An event stream: one `data:` line per envelope, its `s` as the event's ID; a comment every 15 s keeps proxies from closing it                                             |
+| `GET /channels/{id}/to-viewer`  | viewer | `Accept: text/event-stream`, `Last-Event-ID`           | An event stream: one `data:` line per envelope, its place `q` as the event's ID; a comment every 15 s keeps proxies from closing it                                       |
 | `DELETE /channels/{id}`         | either |                                                        | 204; the channel and its queues are gone                                                                                                                                  |
 | `GET /healthz`                  | anyone |                                                        | 200                                                                                                                                                                       |
 
+- **Places in a queue:** the relay numbers each queue's messages, `q` from 1. The long-poll
+  answers each as `{"q": 7, "e": <envelope>}`; the watch's `after` is the last `q` it has, which
+  acknowledges it, and the viewer resumes the stream from the last `q` it read. The envelope's own
+  `s` is the sender's counter, which only the receiver checks.
 - **One long-poll for all of the watch's sessions:** the watch may have only one request in
   flight, so `POST /poll` waits on every channel it lists (each with its own token, at most four)
   and answers when any has a message. It's a POST because the tokens belong in the body, not in a
@@ -275,6 +279,9 @@ origin, the CSP and the panel's single domain stay as they are.
 | AES-GCM                                               | Not on the watch                                                                                                                                                                                      |
 
 ## Plan
+
+Built so far: **the relay** (`relay/`, step 3 below), with its tests and its image; it is not
+deployed yet.
 
 1. **Spike on the D2 Mach 1** (with a test relay on studio): how long the phone proxy holds a
    long-poll, the latency each way (median and 95th percentile), whether `Cipher` in CBC mode
