@@ -69,12 +69,14 @@ then (`?size=18.6` on its URL uses this one).
 
 `MarkerDelegate`, a `WatchUi.BehaviorDelegate`:
 
-| Input                                    | Action                                                                    |
-|------------------------------------------|---------------------------------------------------------------------------|
-| Down button, swipe up (`onNextPage`)     | Next ID with a model (`MarkerContent`); the last wraps to the first       |
-| Up button, swipe down (`onPreviousPage`) | Previous ID with a model                                                  |
-| Enter button, tap (`onSelect`)           | Start or stop the automatic cycle (5 s per marker); the label says `auto` |
-| Back                                     | Leave the app (the system's default)                                      |
+| Input                                                   | Action                                                                    |
+|---------------------------------------------------------|---------------------------------------------------------------------------|
+| Down button, swipe up (`onNextPage`)                    | Next ID with a model (`MarkerContent`); the last wraps to the first       |
+| Up button, swipe down (`onPreviousPage`)                | Previous ID with a model                                                  |
+| Start button pressed, tap (`onKeyReleased`, `onSelect`) | Start or stop the automatic cycle (5 s per marker); the label says `auto` |
+| Start button held 0.8 s (`onKeyPressed`, a timer)       | The viewers' menu: pair a viewer, forget one or all                       |
+| Up held, the menu button, a long press (`onMenu`)       | The same menu, where the watch doesn't keep it for its own controls       |
+| Back                                                    | Leave the app (the system's default)                                      |
 
 ## Keeping the display on
 

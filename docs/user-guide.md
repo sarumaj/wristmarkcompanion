@@ -22,7 +22,8 @@ wrist. The viewer's **Help** button (or the `?` key) has the short version of th
    marker turns into a dark watch face with a model standing on it, and the line at the bottom
    names it.
 4. **The watch's down and up buttons** (or a swipe) show the next and the previous model; a tap
-   or the start button cycles through them by itself.
+   or a press of the start button cycles through them by itself. Holding the start button opens
+   the menu ([steer the watch](#steer-the-watch-from-the-viewer)).
 
 On a phone, **full screen** (the corner button) gives the model the whole display.
 
@@ -117,8 +118,9 @@ list](content.md#the-models) says what each one does.
 Where it's offered (the **Watch** button at the top), the viewer can control the watch: the
 next or previous marker, the automatic cycle, and a buzz to find it.
 
-1. On the watch, open the menu (hold the up button) and choose **Pair a viewer**. It shows a
-   pairing code: four small markers that change three times a second.
+1. On the watch, open the menu: hold the start button (top right) or the up button, or hold a
+   finger on the display. Choose **Pair a viewer**. It shows a pairing code: four small markers
+   that change three times a second.
 2. In the viewer, open **Watch**, tap **Pair with the watch**, and hold the watch 15 to 25 cm
    from the camera until the count reaches 13 of 13.
 3. The watch buzzes, shows its marker again, and the viewer says "Connected".
