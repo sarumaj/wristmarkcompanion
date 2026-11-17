@@ -23,6 +23,9 @@ const JUNGLE = join(ROOT, "watch/devices.jungle");
 // code, the marker table and the control channel's buffers; the D2 Mach 1 gives 768 KB).
 const MIN_API = "3.3.0";
 const MIN_MEMORY = 128 * 1024;
+// The SDK's devices that aren't worn: bike computers and handhelds. compiler.json has no
+// category (its deviceGroup is the API level, "API level 5.2"), so they go by their IDs.
+const NOT_WORN = /^(edge|etrex|gpsmap|montana|oregon|rino)/;
 // The launcher icon in watch/resources (the D2 Mach 1's size); others get their own.
 export const BASE_ICON = "60x60";
 
@@ -41,13 +44,15 @@ const atLeast = (version, minimum) => version === minimum || newer(version, mini
 // A device from its compiler.json: what the list keeps of it, and why it's left out.
 function device(id, json) {
   const watchApp = (json.appTypes ?? []).find((type) => type.type === "watchApp");
-  const versions = (json.partNumbers ?? []).map((part) => part.connectIQVersion).filter(Boolean);
+  // The newest Connect IQ of its firmware versions, or the API level of its group.
+  const group = (json.deviceGroup ?? "").match(/(\d+\.\d+(?:\.\d+)?)/)?.[1];
+  const versions = [...(json.partNumbers ?? []).map((part) => part.connectIQVersion), group].filter(Boolean);
   const api = versions.reduce((a, b) => (newer(b, a) ? b : a), "0.0.0");
   const icon = json.launcherIcon ? `${json.launcherIcon.width}x${json.launcherIcon.height}` : null;
-  const group = json.deviceGroup ?? "";
-  const entry = { id: json.deviceId ?? id, name: json.displayName ?? id, family: json.deviceFamily ?? "", api, icon };
+  const deviceId = json.deviceId ?? id;
+  const entry = { id: deviceId, name: json.displayName ?? id, family: json.deviceFamily ?? "", api, icon };
   let skip = null;
-  if (!/watch|wearable/i.test(group)) skip = `not a wearable (${group || "no group"})`;
+  if (NOT_WORN.test(deviceId)) skip = "not worn (a bike computer or a handheld)";
   else if (!watchApp) skip = "no watch apps";
   else if (!atLeast(api, MIN_API)) skip = `Connect IQ ${api}`;
   else if (watchApp.memoryLimit < MIN_MEMORY) skip = `${watchApp.memoryLimit / 1024} KB for a watch app`;
