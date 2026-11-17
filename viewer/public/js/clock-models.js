@@ -233,3 +233,86 @@ export function hourglass(size, { now }) {
     },
   };
 }
+
+// The sun's hour angle on a horizontal sundial at latitude `latitude` (degrees): the angle
+// of the gnomon's shadow from the noon line, for `hours` of solar time.
+export function shadowAngle(hours, latitude) {
+  const hourAngle = ((hours - 12) * 15 * Math.PI) / 180;
+  return Math.atan2(Math.sin((latitude * Math.PI) / 180) * Math.sin(hourAngle), Math.cos(hourAngle));
+}
+
+// A garden sundial, its noon line toward the watch's top (north), set for 50° north: the
+// gnomon's shadow falls where the sun would put it at the viewer's clock time (without the
+// location, the clock stands in for solar time, which can be an hour or more off). At
+// night, no shadow. A tap tells the time it reads.
+export function sundial(size, { now }) {
+  const latitude = 50;
+  const stone = new THREE.MeshStandardMaterial({ color: 0xbfb6a8, roughness: 0.9 });
+  const bronze = new THREE.MeshStandardMaterial({ color: 0xa0763c, metalness: 0.7, roughness: 0.35 });
+  const pedestal = new THREE.Mesh(new THREE.CylinderGeometry(size * 0.14, size * 0.2, size * 0.24, 24), stone);
+  pedestal.position.y = size * 0.12;
+  const plate = new THREE.Mesh(new THREE.CylinderGeometry(size * 0.38, size * 0.38, size * 0.025, 64), bronze);
+  plate.position.y = size * 0.252;
+  const top = size * 0.266;
+  // Hour lines from 6 to 18, longer at 6, 9, 12, 15 and 18.
+  const marks = new THREE.Group();
+  for (let hour = 6; hour <= 18; hour++) {
+    const angle = shadowAngle(hour, latitude);
+    const long = hour % 3 === 0;
+    const mark = new THREE.Mesh(new THREE.BoxGeometry(size * 0.008, size * 0.004, size * (long ? 0.1 : 0.06)), new THREE.MeshStandardMaterial({ color: 0x3b2a14 }));
+    const r = size * (long ? 0.3 : 0.32);
+    // The noon line toward -z (north, the watch's top); the morning to the west (-x).
+    mark.position.set(Math.sin(angle) * r, top, -Math.cos(angle) * r);
+    mark.rotation.y = -angle;
+    marks.add(mark);
+  }
+  // The gnomon: a triangle in the noon line, its edge (the style) rising from the center
+  // toward north at the latitude's angle, toward the celestial pole.
+  const length = size * 0.26;
+  const gnomonShape = new THREE.Shape();
+  gnomonShape.moveTo(0, 0);
+  gnomonShape.lineTo(length, 0);
+  gnomonShape.lineTo(length, length * Math.tan((latitude * Math.PI) / 180));
+  gnomonShape.closePath();
+  const gnomonGeometry = new THREE.ExtrudeGeometry(gnomonShape, { depth: size * 0.01, bevelEnabled: false });
+  gnomonGeometry.translate(0, 0, -size * 0.005);
+  const gnomon = new THREE.Mesh(gnomonGeometry, bronze);
+  // Built along +x; turned so that it runs from the center toward north (-z).
+  gnomon.rotation.y = Math.PI / 2;
+  gnomon.position.y = top;
+  // The shadow: a dark wedge on the plate from the center, turned to the hour.
+  const shadowShape = new THREE.Shape();
+  shadowShape.moveTo(-size * 0.006, 0);
+  shadowShape.lineTo(size * 0.006, 0);
+  shadowShape.lineTo(size * 0.02, size * 0.3);
+  shadowShape.lineTo(-size * 0.02, size * 0.3);
+  shadowShape.closePath();
+  const shadowGeometry = new THREE.ShapeGeometry(shadowShape);
+  shadowGeometry.rotateX(-Math.PI / 2);
+  const shadow = new THREE.Mesh(shadowGeometry, new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.45, depthWrite: false }));
+  shadow.position.y = top + 0.05;
+  const shadowPivot = new THREE.Group();
+  shadowPivot.add(shadow);
+  const { root } = standing(pedestal, plate, marks, gnomon, shadowPivot);
+  const reading = () => {
+    const date = now();
+    return date.getHours() + date.getMinutes() / 60;
+  };
+  return {
+    object: root,
+    touch: () => {
+      const hours = reading();
+      const day = hours >= 6 && hours <= 18;
+      const time = now().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+      return { text: day ? `The sundial reads ${time}` : "Night: no shadow", tick: false };
+    },
+    animate: () => {
+      const hours = reading();
+      const day = hours >= 6 && hours <= 18;
+      shadowPivot.visible = day;
+      // The shadow falls opposite the sun: north (-z) at noon, toward the west in the morning.
+      // The wedge is built toward -z (rotateX turned +y into -z).
+      shadowPivot.rotation.y = -shadowAngle(hours, latitude);
+    },
+  };
+}

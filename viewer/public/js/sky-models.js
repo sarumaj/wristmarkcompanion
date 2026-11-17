@@ -351,3 +351,72 @@ export function orrery(size, { now }) {
     },
   };
 }
+
+// A satellite like the space station circling the Earth, day and night on the globe as
+// they are now: its panels toward the sun, a blinking light, one orbit in 20 seconds (the
+// station takes about 93 minutes: 280 times as long). A tap pings it: its antenna flashes
+// and a ring spreads.
+export function satellite(size, { now }) {
+  const radius = size * 0.24;
+  const { mesh, update } = globe(radius, now);
+  const center = size * 0.5;
+  mesh.position.y = center;
+  const orbitRadius = size * 0.44;
+  // The orbit tilted as the station's is (51.6°) against the equator.
+  const orbit = new THREE.Group();
+  orbit.position.y = center;
+  orbit.rotation.z = 51.6 * RAD;
+  const path = new THREE.Mesh(new THREE.TorusGeometry(orbitRadius, size * 0.002, 4, 128), new THREE.MeshBasicMaterial({ color: 0x9fb4ff, transparent: true, opacity: 0.35 }));
+  path.rotation.x = Math.PI / 2;
+  const craft = new THREE.Group();
+  const gold = new THREE.MeshStandardMaterial({ color: 0xd4a017, metalness: 0.6, roughness: 0.35 });
+  const panel = new THREE.MeshStandardMaterial({ color: 0x1d3557, emissive: 0x0b1d40, metalness: 0.4, roughness: 0.3, side: THREE.DoubleSide });
+  craft.add(new THREE.Mesh(new THREE.CylinderGeometry(size * 0.018, size * 0.018, size * 0.09, 12).rotateZ(Math.PI / 2), gold));
+  const truss = new THREE.Mesh(new THREE.BoxGeometry(size * 0.006, size * 0.006, size * 0.16), new THREE.MeshStandardMaterial({ color: 0xced4da }));
+  craft.add(truss);
+  for (const z of [-1, 1]) {
+    for (const x of [-1, 1]) {
+      const wing = new THREE.Mesh(new THREE.PlaneGeometry(size * 0.035, size * 0.05), panel);
+      wing.position.set(x * size * 0.022, 0, z * size * 0.06);
+      wing.rotation.x = Math.PI / 2;
+      craft.add(wing);
+    }
+  }
+  const beacon = new THREE.Mesh(new THREE.SphereGeometry(size * 0.008, 8, 6), new THREE.MeshStandardMaterial({ color: 0xff4d4d, emissive: 0xff2020, emissiveIntensity: 0 }));
+  beacon.position.set(size * 0.05, size * 0.012, 0);
+  craft.add(beacon);
+  const ping = new THREE.Mesh(new THREE.RingGeometry(size * 0.02, size * 0.026, 32), new THREE.MeshBasicMaterial({ color: 0x9be7ff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false }));
+  craft.add(ping);
+  orbit.add(path, craft);
+  const stand = new THREE.Mesh(new THREE.CylinderGeometry(size * 0.008, size * 0.05, center - radius, 12), new THREE.MeshStandardMaterial({ color: 0x495057, metalness: 0.5 }));
+  stand.position.y = (center - radius) / 2;
+  const { root } = standing(stand, mesh, orbit);
+  let clock = 0;
+  let pingAt = -Infinity;
+  let updated = -Infinity;
+  return {
+    object: root,
+    touch: () => {
+      pingAt = clock;
+      return "Ping";
+    },
+    animate: (t) => {
+      clock = t;
+      if (Math.abs(t - updated) > 30) {
+        updated = t;
+        update();
+      }
+      mesh.rotation.y = t * 0.05;
+      const angle = (t / 20) * Math.PI * 2;
+      craft.position.set(Math.cos(angle) * orbitRadius, 0, -Math.sin(angle) * orbitRadius);
+      craft.rotation.y = angle;
+      beacon.material.emissiveIntensity = t % 1.5 < 0.15 || t - pingAt < 0.6 ? 3 : 0;
+      // The ring spreads for 1.2 s after a ping (before the first, it stays put, hidden).
+      const spread = Math.min(1, (t - pingAt) / 1.2);
+      ping.visible = spread < 1;
+      ping.scale.setScalar(1 + spread * 6);
+      ping.material.opacity = 0.8 * (1 - spread);
+      ping.lookAt(0, 0, 0);
+    },
+  };
+}

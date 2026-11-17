@@ -35,6 +35,13 @@
     "32": { "model": "volcano", "name": "Volcano" },
     "33": { "model": "ufo", "name": "UFO" },
     "34": { "model": "train", "name": "Toy train" },
-    "35": { "model": "cake", "name": "Birthday cake" }
+    "35": { "model": "cake", "name": "Birthday cake" },
+    "36": { "model": "jellyfish", "name": "Jellyfish" },
+    "37": { "model": "butterflies", "name": "Butterflies" },
+    "38": { "model": "carousel", "name": "Carousel" },
+    "39": { "model": "raceTrack", "name": "Race track" },
+    "40": { "model": "satellite", "name": "Satellite" },
+    "41": { "model": "sundial", "name": "Sundial" },
+    "42": { "model": "lavaLamp", "name": "Lava lamp" }
   }
 }
