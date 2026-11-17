@@ -1,0 +1,17 @@
+{
+  "name": "wristmark-app",
+  "private": true,
+  "description": "The viewer as an Android app (Capacitor): docs/android.md",
+  "license": "GPL-3.0-or-later",
+  "scripts": {
+    "web": "../tools/build-app-web.sh",
+    "sync": "npm run web && cap sync android"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.6.2",
+    "@capacitor/core": "8.6.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.6.2"
+  }
+}

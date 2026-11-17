@@ -1,0 +1,10 @@
+{
+  "appId": "org.ciepiela.wristmark",
+  "appName": "WristMarkCompanion",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false,
+    "captureInput": false,
+    "webContentsDebuggingEnabled": false
+  }
+}

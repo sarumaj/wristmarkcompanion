@@ -318,3 +318,37 @@ func TestHealth(t *testing.T) {
 		t.Error("the -check probe")
 	}
 }
+
+// The Android app's page (origin https://localhost) may call the relay: its preflight
+// is answered, and its answers carry the origin; no other origin gets either.
+func TestCORSForTheApp(t *testing.T) {
+	server := httptest.NewServer(New())
+	defer server.Close()
+	ask := func(method, origin string) *http.Response {
+		req, err := http.NewRequest(method, server.URL+"/relay/v1/healthz", nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		req.Header.Set("Origin", origin)
+		req.Header.Set("Access-Control-Request-Method", "PUT")
+		res, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Fatal(err)
+		}
+		_ = res.Body.Close()
+		return res
+	}
+	pre := ask(http.MethodOptions, appOrigin)
+	if pre.StatusCode != http.StatusNoContent || pre.Header.Get("Access-Control-Allow-Origin") != appOrigin ||
+		!strings.Contains(pre.Header.Get("Access-Control-Allow-Headers"), "Authorization") {
+		t.Fatalf("preflight: %d %v", pre.StatusCode, pre.Header)
+	}
+	if got := ask(http.MethodGet, appOrigin).Header.Get("Access-Control-Allow-Origin"); got != appOrigin {
+		t.Fatalf("the app's GET: allow-origin %q", got)
+	}
+	for _, method := range []string{http.MethodGet, http.MethodOptions} {
+		if got := ask(method, "https://example.org").Header.Get("Access-Control-Allow-Origin"); got != "" {
+			t.Fatalf("another origin's %s: allow-origin %q", method, got)
+		}
+	}
+}
