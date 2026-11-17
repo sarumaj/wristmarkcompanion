@@ -24,16 +24,16 @@ flowchart LR
 
 ## What a model can know
 
-| Input                              | Phone | Laptop  | Cost                                                                                                                                         |
-|------------------------------------|-------|---------|----------------------------------------------------------------------------------------------------------------------------------------------|
-| The time                           | Yes   | Yes     | None                                                                                                                                         |
-| The time zone (`Intl`)             | Yes   | Yes     | None. Gives a rough longitude, enough for a globe's "you are here"                                                                           |
-| The watch's pose and its movements | Yes   | Yes     | None: the tracker has it every frame ([interaction](interaction.md))                                                                         |
-| Touch, clicks                      | Yes   | Yes     | None                                                                                                                                         |
-| A file the user picks (GPX, IGC)   | Yes   | Yes     | None: read in the browser, never uploaded                                                                                                    |
-| Location                           | Yes   | Roughly | A permission prompt, and `nginx.conf`'s `Permissions-Policy` (now `geolocation=()`) opened. Stays in the browser                             |
-| Compass and gravity                | Yes   | No      | `DeviceOrientationEvent` (iOS asks for permission). A laptop has neither: the model needs a fallback (camera assumed upright, no north)      |
-| Live data (flights, weather)       | Yes   | Yes     | A request to a server, with the location in it. Breaks "nothing leaves the browser" unless the owner decides otherwise ([below](#live-data)) |
+| Input                              | Phone | Laptop  | Cost                                                                                                                                                                                                                         |
+|------------------------------------|-------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| The time                           | Yes   | Yes     | None                                                                                                                                                                                                                         |
+| The time zone (`Intl`)             | Yes   | Yes     | None. Gives a rough longitude, enough for a globe's "you are here"                                                                                                                                                           |
+| The watch's pose and its movements | Yes   | Yes     | None: the tracker has it every frame ([interaction](interaction.md))                                                                                                                                                         |
+| Touch, clicks                      | Yes   | Yes     | None                                                                                                                                                                                                                         |
+| A file the user picks (GPX, IGC)   | Yes   | Yes     | None: read in the browser, never uploaded                                                                                                                                                                                    |
+| Location                           | Yes   | Roughly | A permission prompt, and `nginx.conf`'s `Permissions-Policy` (now `geolocation=()`) opened. Stays in the browser                                                                                                             |
+| Compass and gravity                | Yes   | No      | `DeviceOrientationEvent` (iOS asks for permission). A laptop has neither: the model needs a fallback (camera assumed upright, no north). Gravity is built, for the pose models ([content](content.md#how-the-watch-is-held)) |
+| Live data (flights, weather)       | Yes   | Yes     | A request to a server, with the location in it. Breaks "nothing leaves the browser" unless the owner decides otherwise ([below](#live-data))                                                                                 |
 
 ## Utilities
 

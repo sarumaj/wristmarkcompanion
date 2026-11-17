@@ -387,6 +387,38 @@ test("the size chosen is kept for the next visit, and forgotten when put back", 
   await context.close();
 });
 
+test("gravity from the phone's tilt: the math, and the button that switches it on", async () => {
+  // The math: upright in portrait, flat face up, and the screen turned.
+  const context = await browser.newContext();
+  const { page: plain, problems: plainProblems } = await open(context, "/index.html");
+  const math = await plain.evaluate(async () => {
+    const { deviceGravity, onScreen } = await import("/js/seen.js");
+    const round = (vector) => vector.map((value) => Math.round(value * 1000) / 1000 + 0);
+    return {
+      upright: round(deviceGravity(90, 0)),
+      flat: round(deviceGravity(0, 0)),
+      rolled: round(deviceGravity(0, 90)),
+      turned: round(onScreen([0, 1, 0], 90)),
+    };
+  });
+  assert.deepEqual(math, { upright: [0, -1, 0], flat: [0, 0, -1], rolled: [1, 0, 0], turned: [-1, 0, 0] });
+  assert.deepEqual(plainProblems, []);
+  await context.close();
+  // The button, on the attitude indicator: readings come, it says so and goes.
+  await withCamera(21, "/index.html?autostart&sensors", async (page) => {
+    const button = page.getByRole("button", { name: "Use the phone's tilt" });
+    await button.click();
+    await page.evaluate(() => {
+      const send = () => window.dispatchEvent(new DeviceOrientationEvent("deviceorientation", { alpha: 0, beta: 80, gamma: 10 }));
+      setInterval(send, 50);
+    });
+    await page.waitForFunction(() => document.body.dataset.sensors === "on");
+    assert.equal(await page.locator("#gesture").textContent(), "Gravity from the phone's sensors");
+    assert.equal(await button.count(), 0);
+    // Granted, as a user allows it when the browser asks.
+  }, (page) => page.context().grantPermissions(["accelerometer", "gyroscope"]));
+});
+
 test("a marker without content gets the gizmo and says so", async () => {
   // Every ID has a model: this one is taken out of the content the page gets.
   const withoutLast = async (page) =>

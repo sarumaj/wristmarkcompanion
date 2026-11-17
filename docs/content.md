@@ -114,12 +114,19 @@ model; a test fails while a mapped model has no picture.
 
 ### How the watch is held
 
-The attitude indicator, the maze and the penguin respond to the watch's pose as the camera sees
-it (`js/seen.js`): without the phone's sensors, the camera is taken as upright, so the image's
-down stands in for gravity. The attitude indicator and the penguin keep level with the image;
-the maze is looked into, so its "down" is the camera's line of sight, and the ball rolls toward
-the side tilted away from the camera. Each reads the camera's direction in its own frame just
-before it is drawn (`onBeforeRender`), with no other data from the viewer.
+The attitude indicator, the maze and the penguin respond to the watch's pose as the camera sees it
+(`js/seen.js`): without the phone's sensors, the camera is taken as upright, so the image's down
+stands in for gravity. The attitude indicator and the penguin keep level with the image; the maze is
+looked into, so its "down" is the camera's line of sight, and the ball rolls toward the side tilted
+away from the camera. Each reads the camera's direction in its own frame just before it is drawn
+(`onBeforeRender`), with no other data from the viewer.
+
+On a phone, the button **Use the phone's tilt** under these models switches on its motion sensors
+(`startMotion`; Safari on an iPhone asks first): gravity then comes from them, from
+`deviceorientation`'s tilt (beta and gamma) turned with the screen. The attitude indicator and the
+penguin keep level with the real horizon, and the maze's ball rolls downhill: hold the watch flat
+and look down at it. Readings older than a second count as none, and the image's down takes over
+again. A laptop has no sensors; the button is offered only on touch screens.
 
 ### The moon, the Earth and the planets
 

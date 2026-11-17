@@ -2,6 +2,12 @@
    and privacy pages follow the system's light or dark. System fonts only: the
    Content-Security-Policy keeps every request on this origin. */
 
+/* Hidden means hidden, also where a rule below sets the element's display (the action
+   bar is a flex box): the browser's own [hidden] rule loses to any author rule. */
+[hidden] {
+  display: none !important;
+}
+
 :root {
   color-scheme: light dark;
   --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;

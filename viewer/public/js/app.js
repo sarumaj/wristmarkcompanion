@@ -12,6 +12,7 @@ import { zoomControl } from "./zoom.js";
 import { GestureRecognizer } from "./gestures.js";
 import { touchControl, Turntable } from "./touch.js";
 import { HandInteraction } from "./hands.js";
+import { sensing, startMotion } from "./seen.js";
 
 const params = new URLSearchParams(location.search);
 // The marker's black square, in millimeters: about the D2 Mach 1's (the watch's
@@ -158,15 +159,39 @@ function scene() {
   return { renderer, camera, world, anchor, gizmo, screen };
 }
 
+// The phone's motion sensors, offered where there may be some: a touch screen with the
+// orientation events (laptops have the events, but no sensors). ?sensors offers them
+// anywhere, for the tests.
+const MAY_SENSE = params.has("sensors") || (typeof DeviceOrientationEvent !== "undefined" && matchMedia("(pointer: coarse)").matches);
+async function useSensors(button) {
+  button.disabled = true;
+  const on = await startMotion().catch(() => false);
+  if (on) {
+    // Done with: gone (the buttons' display would override `hidden`).
+    button.remove();
+    actions.hidden = actions.childElementCount === 0;
+    document.body.dataset.sensors = "on";
+    acknowledge("Gravity from the phone's sensors", { tick: false });
+  } else {
+    button.disabled = false;
+    acknowledge("No motion sensors to use here", { tick: false });
+  }
+}
+
 // The buttons that do what the model's gestures do (MODEL_GUIDES).
 function showActions(view, entry) {
   const guide = entry ? MODEL_GUIDES[entry.model] : null;
+  const offered = (guide?.actions ?? []).filter(({ sensor }) => !sensor || (MAY_SENSE && !sensing()));
   actions.replaceChildren(
-    ...(guide?.actions ?? []).map(({ label, gesture, direction = 1, touch }) => {
+    ...offered.map(({ label, gesture, direction = 1, touch, sensor }) => {
       const button = document.createElement("button");
       button.type = "button";
       button.textContent = label;
       button.addEventListener("click", () => {
+        if (sensor) {
+          useSensors(button);
+          return;
+        }
         const t = performance.now();
         const done = touch ? view.model?.touch?.({ t }) : view.model?.gesture?.({ name: gesture, direction, t });
         if (done) acknowledge(label);
