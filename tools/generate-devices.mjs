@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// The watches the app is built for (docs/watch.md#devices): every wearable whose Connect IQ
-// can run it, from the SDK's device files, written down in watch/devices.json; and from
+// The devices the app is built for (docs/watch.md#devices): every one whose Connect IQ can
+// run it, watches, bike computers and handhelds alike, from the SDK's device files, written down in watch/devices.json; and from
 // that list the manifest's <iq:products> and watch/devices.jungle, which gives each device
 // the launcher icon of its size (tools/generate-icon.mjs draws them).
 //
@@ -23,9 +23,6 @@ const JUNGLE = join(ROOT, "watch/devices.jungle");
 // code, the marker table and the control channel's buffers; the D2 Mach 1 gives 768 KB).
 const MIN_API = "3.3.0";
 const MIN_MEMORY = 128 * 1024;
-// The SDK's devices that aren't worn: bike computers and handhelds. compiler.json has no
-// category (its deviceGroup is the API level, "API level 5.2"), so they go by their IDs.
-const NOT_WORN = /^(edge|etrex|gpsmap|montana|oregon|rino)/;
 // The launcher icon in watch/resources (the D2 Mach 1's size); others get their own.
 export const BASE_ICON = "60x60";
 
@@ -52,8 +49,7 @@ function device(id, json) {
   const deviceId = json.deviceId ?? id;
   const entry = { id: deviceId, name: json.displayName ?? id, family: json.deviceFamily ?? "", api, icon };
   let skip = null;
-  if (NOT_WORN.test(deviceId)) skip = "not worn (a bike computer or a handheld)";
-  else if (!watchApp) skip = "no watch apps";
+  if (!watchApp) skip = "no watch apps";
   else if (!atLeast(api, MIN_API)) skip = `Connect IQ ${api}`;
   else if (watchApp.memoryLimit < MIN_MEMORY) skip = `${watchApp.memoryLimit / 1024} KB for a watch app`;
   else if (!icon) skip = "no launcher icon size";

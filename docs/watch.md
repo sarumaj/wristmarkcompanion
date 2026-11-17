@@ -129,13 +129,16 @@ apps list or a hotkey is enough.
 
 ## Devices {#devices}
 
-The app is built for **every wearable whose Connect IQ can run it**, not one watch. The list is
-made from the SDK's device files, so a device Garmin adds is found, not typed in.
+The app is built for **every device whose Connect IQ can run it**, not one watch: watches, and
+bike computers (Edge) and handhelds (GPSMAP, Montana, Oregon, Rino, eTrex) too, whose display
+shows the marker as well. The list is made from the SDK's device files, so a device Garmin adds
+is found, not typed in.
 
 - **The list,** `watch/devices.json`: `tools/generate-devices.mjs --sdk <Devices>` reads each
-  device's `compiler.json` and keeps those in a wearables group, with watch apps, Connect IQ
-  3.3.0 or later (the manifest's `minApiLevel`) and at least 128 KB for a watch app. It prints
-  the devices it leaves out and why. CI's watch job runs it with `--check` against the device
+  device's `compiler.json` and keeps those with device apps (`watchApp`), Connect IQ 3.3.0 or
+  later (the manifest's `minApiLevel`; the newest of its firmware versions, or its
+  `deviceGroup`, which is the API level), and at least 128 KB for a device app. It prints the
+  devices it leaves out and why. CI's watch job runs it with `--check` against the device
   files installed on `anvil` (`connectiq-update`, docs/ci.md): a new or changed device fails it,
   and the log shows the list to commit.
 - **From the list:** the manifest's `<iq:products>` and `watch/devices.jungle`
@@ -148,11 +151,11 @@ made from the SDK's device files, so a device Garmin adds is found, not typed in
 
 The marker's layout follows the display (`MarkerView`, `PairingView`):
 
-| Display                               | Marker                                                                 | ID               |
-|---------------------------------------|------------------------------------------------------------------------|------------------|
-| Round, semi-round                     | Largest whole cell whose corners stay a cell inside the circle         | Below            |
-| Rectangular (Venu Sq, Vivoactive 3/4) | The marker and its quiet zone in the shorter side                      | Below            |
-| With a subscreen (Instinct)           | In the room below the subscreen, two cells of margin for the cut edges | In the subscreen |
+| Display                                | Marker                                                                 | ID               |
+|----------------------------------------|------------------------------------------------------------------------|------------------|
+| Round, semi-round                      | Largest whole cell whose corners stay a cell inside the circle         | Below            |
+| Rectangular (Venu Sq, Edge, handhelds) | The marker and its quiet zone in the shorter side                      | Below            |
+| With a subscreen (Instinct)            | In the room below the subscreen, two cells of margin for the cut edges | In the subscreen |
 
 What the viewer assumes, and what that means on other watches:
 
