@@ -3,6 +3,7 @@
 // three.js's shapes; the Ferris wheel and the bonsai read the clock and the date.
 import * as THREE from "../vendor/three/three.module.js";
 import { standing } from "./standing.js";
+import { dot } from "./dot.js";
 import { label } from "./label.js";
 
 const material = (color, options = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.7, ...options });
@@ -264,7 +265,7 @@ export function bonsai(size, { now }) {
   const fallGeometry = new THREE.BufferGeometry();
   fallGeometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
   fallGeometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, size * 0.3, 0), size * 0.6);
-  const fallMaterial = new THREE.PointsMaterial({ color: shown.falling ?? 0xffffff, size: size * 0.025, transparent: true, depthWrite: false });
+  const fallMaterial = new THREE.PointsMaterial({ color: shown.falling ?? 0xffffff, size: size * 0.035, map: dot(), transparent: true, depthWrite: false });
   const falling = new THREE.Points(fallGeometry, fallMaterial);
   const text = label(size * 0.8);
   text.sprite.position.set(0, size * 0.78, -size * 0.2);

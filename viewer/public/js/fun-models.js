@@ -3,6 +3,7 @@
 // with the interaction (docs/interaction.md).
 import * as THREE from "../vendor/three/three.module.js";
 import { standing } from "./standing.js";
+import { dot } from "./dot.js";
 
 function part(geometry, material, x = 0, y = 0, z = 0) {
   const mesh = new THREE.Mesh(geometry, material);
@@ -130,7 +131,7 @@ export function snowglobe(size) {
   const ground = size * 0.2;
   geometry.boundingBox = new THREE.Box3(new THREE.Vector3(-radius, ground, -radius), new THREE.Vector3(radius, top, radius));
   geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, center, 0), radius);
-  const snow = new THREE.Points(geometry, new THREE.PointsMaterial({ color: 0xffffff, size: size * 0.025 }));
+  const snow = new THREE.Points(geometry, new THREE.PointsMaterial({ color: 0xffffff, size: size * 0.035, map: dot(), transparent: true, depthWrite: false }));
 
   const { root } = standing(base, tree, snow, glass);
   // A shake (or a flick) stirs the snow up; it settles over a few seconds.
@@ -180,7 +181,7 @@ export function fireworks(size) {
   geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, size, 0), size * 1.6);
   const points = new THREE.Points(
     geometry,
-    new THREE.PointsMaterial({ size: size * 0.07, vertexColors: true, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }),
+    new THREE.PointsMaterial({ size: size * 0.09, map: dot(), vertexColors: true, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }),
   );
   // The sparks' directions, spread evenly over a sphere (a Fibonacci lattice).
   const directions = Array.from({ length: sparks }, (_, i) => {

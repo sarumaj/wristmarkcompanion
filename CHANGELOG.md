@@ -8,6 +8,10 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- A picture of every model in `docs/content.md`'s table, rendered from the models themselves at
+  a fixed date (`viewer/tools/render-models.mjs`); a test fails while a mapped model has none.
+  They replace six strips that left out the placeholders, the lighthouse and the balloon.
+  Snow and the fireworks' sparks are soft dots too.
 - Seven more models (markers 36 to 42): a jellyfish, butterflies, a carousel, a race track, a
   satellite on the space station's orbit, a sundial reading the clock and a lava lamp, each set
   off by a tap.
