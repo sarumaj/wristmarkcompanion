@@ -86,7 +86,9 @@ key: "If you lose your original signing key you will not be able to update your 
 | Languages           | `eng`, `deu`                                  | MP: the languages declared are used when exporting, and "can impact what regions of the world your app is available in". The only string, the name, needs no translation |
 
 - **Devices:** you must "accurately disclose which Garmin devices support your app" (RG 4.b).
-  Add only devices tested at least in the simulator ([watch](watch.md#more-devices)).
+  The manifest lists every wearable the SDK says can run the app
+  ([watch](watch.md#devices)); before a store release, try one device of each display kind in
+  the simulator (round, rectangular, with a subscreen, memory-in-pixel).
 - **Version: not documented.** The manifest has no version for an app. Reports in Garmin's
   forum (not documentation) say the upload form asks for it and refuses one that isn't new.
   Use the tag's version, e.g. `0.1.0` for `v0.1.0`.

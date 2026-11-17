@@ -57,11 +57,19 @@ class PairingView extends WatchUi.View {
         var height = dc.getHeight();
         var radius = (width < height ? width : height) / 2;
         // Two markers and three cells of white across (1 + 6 + 1 + 6 + 1 = 15 cells): the
-        // white square's corners on the round display's edge.
+        // white square's corners on the round display's edge (inside a rectangular one);
+        // below the subscreen where there is one, in the room left.
         var cell = (radius * Math.sqrt(2) / 15).toNumber();
+        var centerY = height / 2;
+        var subscreen = MarkerDraw.subscreen();
+        if (subscreen != null) {
+            var room = height - (subscreen[1] + subscreen[3]);
+            cell = ((room < width ? room : width) * 0.9 / 15).toNumber();
+            centerY = height - room / 2;
+        }
         var side = 15 * cell;
         var left = width / 2 - side / 2;
-        var top = height / 2 - side / 2;
+        var top = centerY - side / 2;
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
         dc.clear();
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_WHITE);
@@ -72,7 +80,10 @@ class PairingView extends WatchUi.View {
             MarkerDraw.marker(dc, ids[i], left + places[i][0] * cell, top + places[i][1] * cell, cell);
         }
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(width / 2, (top + side + height / 2 + radius) / 2, Graphics.FONT_XTINY, "Pairing", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        // "Pairing" below the code, or in the subscreen.
+        var labelX = subscreen != null ? subscreen[0] + subscreen[2] / 2 : width / 2;
+        var labelY = subscreen != null ? subscreen[1] + subscreen[3] / 2 : (top + side + height / 2 + radius) / 2;
+        dc.drawText(labelX, labelY, Graphics.FONT_XTINY, "Pairing", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 }
 

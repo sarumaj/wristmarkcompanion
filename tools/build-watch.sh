@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 # Compiles the watch app for every device in watch/manifest.xml, with the Connect IQ
-# SDK of the given version from the SDK manager's directory (docs/ci.md).
+# SDK of the given version from the SDK manager's directory (docs/ci.md): a test
+# package of all of them (wristmark-test.iq, one compiler run), and a .prg to sideload
+# or simulate for the D2 Mach 1 or the devices WATCH_DEVICES names.
 #
 #   tools/build-watch.sh 9.3.0 [output directory, default watch/bin]
+#   WATCH_DEVICES="fenix847mm venu3" tools/build-watch.sh 9.3.0
 #
 # CONNECTIQ_HOME is that directory, by default Linux's ~/.Garmin/ConnectIQ (macOS:
 # "$HOME/Library/Application Support/Garmin/ConnectIQ"). On Linux monkeyc looks for
@@ -34,6 +37,12 @@ if [[ "${1:-}" == --package ]]; then
 fi
 version=${1:?usage: tools/build-watch.sh [--package] <sdk-version> [output directory]}
 out=${2:-watch/bin}
+# The devices a test build makes a .prg for, to sideload or simulate: the D2 Mach 1, or
+# those WATCH_DEVICES names (space-separated). Every device of the manifest is compiled
+# and type-checked anyway, in the test package (wristmark-test.iq).
+read -r -a prg_devices <<< "${WATCH_DEVICES:-d2mach1}"
+# The manifest's jungle and the devices' (each one's launcher icon, generate-devices.mjs).
+jungles="watch/monkey.jungle;watch/devices.jungle"
 home=${CONNECTIQ_HOME:-$HOME/.Garmin/ConnectIQ}
 
 shopt -s nullglob
@@ -100,7 +109,7 @@ for device in "${devices[@]}"; do
 done
 
 if $package; then
-  "$monkeyc" --package-app --release --warn --typecheck 3 --jungles watch/monkey.jungle \
+  "$monkeyc" --package-app --release --warn --typecheck 3 --jungles "$jungles" \
     --private-key "$CONNECTIQ_KEY" --output "$out/wristmark.iq"
   exit 0
 fi
@@ -108,8 +117,12 @@ fi
 openssl genrsa -out "$keys/key.pem" 4096 2>/dev/null
 openssl pkcs8 -topk8 -inform PEM -outform DER -in "$keys/key.pem" -out "$keys/key.der" -nocrypt
 
-for device in "${devices[@]}"; do
+# Every device at once, in one compiler run (one Java start, not one per device).
+echo "== all ${#devices[@]} devices"
+"$monkeyc" --package-app --warn --typecheck 3 --jungles "$jungles" \
+  --private-key "$keys/key.der" --output "$out/wristmark-test.iq"
+for device in "${prg_devices[@]}"; do
   echo "== $device"
-  "$monkeyc" --warn --typecheck 3 --device "$device" --jungles watch/monkey.jungle \
+  "$monkeyc" --warn --typecheck 3 --device "$device" --jungles "$jungles" \
     --private-key "$keys/key.der" --output "$out/wristmark-$device.prg"
 done
