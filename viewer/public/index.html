@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#0b0d12">
   <title>WristMarkCompanion viewer</title>
+  <meta name="description" content="See 3D models come alive on your watch: point your phone's or laptop's camera at the WristMarkCompanion watch app. Nothing leaves your device.">
   <link rel="stylesheet" href="style.css">
   <!-- js-aruco2 (classic scripts, globals CV, AR, SVD, POS), in this order, before the modules. -->
   <script defer src="vendor/js-aruco2/cv.js"></script>
@@ -32,17 +33,32 @@
       </svg>
       <span>WristMark<span class="brand-soft">Companion</span></span>
     </a>
-    <button id="debug-toggle" class="chip" type="button" aria-pressed="false">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-      Debug
-    </button>
+    <h1 class="visually-hidden">WristMarkCompanion viewer</h1>
+    <div class="topbar-actions">
+      <button class="chip" type="button" data-open-help>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9.6 9.3a2.5 2.5 0 1 1 3.4 2.3c-.7.3-1 .8-1 1.5v.4M12 16.6v.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <span class="chip-label">Help</span>
+      </button>
+      <button id="debug-toggle" class="chip" type="button" aria-pressed="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <span class="chip-label">Debug</span>
+      </button>
+    </div>
   </header>
 
   <main class="viewer">
     <div class="stage">
-      <video id="camera" playsinline muted></video>
-      <canvas id="overlay"></canvas>
+      <video id="camera" playsinline muted aria-hidden="true"></video>
+      <canvas id="overlay" aria-hidden="true"></canvas>
       <div id="debug" class="debug" hidden></div>
+      <div class="stage-controls">
+        <button id="switch-camera" class="icon-button" type="button" aria-label="Switch camera" title="Switch camera" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z M9 13a3 3 0 0 1 5.2-2M15 13a3 3 0 0 1-5.2 2M14 9.5v1.6h-1.6M10 16.5v-1.6h1.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>
+        </button>
+        <button id="expand" class="icon-button" type="button" aria-label="Full screen" title="Full screen (F)" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
       <section class="intro" aria-labelledby="intro-title">
         <svg class="intro-art" viewBox="0 0 160 150" aria-hidden="true">
           <defs>
@@ -66,32 +82,84 @@
           <rect x="74" y="117" width="6" height="6" fill="#fff"/>
           <rect x="86" y="99" width="6" height="6" fill="#fff"/>
         </svg>
-        <h1 id="intro-title">Your watch, in 3D</h1>
+        <h2 id="intro-title">Your watch, in 3D</h2>
         <ol class="steps">
-          <li><span>Open <strong>WristMarkCompanion</strong> on the watch.</span></li>
+          <li><span>Open <strong>WristMarkCompanion</strong> on your watch.</span></li>
           <li><span>Start the camera.</span></li>
-          <li><span>Point it at the watch's marker.</span></li>
+          <li><span>Point it at the watch's display.</span></li>
         </ol>
         <button id="start" class="primary" type="button">Start the camera</button>
-        <p class="fineprint">The camera image never leaves this device.</p>
+        <p class="fineprint">The camera image never leaves this device.
+          <a href="markers.html">No watch at hand?</a></p>
       </section>
       <section class="failure" role="alert" aria-labelledby="failure-title">
         <svg class="failure-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v6M12 16.5v.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
-        <h2 id="failure-title">The viewer stopped</h2>
+        <h2 id="failure-title">The camera didn't start</h2>
         <p id="failure-text"></p>
         <button id="retry" class="primary" type="button">Try again</button>
+        <p id="failure-detail" class="failure-detail"></p>
       </section>
-      <p id="zoom" class="zoom-chip" aria-live="polite" hidden></p>
+      <p id="zoom" class="zoom-chip" hidden></p>
       <p id="gesture" class="gesture-chip" aria-live="polite" hidden></p>
-      <p id="status" class="status" role="status">Point the camera at the watch's marker.</p>
+      <div id="actions" class="model-actions" role="group" aria-label="Model actions" hidden></div>
+      <p id="status" class="status" role="status">Point the camera at the watch's display.</p>
     </div>
     <section id="guide" class="guide" aria-label="Device test" hidden></section>
   </main>
 
   <footer class="links">
     <a href="markers.html">Markers without a watch</a>
-    <a href="?test">Device test</a>
+    <button class="link-button" type="button" data-open-help>Help</button>
     <a href="privacy.html">Privacy</a>
   </footer>
+
+  <dialog id="help" class="help" aria-labelledby="help-title">
+    <div class="help-head">
+      <h2 id="help-title">How it works</h2>
+      <button id="help-close" class="icon-button" type="button" aria-label="Close" autofocus>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <ol class="steps">
+      <li><span>Open <strong>WristMarkCompanion</strong> on your watch: it shows a marker.</span></li>
+      <li><span><strong>Start the camera</strong> here and point it at the watch.</span></li>
+      <li><span>A 3D model appears on the watch. The watch's buttons show the next one.</span></li>
+    </ol>
+
+    <h3>For a steady model</h3>
+    <ul>
+      <li>Hold the watch 20 to 50 cm from the camera, its display toward it.</li>
+      <li>Good light helps; avoid glare on the watch's glass.</li>
+      <li>Turn the watch's brightness up. Red light (night mode) works too, a little closer.</li>
+    </ul>
+
+    <h3>Move your wrist</h3>
+    <dl class="help-gestures">
+      <div><dt>Flick</dt><dd>a quick turn: roll the dice, launch fireworks, make the robot wave</dd></div>
+      <div><dt>Shake</dt><dd>back and forth: stir the snow globe or the campfire</dd></div>
+      <div><dt>Twist</dt><dd>turn about the watch's axis: move the planets a month</dd></div>
+    </dl>
+    <p>The buttons under a model do the same, for when your hands are busy.</p>
+
+    <h3>Size and keys</h3>
+    <dl class="help-gestures">
+      <div><dt>Pinch</dt><dd>with two fingers, or the mouse wheel: resize the model; a double tap resets it</dd></div>
+      <div><dt><kbd>+</kbd> <kbd>−</kbd> <kbd>0</kbd></dt><dd>larger, smaller, as it was</dd></div>
+      <div><dt><kbd>F</kbd></dt><dd>full screen; <kbd>Esc</kbd> leaves it</dd></div>
+      <div><dt><kbd>D</kbd></dt><dd>the debug view: what the camera detects</dd></div>
+      <div><dt><kbd>?</kbd></dt><dd>this help</dd></div>
+    </dl>
+
+    <h3>No watch at hand?</h3>
+    <p>Open the <a href="markers.html">markers</a> on another screen and point the camera at them.</p>
+
+    <h3>Privacy</h3>
+    <p>The camera's image is processed in your browser and never sent anywhere.
+      <a href="privacy.html">Privacy policy</a></p>
+
+    <h3>For testers</h3>
+    <p>The <a href="?test">guided device test</a> measures range, angles, the display's session and
+      each model, and writes a report.</p>
+  </dialog>
 </body>
 </html>

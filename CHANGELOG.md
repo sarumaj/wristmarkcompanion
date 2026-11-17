@@ -31,6 +31,10 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
+- From a customer's view ([review](docs/ux-review.md)): the status names the model and its
+  hint and gives tips when the watch isn't found; errors say what to do; a Help dialog; buttons
+  that do what the gestures do; keys; full screen; a camera switch; the marker page names the
+  models; no accessibility violations left in axe's audit.
 - The models are 2.5 times as large (`?scale=`), and pinching, the mouse wheel or a trackpad's
   pinch resize them; a double tap resets. Under a model, the watch's display is drawn black, so
   the model stands on a dark watch face instead of the marker.

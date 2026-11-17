@@ -31,6 +31,8 @@
     <a class="chip" href="./">Open the viewer</a>
   </header>
   <main>
+    <h1 class="page-title">Markers for testing without a watch</h1>
+    <p class="hint">Point the viewer's camera at this screen. The same markers as the watch shows.</p>
     <div class="marker-sheet">
       <canvas id="marker" width="480" height="480"></canvas>
       <p id="marker-id" class="marker-id"></p>
@@ -40,8 +42,9 @@
       <label>ID <input type="number" id="id" min="0" max="49" value="0"></label>
       <button type="button" id="next">Next</button>
     </form>
-    <p class="hint">The same markers as the watch (OpenCV DICT_4X4_50). Arrow keys switch the ID. The
-      white border is the quiet zone the detector needs. <a href="./">Back to the viewer</a></p>
+    <p class="hint">Next and Previous step through the markers that have a model, as the watch
+      does; the arrow keys too. Any ID from 0 to 49 can be typed in. The white border is the quiet
+      zone the detector needs (OpenCV's DICT_4X4_50).</p>
   </main>
 </body>
 </html>

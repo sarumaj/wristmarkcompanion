@@ -111,6 +111,24 @@ const MODELS = {
 
 export const MODEL_NAMES = Object.keys(MODELS);
 
+// What the viewer tells about a model while it shows: a hint for its gestures, and
+// buttons that do the same (for whoever can't or won't move the wrist; the keyboard
+// reaches them too). Each action is the gesture the model would get.
+export const MODEL_GUIDES = {
+  dice: { hint: "Flick or shake your wrist to roll", actions: [{ label: "Roll", gesture: "flick" }] },
+  snowglobe: { hint: "Shake your wrist to stir the snow", actions: [{ label: "Shake", gesture: "shake" }] },
+  robot: { hint: "Flick your wrist and it waves", actions: [{ label: "Wave", gesture: "flick" }] },
+  fireworks: { hint: "Flick your wrist to launch a rocket", actions: [{ label: "Launch", gesture: "flick" }] },
+  campfire: { hint: "Shake your wrist to stir the fire", actions: [{ label: "Stir", gesture: "shake" }] },
+  orrery: {
+    hint: "Twist your wrist to move a month",
+    actions: [
+      { label: "Month earlier", gesture: "twist", direction: -1 },
+      { label: "Month later", gesture: "twist", direction: 1 },
+    ],
+  },
+};
+
 // A new instance of the model `name`, for a marker `size` millimeters wide.
 export function createModel(name, size, options = {}) {
   const make = MODELS[name];

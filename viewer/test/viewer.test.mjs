@@ -198,7 +198,7 @@ async function withCamera(id, path, check) {
 
 test("the viewer shows the model content.json gives the camera's marker, and the debug overlay", async () => {
   await withCamera(1, "/index.html?autostart&debug", async (page) => {
-    assert.match(await page.locator("#status").textContent(), /^Marker 1 \(Earth, day and night\), \d+ mm away$/);
+    assert.equal(await page.locator("#status").textContent(), "Earth, day and night");
     assert.equal(await page.locator("body").getAttribute("data-model"), "earth");
     // The watch's display is drawn black under the model.
     assert.equal(await page.locator("body").getAttribute("data-screen"), "covered");
@@ -224,9 +224,35 @@ test("the viewer shows the model content.json gives the camera's marker, and the
   });
 });
 
+test("a model's hint, its action buttons, keys, full screen and the help", async () => {
+  await withCamera(15, "/index.html?autostart", async (page) => {
+    assert.equal(await page.locator("#status").textContent(), "Dice · Flick or shake your wrist to roll");
+    // The button does what the gesture does, and says so.
+    await page.getByRole("button", { name: "Roll" }).click();
+    assert.equal(await page.locator("#gesture").textContent(), "Roll ✓");
+    // Keys resize; 0 puts it back.
+    await page.keyboard.press("+");
+    await page.waitForFunction(() => Number(document.body.dataset.zoom) > 1.1);
+    await page.keyboard.press("0");
+    await page.waitForFunction(() => document.body.dataset.zoom === "1.00");
+    // Full screen, and Escape leaves it.
+    await page.getByRole("button", { name: "Full screen" }).click();
+    assert.equal(await page.locator("body").evaluate((body) => body.classList.contains("immersive")), true);
+    await page.keyboard.press("Escape");
+    await page.waitForFunction(() => !document.body.classList.contains("immersive"));
+    // The help, from its button and from ?, closed with Escape.
+    await page.locator(".topbar").getByRole("button", { name: "Help" }).click();
+    assert.equal(await page.locator("#help").isVisible(), true);
+    await page.keyboard.press("Escape");
+    assert.equal(await page.locator("#help").isVisible(), false);
+    await page.keyboard.press("?");
+    assert.equal(await page.locator("#help").isVisible(), true);
+  });
+});
+
 test("a marker without content gets the gizmo and says so", async () => {
   await withCamera(23, "/index.html?autostart", async (page) => {
-    assert.match(await page.locator("#status").textContent(), /^Marker 23 \(no content\), \d+ mm away$/);
+    assert.equal(await page.locator("#status").textContent(), "Marker 23 has no model yet");
     assert.equal(await page.locator("body").getAttribute("data-model"), null);
     assert.equal(await page.locator("body").getAttribute("data-screen"), null);
     assert.equal(await page.locator("#debug").isHidden(), true);
@@ -261,7 +287,9 @@ test("a camera that can't be opened shows the error card with a way to try again
   await page.locator("#start").click();
   await page.waitForSelector('body[data-state="error"]');
   assert.equal(await page.locator(".failure").isVisible(), true);
-  assert.notEqual((await page.locator("#failure-text").textContent()).trim(), "");
+  // In words a person can act on, the browser's own message small below.
+  assert.match(await page.locator("#failure-text").textContent(), /^No camera was found\./);
+  assert.match(await page.locator("#failure-detail").textContent(), /^NotFoundError: /);
   assert.equal(await page.locator("#retry").isVisible(), true);
   assert.equal(await page.locator(".intro").isVisible(), false);
   await context.close();
@@ -328,7 +356,7 @@ test("the models that react to the wrist's gestures take them, and keep animatin
 test("the privacy page is served under the CSP, in English and German, and linked from the viewer", async () => {
   const context = await browser.newContext();
   const { page, problems } = await open(context, "/index.html");
-  await page.locator('a[href="privacy.html"]').click();
+  await page.locator('footer a[href="privacy.html"]').click();
   await page.waitForURL(/privacy\.html$/);
   assert.equal(await page.title(), "WristMarkCompanion privacy");
   assert.match(await page.locator("main").textContent(), /never sent, saved or recorded/);

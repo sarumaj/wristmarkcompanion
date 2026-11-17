@@ -34,6 +34,14 @@ the axis gizmo for any other ID. It works the same on a phone (rear camera) and 
   display (416 pixels across, the marker 234) black over the camera's image, so the model stands
   on a dark watch face instead of the marker. Detection still reads the camera's own image. In
   the debug view the marker shows through; `?screen=0` leaves it visible.
+- **What the status says:** the model's name and its hint ("Dice · Flick or shake your wrist to
+  roll"), "Marker 23 has no model yet" for an ID without one, and tips when the watch hasn't been
+  seen for 6 seconds. Buttons under a model do what its gestures do (`MODEL_GUIDES` in
+  `js/models.js`).
+- **Help, keys, full screen:** the **Help** dialog (also `?`) explains the steps, tips, gestures
+  and keys: `+` `−` `0` resize, `F` full screen, `D` the debug view. Full screen is the page's
+  own where the browser has it, the stage filling the window elsewhere (Safari on an iPhone). A
+  second camera brings a switch button.
 - **Switching:** the model changes when the camera sees another ID (the watch's next and
   previous buttons, or its automatic cycle). The new marker's pose starts afresh, without the
   smoothing of the old one.

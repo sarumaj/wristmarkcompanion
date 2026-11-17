@@ -57,5 +57,7 @@ export function zoomControl(element, onChange) {
     get value() {
       return zoom;
     },
+    // For the keyboard: + and - in the viewer.
+    set,
   };
 }

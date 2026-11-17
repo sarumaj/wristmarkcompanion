@@ -12,8 +12,9 @@
   --border: rgb(15 20 40 / 12%);
   --text: #12151d;
   --muted: #5d6578;
-  --accent: #4f7cff;
-  --accent-2: #8b5cf6;
+  /* 5.3:1 or more on the light backgrounds (WCAG AA for text); dark mode below. */
+  --accent: #2f57d8;
+  --accent-2: #7c4ddb;
   --accent-text: #fff;
   --ok: #10b981;
   --warn: #f59e0b;
@@ -24,6 +25,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
+    --accent: #4f7cff;
+    --accent-2: #8b5cf6;
     --bg: #0b0d12;
     --surface: #141821;
     --surface-2: #1c2130;
@@ -37,6 +40,8 @@
 /* The viewer: dark whatever the system says. */
 .app {
   color-scheme: dark;
+  --accent: #4f7cff;
+  --accent-2: #8b5cf6;
   --bg: #0b0d12;
   --surface: #141821;
   --surface-2: #1c2130;
@@ -274,8 +279,9 @@ body[data-state="idle"] #camera {
 /* The zoom, for a moment after it changes. */
 .zoom-chip {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 56px;
+  left: 50%;
+  transform: translateX(-50%);
   margin: 0;
   padding: 6px 12px;
   border: 1px solid rgb(255 255 255 / 12%);
@@ -951,4 +957,231 @@ a.chip {
   color: var(--text);
   font-weight: 600;
   text-decoration: none;
+}
+
+/* Read by screen readers, not shown. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.topbar-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* The stage's own buttons: switch camera, full screen. */
+.stage-controls {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  gap: 8px;
+}
+
+body[data-state="idle"] .stage-controls,
+body[data-state="error"] .stage-controls {
+  display: none;
+}
+
+.icon-button {
+  width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 50%;
+  background: rgb(10 12 18 / 60%);
+  color: #fff;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.icon-button svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* What the model's gestures do, as buttons above the status. */
+.model-actions {
+  position: absolute;
+  left: 50%;
+  bottom: 60px;
+  display: flex;
+  gap: 8px;
+  transform: translateX(-50%);
+}
+
+body:not([data-state="tracking"]) .model-actions {
+  display: none;
+}
+
+.model-actions button {
+  min-height: 40px;
+  border-color: rgb(255 255 255 / 16%);
+  border-radius: 999px;
+  background: rgb(10 12 18 / 62%);
+  color: #fff;
+  white-space: nowrap;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Tips while the watch isn't found: the status wraps. */
+body.with-tips .status {
+  max-width: min(92%, 30em);
+  border-radius: 16px;
+  white-space: normal;
+  text-align: center;
+}
+
+.failure-detail {
+  margin-top: 12px;
+  color: var(--muted);
+  font: 12px/1.4 var(--mono);
+  opacity: 0.8;
+}
+
+.fineprint a {
+  color: var(--text);
+}
+
+/* A button that looks like the footer's links. */
+.link-button {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 14px;
+}
+
+.link-button:hover {
+  color: var(--text);
+  border: 0;
+}
+
+/* The help, a dialog over the page. */
+.help {
+  width: min(560px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  padding: 20px 22px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+
+.help::backdrop {
+  background: rgb(0 0 0 / 55%);
+  backdrop-filter: blur(4px);
+}
+
+.help-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.help-head h2 {
+  margin: 0;
+}
+
+.help h3 {
+  margin: 18px 0 6px;
+  font-size: 16px;
+}
+
+.help .steps {
+  color: var(--text);
+}
+
+.help ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.help-gestures {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+
+.help-gestures div {
+  display: grid;
+  grid-template-columns: 7em 1fr;
+  gap: 8px;
+}
+
+.help-gestures dt {
+  font-weight: 700;
+}
+
+.help-gestures dd {
+  margin: 0;
+  color: var(--muted);
+}
+
+kbd {
+  display: inline-block;
+  min-width: 1.6em;
+  padding: 1px 6px;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  font: 600 13px/1.4 var(--mono);
+  text-align: center;
+}
+
+/* Full screen: the stage alone, as large as the window allows in its own aspect. */
+body.immersive {
+  padding: 0;
+  background: #000;
+  overflow: hidden;
+}
+
+body.immersive .topbar,
+body.immersive .links,
+body.immersive .guide {
+  display: none;
+}
+
+body.immersive .stage {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  width: min(100vw, calc(100dvh * var(--aspect)));
+  margin: auto;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.page-title {
+  margin: 8px 0 4px;
+  font-size: 24px;
+  text-align: center;
+}
+
+/* A narrow phone: the header's buttons as icons; their labels stay for screen readers. */
+@media (max-width: 440px) {
+  .topbar .chip {
+    width: 40px;
+    padding: 0;
+  }
+
+  .chip-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
 }
