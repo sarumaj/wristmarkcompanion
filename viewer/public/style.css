@@ -249,9 +249,14 @@ body[data-state="idle"] #camera {
   pointer-events: none;
 }
 
-/* One finger scrolls the page; two pinch the model (js/zoom.js). */
+/* One finger scrolls the page; two pinch the model (js/zoom.js). While a model shows,
+   one finger turns it (js/touch.js), and the page scrolls outside the stage. */
 .stage {
   touch-action: pan-y;
+}
+
+body[data-model] .stage {
+  touch-action: none;
 }
 
 /* A gesture the model reacted to, for a moment, at the stage's top. */

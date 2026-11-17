@@ -41,6 +41,31 @@ A model reacts through an optional `gesture(event)` that returns `true` when it 
 Two fingers pinching, the mouse wheel or a trackpad's pinch resize the model (`js/zoom.js`,
 [content](content.md#the-mapping)).
 
+## Built: one finger on the model
+
+The other hand's way in, on a phone its thumb, on a laptop a mouse (`js/touch.js`):
+
+- **A drag turns the model** about the watch's center, like a dial: it follows the pointer's
+  angle around the center as the watch is seen, and coasts on after release, slowing down. The
+  left and right arrow keys turn it by 15°; `0` or a double tap puts it back with the size.
+  While a model shows, one finger on the camera's image turns it instead of scrolling the page.
+- **A tap on the model** (three.js's raycaster on the shown meshes) makes it hop, and does what
+  it does. A model reacts through an optional `touch(hit)`, `hit` being the mesh and the point
+  tapped, which returns the chip's text, or `{text, tick: false}` to tell something. A model
+  without its own `touch` but with one gesture action (the dice, the snow globe, the robot, the
+  fireworks, the campfire) does that action. An action button (`touch: true` in `MODEL_GUIDES`)
+  does each model's tap, for the keyboard and for whoever can't tap.
+- **Two fingers** stay the pinch: a second finger ends a drag, and no tap follows.
+
+The models with a tap of their own:
+
+| Model    | Tap                                                              |
+|----------|------------------------------------------------------------------|
+| Orrery   | A planet says its name and its distance from the sun on the date |
+| Aquarium | The fish dart off, four times as fast, for two seconds           |
+| Balloon  | The burner fires, between burns                                  |
+| Rocket   | The countdown starts at T-3, while the pad waits                 |
+
 ## Further ideas
 
 ### Moving the watch
@@ -62,16 +87,11 @@ channel and nothing more to download:
 - **The planar flip** must not read as a gesture: only the smoothed pose (`PoseSmoother`) drives
   them, never POSIT's raw solutions.
 
-### Touch and clicks in the viewer
+### More taps
 
-Standard pointer input on the page, through the browser's pointer events and three.js:
-
-- **On a phone:** drag to rotate the model, pinch to scale, tap to trigger an animation.
-- **On a desktop** (with the marker page on another screen): the same with the mouse and the
-  wheel.
-
-It's cheap and works everywhere. On a phone, though, the hand that holds the phone aims the
-camera, so touch suits the moments when the watch is held still.
+The moon, the globes, the watch movement and the hourglass hop and turn but do nothing of
+their own on a tap yet: a city's time on the world clock, the moon's next phases, turning the
+hourglass over are candidates.
 
 ## Conditional: hand gestures in front of the camera
 

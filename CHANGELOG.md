@@ -8,6 +8,10 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- One finger on the model (`js/touch.js`): a drag turns it about the watch and coasts on, the
+  arrow keys too; a tap makes it hop and react: the dice roll, a planet says its name and
+  distance, the fish dart off, the balloon's burner fires, the rocket counts down. Buttons do
+  each tap.
 - The brand where customers meet it: the logo as the icon in the browser and on the home screen,
   a web app manifest, a description and a social card for shared links, a README that starts with
   the product, a [user guide](docs/user-guide.md), and the store descriptions updated.

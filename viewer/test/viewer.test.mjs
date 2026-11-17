@@ -8,7 +8,8 @@
 // - content.json passes its check, and the models stand on the marker;
 // - the guided device test measures a step and reports it;
 // - a camera that can't be opened shows the error card;
-// - the models that react to gestures take them;
+// - the models that react to gestures and taps take them; a tap, a drag and the
+//   arrows on the model;
 // - the icons, the manifest and the social card are served;
 // - the privacy page is served and linked.
 import { after, before, test } from "node:test";
@@ -128,6 +129,41 @@ test("a frontal marker's pose has the distance the camera model predicts, facing
 
 // A Y4M video (Chromium's fake camera reads it) of one frame: marker `id` on a grey
 // background, drawn by the marker page's code, slightly turned.
+test("the models that react to a tap take it, and the action buttons reach them", async () => {
+  const context = await browser.newContext();
+  const { page, problems } = await open(context, "/index.html");
+  const result = await page.evaluate(async () => {
+    const THREE = await import("/vendor/three/three.module.js");
+    const { createModel, MODEL_NAMES, MODEL_GUIDES } = await import("/js/models.js");
+    const reacting = {};
+    for (const name of MODEL_NAMES) {
+      const model = createModel(name, 20);
+      // At 12.5 s: the balloon between burns, the rocket's pad waiting.
+      model.animate(12.5);
+      // A tap anywhere on it: the first mesh (the orrery's sun).
+      let mesh = null;
+      model.object.traverse((node) => (mesh ??= node.isMesh ? node : null));
+      const answer = model.touch?.({ object: mesh, point: new THREE.Vector3(), t: 12500 });
+      model.animate(13);
+      model.animate(16);
+      if (answer) reacting[name] = typeof answer === "string" ? answer : answer.text;
+    }
+    // Each touch action belongs to a model that has a touch.
+    const actions = Object.entries(MODEL_GUIDES).filter(([, guide]) => guide.actions.some((action) => action.touch));
+    const orphans = actions.filter(([name]) => !createModel(name, 20).touch).map(([name]) => name);
+    // A planet tapped says its distance.
+    const orrery = createModel("orrery", 20);
+    let mars = null;
+    orrery.object.traverse((node) => (mars ??= node.userData.planet === "mars" ? node : null));
+    return { reacting, orphans, mars: orrery.touch({ object: mars }).text };
+  });
+  assert.deepEqual(result.reacting, { orrery: "The Sun", aquarium: "Startled", balloon: "Burner", rocket: "Countdown" });
+  assert.deepEqual(result.orphans, []);
+  assert.match(result.mars, /^Mars, 1\.[3-7]\d au from the Sun$/);
+  assert.deepEqual(problems, []);
+  await context.close();
+});
+
 async function markerVideo(id, path) {
   const context = await browser.newContext();
   const { page } = await open(context, "/markers.html");
@@ -227,7 +263,7 @@ test("the viewer shows the model content.json gives the camera's marker, and the
 
 test("a model's hint, its action buttons, keys, full screen and the help", async () => {
   await withCamera(15, "/index.html?autostart", async (page) => {
-    assert.equal(await page.locator("#status").textContent(), "Dice · Flick or shake your wrist to roll");
+    assert.equal(await page.locator("#status").textContent(), "Dice · Tap it, flick or shake your wrist to roll");
     // The button does what the gesture does, and says so.
     await page.getByRole("button", { name: "Roll" }).click();
     assert.equal(await page.locator("#gesture").textContent(), "Roll ✓");
@@ -248,6 +284,33 @@ test("a model's hint, its action buttons, keys, full screen and the help", async
     assert.equal(await page.locator("#help").isVisible(), false);
     await page.keyboard.press("?");
     assert.equal(await page.locator("#help").isVisible(), true);
+  });
+});
+
+test("one finger on the model: a tap rolls the dice, a drag and the arrows turn it", async () => {
+  await withCamera(15, "/index.html?autostart", async (page) => {
+    const box = await page.locator("#overlay").boundingBox();
+    const [x, y] = [box.x + box.width / 2, box.y + box.height / 2];
+    // The watch is in the image's middle: the dice's felt is there.
+    await page.mouse.click(x, y);
+    assert.equal(await page.locator("#gesture").textContent(), "Roll ✓");
+    assert.ok(await page.locator("body").getAttribute("data-touched"));
+    // A quarter circle around the watch, counterclockwise on screen, turns it about 90°.
+    const radius = box.height / 4;
+    await page.mouse.move(x + radius, y);
+    await page.mouse.down();
+    for (let step = 1; step <= 12; step++) {
+      const angle = (step / 12) * (Math.PI / 2);
+      await page.mouse.move(x + radius * Math.cos(angle), y - radius * Math.sin(angle));
+    }
+    await page.mouse.up();
+    const turned = Number(await page.locator("body").getAttribute("data-turn"));
+    assert.ok(turned > 70, `turned ${turned}°`);
+    // 0 puts it back; an arrow turns 15°.
+    await page.keyboard.press("0");
+    await page.waitForFunction(() => document.body.dataset.turn === "0");
+    await page.keyboard.press("ArrowLeft");
+    await page.waitForFunction(() => document.body.dataset.turn === "15");
   });
 });
 

@@ -244,7 +244,7 @@ export function helicopter(size) {
 
 // A hot-air balloon drifting above the watch: a striped envelope, a wicker basket on
 // its ropes, and the burner firing for a second every eight, which lifts it a little;
-// between burns it sinks gently back.
+// between burns it sinks gently back. A tap fires the burner at once.
 export function balloon(size) {
   const radius = size * 0.32;
   // The envelope's outline, from the mouth at the bottom to the crown, turned about y.
@@ -288,10 +288,19 @@ export function balloon(size) {
   shadow.rotation.x = -Math.PI / 2;
   shadow.position.y = size * 0.005;
   const { root } = standing(craft, shadow);
+  // The burns' rhythm, moved by a tap so that one starts then.
+  let shift = 0;
+  let clock = 0;
   return {
     object: root,
+    touch: () => {
+      if ((clock - shift) % 8 < 1) return null;
+      shift = clock;
+      return "Burner";
+    },
     animate: (t) => {
-      const phase = t % 8;
+      clock = t;
+      const phase = (((t - shift) % 8) + 8) % 8;
       const burning = phase < 1;
       flame.visible = burning;
       flame.scale.y = 0.8 + 0.4 * Math.abs(Math.sin(t * 30));
@@ -306,7 +315,8 @@ export function balloon(size) {
 }
 
 // A rocket launch from a pad on the watch, every 14 seconds: the countdown on a label,
-// ignition and smoke, lift-off, faster and faster out of sight, and the pad again.
+// ignition and smoke, lift-off, faster and faster out of sight, and the pad again. A
+// tap while it waits for the next launch starts the countdown at T-3.
 export function rocket(size) {
   const white = new THREE.MeshStandardMaterial({ color: 0xf4f6f8, roughness: 0.4, metalness: 0.2 });
   const dark = new THREE.MeshStandardMaterial({ color: 0x2b2f36, roughness: 0.6 });
@@ -351,10 +361,19 @@ export function rocket(size) {
   const text = label(size * 0.7);
   text.sprite.position.set(-size * 0.35, size * 0.95, 0);
   const { root } = standing(pad, vehicle, ...puffs, text.sprite);
+  let shift = 0;
+  let clock = 0;
   return {
     object: root,
+    touch: () => {
+      const phase = (((clock - shift) % 14) + 14) % 14;
+      if (phase > 1 && phase < 12) return null;
+      shift = clock - 1;
+      return "Countdown";
+    },
     animate: (t) => {
-      const phase = t % 14;
+      clock = t;
+      const phase = (((t - shift) % 14) + 14) % 14;
       const ignition = 4;
       const flight = Math.max(0, phase - ignition - 0.8);
       text.update(phase < ignition ? [`T-${Math.ceil(ignition - phase)}`] : phase < 9 ? ["Liftoff!"] : ["Next launch"]);

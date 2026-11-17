@@ -274,6 +274,7 @@ export function orrery(size, { now }) {
     new THREE.SphereGeometry(size * 0.1, 32, 16),
     new THREE.MeshStandardMaterial({ color: 0xffd34d, emissive: 0xffb000, emissiveIntensity: 1.2 }),
   );
+  sun.userData.planet = "sun";
   system.add(sun);
   const orbitMaterial = new THREE.LineBasicMaterial({ color: 0x8899aa, transparent: true, opacity: 0.5 });
   const planets = PLANET_NAMES.map((name, i) => {
@@ -296,6 +297,7 @@ export function orrery(size, { now }) {
       ring.rotation.x = Math.PI / 2 - 0.47;
       body.add(ring);
     }
+    body.userData.planet = name;
     system.add(body);
     return { name, radius, body };
   });
@@ -320,6 +322,18 @@ export function orrery(size, { now }) {
   let placed = 0;
   return {
     object: root,
+    // A tap on a planet (or Saturn's ring) names it, with its distance from the sun on
+    // the date shown: the drawing's orbits are not to scale.
+    touch: ({ object }) => {
+      let node = object;
+      while (node && !node.userData.planet) node = node.parent;
+      const name = node?.userData.planet;
+      if (!name) return null;
+      if (name === "sun") return { text: "The Sun", tick: false };
+      const { x, y, z } = planetPosition(name, new Date(now().getTime() + offsetDays * 86400000));
+      const title = name[0].toUpperCase() + name.slice(1);
+      return { text: `${title}, ${Math.hypot(x, y, z).toFixed(2)} au from the Sun`, tick: false };
+    },
     gesture: (event) => {
       if (event.name !== "twist") return false;
       offsetDays += 30 * event.direction;

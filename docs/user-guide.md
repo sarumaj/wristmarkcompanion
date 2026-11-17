@@ -39,6 +39,16 @@ Some models react when you move the watch:
 The line at the bottom says what the model shown does, and a tag at the top confirms a move it
 took. **The buttons under the model do the same**, for when your hands are busy.
 
+## Touch the model
+
+With the other hand, a finger on the phone's screen or the mouse:
+
+- **Tap the model** and it reacts: the dice roll, the robot waves, a planet says its name and
+  how far it is from the sun, the fish dart off, the balloon's burner fires, the rocket counts
+  down. Every model gives a little hop.
+- **Drag around the watch** to turn the model, like a dial; let go and it spins on a little.
+  The arrow keys turn it too.
+
 ## Size, full screen and keys
 
 - **Pinch** with two fingers, or scroll with the mouse or a trackpad, to make the model larger
@@ -48,7 +58,8 @@ took. **The buttons under the model do the same**, for when your hands are busy.
 
 | Key         | Does                                                  |
 |-------------|-------------------------------------------------------|
-| `+` `−` `0` | Larger, smaller, as it was                            |
+| `+` `−` `0` | Larger, smaller, as it was (the size and the turn)    |
+| `←` `→`     | Turn the model                                        |
 | `F`, `Esc`  | Full screen, and back                                 |
 | `D`         | The debug view: what the camera detects, and how fast |
 | `?`         | Help                                                  |

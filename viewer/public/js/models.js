@@ -111,17 +111,21 @@ const MODELS = {
 
 export const MODEL_NAMES = Object.keys(MODELS);
 
-// What the viewer tells about a model while it shows: a hint for its gestures, and
-// buttons that do the same (for whoever can't or won't move the wrist; the keyboard
-// reaches them too). Each action is the gesture the model would get.
+// What the viewer tells about a model while it shows: a hint for its gestures and
+// taps, and buttons that do the same (for whoever can't or won't move the wrist or
+// tap; the keyboard reaches them too). Each action is the gesture the model would
+// get, or its tap (`touch`). A tap on a model with one gesture action does that.
 export const MODEL_GUIDES = {
-  dice: { hint: "Flick or shake your wrist to roll", actions: [{ label: "Roll", gesture: "flick" }] },
-  snowglobe: { hint: "Shake your wrist to stir the snow", actions: [{ label: "Shake", gesture: "shake" }] },
-  robot: { hint: "Flick your wrist and it waves", actions: [{ label: "Wave", gesture: "flick" }] },
-  fireworks: { hint: "Flick your wrist to launch a rocket", actions: [{ label: "Launch", gesture: "flick" }] },
-  campfire: { hint: "Shake your wrist to stir the fire", actions: [{ label: "Stir", gesture: "shake" }] },
+  dice: { hint: "Tap it, flick or shake your wrist to roll", actions: [{ label: "Roll", gesture: "flick" }] },
+  snowglobe: { hint: "Tap it or shake your wrist to stir the snow", actions: [{ label: "Shake", gesture: "shake" }] },
+  robot: { hint: "Tap it or flick your wrist and it waves", actions: [{ label: "Wave", gesture: "flick" }] },
+  fireworks: { hint: "Tap it or flick your wrist to launch a rocket", actions: [{ label: "Launch", gesture: "flick" }] },
+  campfire: { hint: "Tap it or shake your wrist to stir the fire", actions: [{ label: "Stir", gesture: "shake" }] },
+  aquarium: { hint: "Tap the glass to startle the fish", actions: [{ label: "Startle", touch: true }] },
+  balloon: { hint: "Tap it to fire the burner", actions: [{ label: "Burner", touch: true }] },
+  rocket: { hint: "Tap it to count down the next launch", actions: [{ label: "Count down", touch: true }] },
   orrery: {
-    hint: "Twist your wrist to move a month",
+    hint: "Tap a planet for its name; twist your wrist to move a month",
     actions: [
       { label: "Month earlier", gesture: "twist", direction: -1 },
       { label: "Month later", gesture: "twist", direction: 1 },

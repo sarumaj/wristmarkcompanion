@@ -29,14 +29,15 @@ the axis gizmo for any other ID. It works the same on a phone (rear camera) and 
 - **Size:** each model is built 2.5 times the marker's size (`?scale=` sets it), so that it reads
   well at arm's length; it may reach well beyond the watch. Two fingers pinching, the mouse
   wheel or a trackpad's pinch make it larger or smaller (0.3 to 6 times that), a double tap or
-  double click puts it back.
+  double click puts it back. One finger or the mouse turns it about the watch, a tap makes it
+  react ([interaction](interaction.md#built-one-finger-on-the-model)).
 - **The watch's display goes black** under a model: the viewer draws the D2 Mach 1's round
   display (416 pixels across, the marker 234) black over the camera's image, so the model stands
   on a dark watch face instead of the marker. Detection still reads the camera's own image. In
   the debug view the marker shows through; `?screen=0` leaves it visible.
-- **What the status says:** the model's name and its hint ("Dice · Flick or shake your wrist to
-  roll"), "Marker 23 has no model yet" for an ID without one, and tips when the watch hasn't been
-  seen for 6 seconds. Buttons under a model do what its gestures do (`MODEL_GUIDES` in
+- **What the status says:** the model's name and its hint ("Dice · Tap it, flick or shake your
+  wrist to roll"), "Marker 23 has no model yet" for an ID without one, and tips when the watch
+  hasn't been seen for 6 seconds. Buttons under a model do what its gestures do (`MODEL_GUIDES` in
   `js/models.js`).
 - **Help, keys, full screen:** the **Help** dialog (also `?`) explains the steps, tips, gestures
   and keys: `+` `−` `0` resize, `F` full screen, `D` the debug view. Full screen is the page's

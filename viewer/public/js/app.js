@@ -10,6 +10,7 @@ import { createModel, lights, MODEL_GUIDES, MODEL_NAMES } from "./models.js";
 import { DebugStats } from "./debug.js";
 import { zoomControl } from "./zoom.js";
 import { GestureRecognizer } from "./gestures.js";
+import { touchControl, Turntable } from "./touch.js";
 
 const params = new URLSearchParams(location.search);
 // The marker's black square, in millimeters: about the D2 Mach 1's (the watch's
@@ -154,12 +155,14 @@ function scene() {
 function showActions(view, entry) {
   const guide = entry ? MODEL_GUIDES[entry.model] : null;
   actions.replaceChildren(
-    ...(guide?.actions ?? []).map(({ label, gesture, direction = 1 }) => {
+    ...(guide?.actions ?? []).map(({ label, gesture, direction = 1, touch }) => {
       const button = document.createElement("button");
       button.type = "button";
       button.textContent = label;
       button.addEventListener("click", () => {
-        if (view.model?.gesture?.({ name: gesture, direction, t: performance.now() })) acknowledge(label);
+        const t = performance.now();
+        const done = touch ? view.model?.touch?.({ t }) : view.model?.gesture?.({ name: gesture, direction, t });
+        if (done) acknowledge(label);
       });
       return button;
     }),
@@ -167,14 +170,56 @@ function showActions(view, entry) {
   actions.hidden = actions.childElementCount === 0;
 }
 
-// A chip on the stage for a moment: the model took a gesture or an action.
+// A chip on the stage for a moment: the model took a gesture or an action (with a
+// tick), or tells what was tapped (a planet's name: longer, and without).
 const gestureChip = document.getElementById("gesture");
 let gestureShown = 0;
-function acknowledge(text) {
-  gestureChip.textContent = `${text} ✓`;
+function acknowledge(text, { tick = true } = {}) {
+  gestureChip.textContent = tick ? `${text} ✓` : text;
   gestureChip.hidden = false;
   clearTimeout(gestureShown);
-  gestureShown = setTimeout(() => (gestureChip.hidden = true), 900);
+  gestureShown = setTimeout(() => (gestureChip.hidden = true), tick ? 900 : 2500);
+}
+
+// The model under a tap at (x, y) in the window, and what it does: the model's own
+// `touch(hit)` (a label, or {text, tick: false} to tell something), else the one action
+// its guide has (the dice roll). Every hit gives a little hop, so a tap never goes
+// unnoticed. Returns whether the model was hit.
+const raycaster = new THREE.Raycaster();
+function tapModel(view, entry, x, y, t) {
+  if (!view.model || !view.anchor.visible) return false;
+  const box = overlay.getBoundingClientRect();
+  const pointer = new THREE.Vector2(((x - box.left) / box.width) * 2 - 1, -((y - box.top) / box.height) * 2 + 1);
+  raycaster.setFromCamera(pointer, view.camera);
+  const hit = raycaster.intersectObject(view.model.object, true).find(({ object }) => isShown(object));
+  if (!hit) return false;
+  view.hop = t;
+  document.body.dataset.touched = hit.object.name || hit.object.type;
+  const own = view.model.touch?.({ object: hit.object, point: view.model.object.worldToLocal(hit.point.clone()), t });
+  if (own) {
+    if (typeof own === "string") acknowledge(own);
+    else acknowledge(own.text, own);
+    return true;
+  }
+  const actionsOf = MODEL_GUIDES[entry?.model]?.actions ?? [];
+  if (actionsOf.length === 1) {
+    const [{ label, gesture, direction = 1 }] = actionsOf;
+    if (view.model.gesture?.({ name: gesture, direction, t })) acknowledge(label);
+  }
+  return true;
+}
+
+// Shown, its parents included: the raycaster also finds hidden meshes.
+function isShown(object) {
+  for (let node = object; node; node = node.parent) if (!node.visible) return false;
+  return true;
+}
+
+// Where the anchor's origin, the watch's center, is in the window.
+function anchorOnScreen(view) {
+  const box = overlay.getBoundingClientRect();
+  const point = new THREE.Vector3().setFromMatrixPosition(view.anchor.matrixWorld).project(view.camera);
+  return { x: box.left + ((point.x + 1) / 2) * box.width, y: box.top + ((1 - point.y) / 2) * box.height };
 }
 
 // What the status says about a marker: the model's name and its hint, or that the ID
@@ -235,7 +280,18 @@ async function run() {
     const next = cameras[(cameras.findIndex((camera) => camera.deviceId === cameraId) + 1) % cameras.length];
     await openCamera(next.deviceId).catch(fail);
   });
+  // One finger or the mouse: a tap on the model, a drag turning it about the watch.
+  touchControl(stage, {
+    tap: (x, y) => tapModel(view, entry, x, y, performance.now()),
+    drag: (x, y, dx, dy) => {
+      if (!view.model || !view.anchor.visible) return;
+      const center = anchorOnScreen(view);
+      turntable.drag(x, y, dx, dy, center.x, center.y, performance.now());
+    },
+    release: () => turntable.release(),
+  });
   report("Looking for the watch…", "searching");
+  let previous = performance.now();
 
   const loop = (now) => {
     const width = DETECT_WIDTH;
@@ -265,6 +321,7 @@ async function run() {
       shownId = marker.id;
       smoother = new PoseSmoother();
       gestures.reset();
+      turntable.reset();
       entry = show(view, content, shownId);
     }
     const smoothed = pose ? smoother.update(pose, now) : smoother.lost(now);
@@ -284,7 +341,13 @@ async function run() {
       view.anchor.matrix.compose(smoothed.position, smoothed.quaternion, new THREE.Vector3(1, 1, 1));
       view.anchor.visible = true;
       view.model?.animate(now / 1000);
-      view.model?.object.scale.setScalar(zoom.value);
+      // The size by hand, a hop for a moment after a tap, and the turn by hand.
+      const hop = view.hop ? (now - view.hop) / 350 : 1;
+      const bounce = hop < 1 ? 1 + 0.12 * Math.sin(hop * Math.PI) : 1;
+      view.model?.object.scale.setScalar(zoom.value * bounce);
+      turntable.step(now - previous);
+      if (view.model) view.model.object.rotation.z = turntable.angle;
+      document.body.dataset.turn = String(Math.round((turntable.angle * 180) / Math.PI));
       view.gizmo.visible = !entry || !debugPanel.hidden;
       // In the debug view the marker shows through, to see what the detector sees.
       view.screen.material.opacity = debugPanel.hidden ? 1 : 0.55;
@@ -319,6 +382,7 @@ async function run() {
       });
     }
     view.renderer.render(view.world, view.camera);
+    previous = now;
     requestAnimationFrame(loop);
   };
   requestAnimationFrame(loop);
@@ -358,6 +422,11 @@ const zoom = zoomControl(stage, (value) => {
   zoomShown = setTimeout(() => (zoomChip.hidden = true), 1200);
 });
 
+// The model's turn by hand (a drag, or the arrow keys), about the watch's center; a
+// double tap or click puts it back, with the size.
+const turntable = new Turntable();
+stage.addEventListener("dblclick", () => turntable.reset());
+
 // Full screen: the page's own (Android, desktops), or the stage filling the window
 // where a browser has none for pages (Safari on iPhone).
 const expand = document.getElementById("expand");
@@ -381,7 +450,7 @@ for (const opener of document.querySelectorAll("[data-open-help]")) {
 }
 document.getElementById("help-close").addEventListener("click", () => help.close());
 
-// Keys: + and - resize, 0 resets, d the debug view, f full screen, ? help, Escape
+// Keys: + and - resize, the left and right arrows turn, 0 resets both, d the debug view, f full screen, ? help, Escape
 // leaves full screen. Not while typing in a field, and not with a modifier.
 document.addEventListener("keydown", (event) => {
   if (event.ctrlKey || event.metaKey || event.altKey || event.target.closest("input, textarea")) return;
@@ -389,12 +458,19 @@ document.addEventListener("keydown", (event) => {
     "+": () => zoom.set(zoom.value * 1.15),
     "=": () => zoom.set(zoom.value * 1.15),
     "-": () => zoom.set(zoom.value / 1.15),
-    0: () => zoom.set(1),
+    0: () => {
+      zoom.set(1);
+      turntable.reset();
+    },
+    ArrowLeft: () => turntable.turn(Math.PI / 12),
+    ArrowRight: () => turntable.turn(-Math.PI / 12),
     d: () => showDebug(debugPanel.hidden),
     f: () => immersive(!document.body.classList.contains("immersive")),
     "?": () => help.showModal(),
     Escape: () => immersive(false),
   };
+  // The arrows turn a model shown, and scroll the page (or the help) otherwise.
+  if (event.key.startsWith("Arrow") && (!document.body.dataset.model || help.open)) return;
   if (keys[event.key]) {
     keys[event.key]();
     if (event.key !== "Escape") event.preventDefault();

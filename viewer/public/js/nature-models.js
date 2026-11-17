@@ -122,7 +122,8 @@ function fish(length, color) {
 }
 
 // An aquarium: a glass bowl of water on the watch, sand and swaying plants, three fish
-// swimming their rounds at different depths, and bubbles rising.
+// swimming their rounds at different depths, and bubbles rising. A tap on the glass
+// startles the fish: they dart off, four times as fast, and calm down in two seconds.
 export function aquarium(size) {
   const radius = size * 0.5;
   const center = radius;
@@ -154,16 +155,28 @@ export function aquarium(size) {
     start: (i) => [radius * 0.3 * Math.cos(i), size * 0.12, radius * 0.3 * Math.sin(i * 1.7)],
   });
   const { root } = standing(sand, ...plants, ...swimmers.map(({ group }) => group), bubbles.points, water, glass);
+  // How far round each fish has swum: the speed changes when startled, so it adds up.
+  let clock = null;
+  let startled = -Infinity;
+  for (const swimmer of swimmers) swimmer.angle = swimmer.phase;
   return {
     object: root,
+    touch: () => {
+      startled = clock ?? 0;
+      return "Startled";
+    },
     animate: (t) => {
+      const dt = clock === null ? 0 : Math.min(0.1, Math.max(0, t - clock));
+      clock = t;
+      const fright = Math.max(0, 1 - (t - startled) / 2);
       plants.forEach((plant, i) => (plant.rotation.z = 0.15 * Math.sin(t * 1.2 + i)));
       for (const swimmer of swimmers) {
-        const angle = t * swimmer.speed * 0.5 + swimmer.phase;
+        swimmer.angle += swimmer.speed * 0.5 * (1 + 3 * fright) * dt;
+        const angle = swimmer.angle;
         swimmer.group.position.set(Math.cos(angle) * swimmer.ring, center + Math.sin(t * 0.7 + swimmer.phase) * radius * 0.25, Math.sin(angle) * swimmer.ring);
         // Facing along its circle: the tangent, which way round depends on the speed's sign.
         swimmer.group.rotation.y = -angle - Math.sign(swimmer.speed) * Math.PI / 2;
-        swimmer.tailPivot.rotation.y = 0.5 * Math.sin(t * 9 + swimmer.phase);
+        swimmer.tailPivot.rotation.y = 0.5 * Math.sin(t * (9 + 18 * fright) + swimmer.phase);
       }
       bubbles.update(t);
     },
