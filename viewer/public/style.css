@@ -249,6 +249,28 @@ body[data-state="idle"] #camera {
   touch-action: pan-y;
 }
 
+/* A gesture the model reacted to, for a moment, at the stage's top. */
+.gesture-chip {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  margin: 0;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #fff;
+  font: 600 14px/1.2 var(--font);
+  transform: translateX(-50%);
+  animation: pop 0.25s ease-out;
+}
+
+@keyframes pop {
+  from {
+    transform: translateX(-50%) scale(0.8);
+    opacity: 0;
+  }
+}
+
 /* The zoom, for a moment after it changes. */
 .zoom-chip {
   position: absolute;

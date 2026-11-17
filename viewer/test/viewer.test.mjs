@@ -8,6 +8,7 @@
 // - content.json passes its check, and the models stand on the marker;
 // - the guided device test measures a step and reports it;
 // - a camera that can't be opened shows the error card;
+// - the models that react to gestures take them;
 // - the privacy page is served and linked.
 import { after, before, test } from "node:test";
 import assert from "node:assert/strict";
@@ -292,6 +293,34 @@ test("content.json passes its check, and every model stands on the marker", asyn
     assert.ok(max[2] > 5 && max[2] < 60, `${name} stands up out of the watch: ${max}`);
     assert.ok(Math.max(...max.map(Math.abs), ...min.map(Math.abs)) < 60, `${name} is a few markers wide`);
   }
+  assert.deepEqual(problems, []);
+  await context.close();
+});
+
+test("the models that react to the wrist's gestures take them, and keep animating", async () => {
+  const context = await browser.newContext();
+  const { page, problems } = await open(context, "/index.html");
+  const reacting = await page.evaluate(async () => {
+    const { createModel, MODEL_NAMES } = await import("/js/models.js");
+    const result = {};
+    for (const name of MODEL_NAMES) {
+      const model = createModel(name, 20);
+      model.animate(1);
+      const taken = ["flick", "twist", "shake", "hold"].filter((gesture) => model.gesture?.({ name: gesture, t: 1000, direction: 1 }) === true);
+      model.animate(1.5);
+      model.animate(4);
+      if (taken.length) result[name] = taken;
+    }
+    return result;
+  });
+  assert.deepEqual(reacting, {
+    robot: ["flick"],
+    snowglobe: ["flick", "shake"],
+    orrery: ["twist"],
+    fireworks: ["flick", "shake"],
+    dice: ["flick", "shake"],
+    campfire: ["shake"],
+  });
   assert.deepEqual(problems, []);
   await context.close();
 });

@@ -50,7 +50,7 @@ export class DebugStats {
 
   // The overlay's rows, [key, label, value, health or null], with what the viewer
   // adds (ID, distance, sizes).
-  rows({ id, distance, camera, detection }) {
+  rows({ id, distance, camera, detection, gesture }) {
     const { fps, rate, detectMs } = this.summary();
     return [
       ["id", "Marker", id === null || id === undefined ? "–" : String(id), id === null || id === undefined ? "poor" : "good"],
@@ -60,6 +60,7 @@ export class DebugStats {
       ["detect-time", "Detect time", `${detectMs.toFixed(1)} ms`, health(detectMs, 15, 30, false)],
       ["camera", "Camera", camera, null],
       ["detected-at", "Detected at", detection, null],
+      ["gesture", "Gesture", gesture ?? "–", null],
     ];
   }
 

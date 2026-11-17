@@ -8,6 +8,9 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Gestures of the wrist (`js/gestures.js`): a flick, a twist, a shake and a hold, from the
+  smoothed pose. The dice, the snow globe, the robot, the fireworks, the campfire and the
+  orrery react to them; the debug overlay shows the last one.
 - Six more models (markers 15 to 20), from the time alone: dice rolling onto the watch, a
   campfire, an aquarium, a lighthouse, a hot-air balloon and a rocket launch. The watch shows
   them too (`MarkerContent.mc`).

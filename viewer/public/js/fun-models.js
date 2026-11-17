@@ -56,9 +56,18 @@ export function robot(size) {
   const figure = new THREE.Group();
   figure.add(...feet, ...legs, body, left, right, head);
   const { root } = standing(figure);
+  // A flick of the wrist makes it wave at once.
+  let wavedAt = -Infinity;
+  let clock = 0;
   return {
     object: root,
+    gesture: (event) => {
+      if (event.name !== "flick") return false;
+      wavedAt = clock;
+      return true;
+    },
     animate: (t) => {
+      clock = t;
       const bob = Math.abs(Math.sin(t * 2.2)) * 0.5 * s;
       body.position.y = 3.6 * s + bob;
       head.position.y = 15.4 * s + bob * 1.3;
@@ -69,7 +78,8 @@ export function robot(size) {
       for (const eye of eyes) eye.scale.y = blink;
       // Wave for 2 of every 6 seconds: the arm up, the forearm swinging.
       const phase = t % 6;
-      const waving = phase < 2 ? Math.sin((phase / 2) * Math.PI) : 0;
+      const asked = t - wavedAt;
+      const waving = Math.max(phase < 2 ? Math.sin((phase / 2) * Math.PI) : 0, asked < 2 ? Math.sin((asked / 2) * Math.PI) : 0);
       right.rotation.z = waving * (2.6 + 0.35 * Math.sin(t * 12));
       left.rotation.z = -0.08 - 0.05 * Math.sin(t * 2.2);
       light.material.emissiveIntensity = 0.6 + 0.6 * Math.abs(Math.sin(t * 3));
@@ -123,15 +133,26 @@ export function snowglobe(size) {
   const snow = new THREE.Points(geometry, new THREE.PointsMaterial({ color: 0xffffff, size: size * 0.025 }));
 
   const { root } = standing(base, tree, snow, glass);
+  // A shake (or a flick) stirs the snow up; it settles over a few seconds.
+  let stirredAt = -Infinity;
+  let clock = 0;
   return {
     object: root,
+    gesture: (event) => {
+      if (event.name !== "shake" && event.name !== "flick") return false;
+      stirredAt = clock;
+      return true;
+    },
     animate: (t) => {
+      clock = t;
+      const stir = Math.exp(-(t - stirredAt) / 1.5);
       flakes.forEach((flake, i) => {
         const fall = (flake.start + t * flake.speed) % 1;
-        // Narrower toward the dome's top, where the glass curves in.
-        const height = top - fall * (top - ground);
+        // Narrower toward the dome's top, where the glass curves in; stirred, up again.
+        const settled = top - fall * (top - ground);
+        const height = Math.min(top, settled + stir * (top - ground) * 0.7 * Math.abs(Math.sin(t * 2.3 + i)));
         const room = Math.sqrt(Math.max(0, 1 - ((height - center) / radius) ** 2));
-        const angle = flake.angle + t * 0.3 + Math.sin(t + i) * 0.2;
+        const angle = flake.angle + t * 0.3 + Math.sin(t + i) * 0.2 + stir * 3 * Math.sin(t * 1.7 + i * 0.5);
         positions[i * 3] = Math.cos(angle) * flake.radius * room;
         positions[i * 3 + 1] = height;
         positions[i * 3 + 2] = Math.sin(angle) * flake.radius * room;
@@ -178,12 +199,23 @@ export function fireworks(size) {
     positions.set([x, Math.max(y, 0), z], index * 3);
     shades.set([color.r * brightness, color.g * brightness, color.b * brightness], index * 3);
   };
+  // A flick or a shake launches the rocket that has been waiting longest, at once.
+  const shift = new Array(rockets).fill(0);
+  let clock = 0;
+  const age = (r, t) => (((t + (r * period) / rockets + shift[r]) % period) + period) % period;
   return {
     object: root,
+    gesture: (event) => {
+      if (event.name !== "flick" && event.name !== "shake") return false;
+      const oldest = shift.map((_, r) => r).reduce((a, b) => (age(a, clock) >= age(b, clock) ? a : b));
+      shift[oldest] -= age(oldest, clock);
+      return true;
+    },
     animate: (t) => {
+      clock = t;
       for (let r = 0; r < rockets; r++) {
-        const age = (t + (r * period) / rockets) % period;
-        const round = Math.floor((t + (r * period) / rockets) / period);
+        const elapsed = age(r, t);
+        const round = Math.floor((t + (r * period) / rockets + shift[r]) / period);
         // Each round of a rocket gets its own place, height and color.
         const seed = (r * 7 + round * 13) % 17;
         const color = colors[(r + round) % colors.length];
@@ -192,15 +224,15 @@ export function fireworks(size) {
         const z = size * 0.35 * Math.cos(seed * 2.3);
         const base = r * (sparks + 1);
         const rise = 1.0;
-        if (age < rise) {
+        if (elapsed < rise) {
           // The rocket climbing, slowing toward the top; no sparks yet.
-          const k = age / rise;
+          const k = elapsed / rise;
           put(base, x * k, top * (2 * k - k * k), z * k, new THREE.Color(0xffe0a0), 1);
           for (let s = 1; s <= sparks; s++) put(base + s, 0, 0, 0, color, 0);
           continue;
         }
         put(base, 0, 0, 0, color, 0);
-        const since = age - rise;
+        const since = elapsed - rise;
         const spread = size * 0.55 * (1 - Math.exp(-since * 3));
         const fall = size * 0.12 * since * since;
         const fade = Math.max(0, 1 - since / 2.2);
@@ -256,11 +288,29 @@ export function dice(size) {
   const { root } = standing(felt, ...pair.map(({ turn }) => turn));
   const period = 5;
   const roll = (round, which) => 1 + Math.floor(((Math.sin(round * 12.9898 + which * 78.233) * 43758.5453) % 1 + 1) % 1 * 6);
+  // A throw every `period` seconds, or at once on a flick or a shake of the wrist.
+  let thrownAt = null;
+  let throws = 0;
+  let clock = 0;
   return {
     object: root,
+    gesture: (event) => {
+      if (event.name !== "flick" && event.name !== "shake") return false;
+      thrownAt = clock;
+      throws++;
+      return true;
+    },
     animate: (t) => {
-      const round = Math.floor(t / period);
-      const k = Math.min(1, (t % period) / 1.4);
+      clock = t;
+      if (thrownAt === null) {
+        // Settled from the start.
+        thrownAt = t - 1.4;
+      } else if (t - thrownAt >= period) {
+        thrownAt = t;
+        throws++;
+      }
+      const round = throws;
+      const k = Math.min(1, (t - thrownAt) / 1.4);
       const ease = 1 - (1 - k) ** 3;
       pair.forEach(({ sideOf, turn, die }, which) => {
         const value = roll(round, which);

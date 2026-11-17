@@ -9,6 +9,7 @@ import { loadContent } from "./content.js";
 import { createModel, lights, MODEL_NAMES } from "./models.js";
 import { DebugStats } from "./debug.js";
 import { zoomControl } from "./zoom.js";
+import { GestureRecognizer } from "./gestures.js";
 
 const params = new URLSearchParams(location.search);
 // The marker's black square, in millimeters: about the D2 Mach 1's (the watch's
@@ -151,6 +152,11 @@ async function run() {
   let smoother = new PoseSmoother();
   const view = scene();
   const stats = new DebugStats();
+  // The wrist's gestures, from the smoothed pose; the model may react to them.
+  const gestures = new GestureRecognizer();
+  const gestureChip = document.getElementById("gesture");
+  let lastGesture = null;
+  let gestureShown = 0;
   // The size by hand (pinch, wheel), shown for a moment in a chip on the stage.
   const zoomChip = document.getElementById("zoom");
   let zoomShown = 0;
@@ -192,9 +198,27 @@ async function run() {
     if (marker && marker.id !== shownId) {
       shownId = marker.id;
       smoother = new PoseSmoother();
+      gestures.reset();
       entry = show(view, content, shownId);
     }
     const smoothed = pose ? smoother.update(pose, now) : smoother.lost(now);
+    const recognized = gestures.update(
+      pose && smoothed
+        ? { t: now, tracked: true, position: smoothed.position.toArray(), quaternion: smoothed.quaternion.toArray() }
+        : { t: now, tracked: false },
+    );
+    for (const event of recognized) {
+      lastGesture = event;
+      // A gesture the model reacts to is confirmed for a moment; any shows in the debug view.
+      const handled = view.model?.gesture?.(event) === true;
+      document.body.dataset.gesture = event.name;
+      if (handled || !debugPanel.hidden) {
+        gestureChip.textContent = handled ? `${event.name} ✓` : event.name;
+        gestureChip.hidden = false;
+        clearTimeout(gestureShown);
+        gestureShown = setTimeout(() => (gestureChip.hidden = true), 900);
+      }
+    }
     if (smoothed) {
       view.anchor.matrix.compose(smoothed.position, smoothed.quaternion, new THREE.Vector3(1, 1, 1));
       view.anchor.visible = true;
@@ -223,6 +247,7 @@ async function run() {
         id: smoothed ? shownId : null,
         distance,
         camera: `${video.videoWidth}x${video.videoHeight}`,
+        gesture: lastGesture ? `${lastGesture.name}, ${((now - lastGesture.t) / 1000).toFixed(1)} s ago` : "–",
         detection: `${width}x${height}`,
       });
     }

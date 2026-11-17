@@ -304,20 +304,28 @@ export function orrery(size, { now }) {
   // Beyond Neptune's orbit at the watch's top, clear of the planets seen face on.
   text.sprite.position.set(0, size * 0.45, -size * 1.1);
   const { root } = standing(system, text.sprite);
+  // A twist of the wrist moves the date a month either way.
+  let offsetDays = 0;
   const place = () => {
-    const date = now();
+    const date = new Date(now().getTime() + offsetDays * 86400000);
     for (const { name, radius, body } of planets) {
       const { x, y } = planetPosition(name, date);
       // Ecliptic x to the watch's top (-z here), y to its left (-x), north up (y).
       const angle = Math.atan2(y, x);
       body.position.set(-Math.sin(angle) * radius, 0, -Math.cos(angle) * radius);
     }
-    text.update(["The planets today", date.toLocaleDateString("en", { day: "numeric", month: "short", year: "numeric" })]);
+    text.update([offsetDays ? "The planets on" : "The planets today", date.toLocaleDateString("en", { day: "numeric", month: "short", year: "numeric" })]);
   };
   place();
   let placed = 0;
   return {
     object: root,
+    gesture: (event) => {
+      if (event.name !== "twist") return false;
+      offsetDays += 30 * event.direction;
+      place();
+      return true;
+    },
     animate: (t) => {
       sun.material.emissiveIntensity = 1.1 + 0.2 * Math.sin(t * 2);
       for (const { body } of planets) body.rotation.y = t;

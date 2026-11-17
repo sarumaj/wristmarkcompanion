@@ -1,10 +1,47 @@
-# Interaction with the models (planned)
+# Interaction with the models
 
-Status: **planned, after the device tests (milestone 4)**. Nothing here is built yet. The spec
-says to wait for the device results before optimizing, and these features depend on them: how
-steady the pose is, and how much CPU detection leaves on a mid-range phone.
+Status: **a first version is built** (2026-11-16): the wrist's gestures and pinching to resize.
+Their thresholds are first guesses; the device tests' pose data will tune them (how steady the
+pose is, and how much CPU detection leaves on a mid-range phone).
 
-## Chosen
+## Built: the wrist's gestures
+
+`js/gestures.js` reads the smoothed pose each frame and recognizes four gestures. The debug
+overlay shows the last one; a chip on the stage confirms a gesture the model reacted to.
+
+| Gesture | Recognized when                                                           |
+|---------|---------------------------------------------------------------------------|
+| Flick   | The watch's face turns faster than 220° a second                          |
+| Twist   | The watch turns more than 35° about its own axis within 0.4 s, either way |
+| Shake   | Its sideways speed (over 80 mm/s) reverses three times within 0.8 s       |
+| Hold    | It stays still (under 20°/s and 30 mm/s) for 0.7 s after moving           |
+
+- **Not twice in a row:** a gesture isn't recognized again within 0.6 s.
+- **The planar flip isn't a flick:** a jump of the face by more than 30° in one frame starts the
+  recognizer afresh, as does a gap in tracking over 0.25 s. Only the smoothed pose drives it.
+- **Tested** (`viewer/test/gestures.test.mjs`) on made-up movements at 30 frames a second: each
+  gesture, and that a hand holding still, a slow turn and the flip make none.
+
+Which models react:
+
+| Model      | Gesture        | Reaction                                   |
+|------------|----------------|--------------------------------------------|
+| Dice       | flick or shake | Thrown at once                             |
+| Snow globe | shake or flick | The snow swirls up and settles again       |
+| Robot      | flick          | Waves                                      |
+| Fireworks  | flick or shake | The rocket waiting longest goes up at once |
+| Campfire   | shake          | Taller flames and a burst of embers        |
+| Orrery     | twist          | The date moves a month either way          |
+
+A model reacts through an optional `gesture(event)` that returns `true` when it took the gesture
+(`js/models.js`).
+
+## Built: the size by hand
+
+Two fingers pinching, the mouse wheel or a trackpad's pinch resize the model (`js/zoom.js`,
+[content](content.md#the-mapping)).
+
+## Further ideas
 
 ### Moving the watch
 

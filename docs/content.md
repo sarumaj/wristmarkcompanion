@@ -104,18 +104,22 @@ recorded here. Large files need the owner's approval first ([CI](ci.md)).
 
 ## The debug overlay
 
-The **Debug** button, or `?debug` in the address, shows a box over the camera image with the
-numbers the range tests ([milestone 4](../README.md)) record:
+The **Debug** button, or `?debug` in the address, shows a panel over the camera image with the
+numbers the range tests ([device tests](device-tests.md)) record:
 
-| Line          | Meaning                                                      |
-|---------------|--------------------------------------------------------------|
-| `ID`          | The marker shown, or `-`                                     |
-| `distance`    | The smoothed pose's distance from the camera, in millimeters |
-| `FPS`         | Frames processed in the last second                          |
-| `detection`   | The share of those frames in which the marker was found      |
-| `detect time` | How long detection and pose took per frame, on average       |
-| `camera`      | The camera's resolution                                      |
-| `detected at` | The resolution frames are scaled to for detection            |
+| Row           | Meaning                                                                        |
+|---------------|--------------------------------------------------------------------------------|
+| `Marker`      | The marker shown, or `–`                                                       |
+| `Distance`    | The smoothed pose's distance from the camera, in millimeters                   |
+| `FPS`         | Frames processed in the last second                                            |
+| `Detected`    | The share of those frames in which the marker was found                        |
+| `Detect time` | How long detection and pose took per frame, on average                         |
+| `Camera`      | The camera's resolution                                                        |
+| `Detected at` | The resolution frames are scaled to for detection                              |
+| `Gesture`     | The last gesture of the wrist and how long ago ([interaction](interaction.md)) |
+
+FPS, the detection rate and the detection time are green, amber or red by how good they are, and
+a chart under the rows shows the last ten seconds of the detection rate and FPS.
 
 With the overlay on, the gizmo is drawn with the model too, which shows how well the model sits
 on the marker. The distance depends on the assumed field of view and marker size

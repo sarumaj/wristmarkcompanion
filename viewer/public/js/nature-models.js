@@ -70,18 +70,30 @@ export function campfire(size) {
   const glow = new THREE.PointLight(0xff8a2a, 2, size * 3, 1.5);
   glow.position.y = size * 0.35;
   const { root } = standing(stones, logs, ...flames, embers.points, glow);
+  // A shake of the wrist stirs the fire: taller flames and a burst of embers.
+  let stirredAt = -Infinity;
+  let clock = null;
+  let emberClock = 0;
   return {
     object: root,
+    gesture: (event) => {
+      if (event.name !== "shake") return false;
+      stirredAt = clock ?? 0;
+      return true;
+    },
     animate: (t) => {
+      const burst = Math.exp(-(t - stirredAt) / 0.8);
+      emberClock += (clock === null ? 0 : t - clock) * (1 + 3 * burst);
+      clock = t;
       flames.forEach((flame, i) => {
-        const flicker = 0.8 + 0.25 * wobble(t * 1.3, i);
+        const flicker = (0.8 + 0.25 * wobble(t * 1.3, i)) * (1 + 0.6 * burst);
         flame.scale.set(1 + 0.1 * wobble(t, i + 5), flicker, 1 + 0.1 * wobble(t, i + 9));
         flame.position.set(flame.userData.x, size * 0.14 + (flame.userData.height * flicker) / 2, flame.userData.z);
         flame.rotation.z = 0.12 * wobble(t * 0.7, i + 3);
         flame.rotation.x = 0.12 * wobble(t * 0.6, i + 7);
       });
-      glow.intensity = 1.6 + 0.6 * wobble(t * 1.5, 1);
-      embers.update(t);
+      glow.intensity = (1.6 + 0.6 * wobble(t * 1.5, 1)) * (1 + burst);
+      embers.update(emberClock);
     },
   };
 }
