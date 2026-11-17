@@ -40,8 +40,23 @@ Artifacts and repository storage cost money on this Forgejo, so:
 - CI uploads no artifacts. The image is built, tested and deleted, and pushed nowhere.
 - Release packages (`.iq`, the viewer build) are attached to Forgejo releases for version tags
   only (milestone 5).
-- No binaries, build output, signing keys or large 3D assets in Git (`.gitignore`). An asset
-  above a few hundred KB needs the owner's approval first.
+- No build output, signing keys or large 3D assets in Git (`.gitignore`); the images the
+  documentation and the store need are in LFS ([below](#binary-files)). An asset above a few
+  hundred KB needs the owner's approval first.
+
+## Binary files {#binary-files}
+
+Images, fonts and other binary files are kept in Git LFS (`.gitattributes`): the history holds
+a small pointer per version, Forgejo's LFS store the file. A clone needs `git lfs install`
+once; `git lfs pull` fetches what a checkout made without it. CI's checkouts fetch them
+(`actions/checkout` with `lfs: true`): the checks compare the generated icons, the watch's
+build packs its launcher icon.
+
+- **Except `viewer/public/`:** the app panel builds the viewer's image from its own clone of
+  the repository, which isn't known to fetch LFS files; there, an icon would be deployed as
+  its pointer. The viewer's icons and social card (under 100 KB together) stay in Git until a
+  deployment has shown that the panel fetches them.
+- **A new kind of binary file** gets its line in `.gitattributes` before it's added.
 
 ## The watch app in CI
 
