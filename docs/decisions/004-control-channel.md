@@ -302,9 +302,16 @@ origin, the CSP and the panel's single domain stay as they are.
 
 ## Plan
 
-Built so far: **the relay** (`relay/`, step 3 below), with its tests and its image, not deployed
-yet; and **the viewer's cryptography** with the shared test vectors (step 2, the watch's side to
-come).
+Built so far:
+
+- **The relay** (`relay/`, step 3), with its tests and its image; not deployed yet. Until it
+  is, nginx answers its health with `{"status":"off"}` and the viewer doesn't offer pairing.
+- **The cryptography** and the shared test vectors (step 2), with the pairing frames.
+- **The viewer's side** (step 4): pairing through the camera (`js/pairing.js`), the session in
+  IndexedDB, the relay and its stream, and the control panel (`js/remote.js`). An end-to-end test
+  plays the frames through Chromium's fake camera and the relay through `page.route`.
+- **The watch's side** (step 4): the pairing screen, the sessions, the link and the commands,
+  with unit tests against the vectors. Written without the SDK: never compiled yet.
 
 1. **Spike on the D2 Mach 1** (with a test relay on studio): how long the phone proxy holds a
    long-poll, the latency each way (median and 95th percentile), whether `Cipher` in CBC mode

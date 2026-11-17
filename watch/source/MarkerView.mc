@@ -24,6 +24,9 @@ class MarkerView extends WatchUi.View {
     private var _keepingOn as Boolean = true;
     private var _cycleTimer as Timer.Timer;
     private var _keepOnTimer as Timer.Timer;
+    //! Called after the marker or the cycle changed, by a button or a viewer: the app
+    //! tells the paired viewers (WristmarkApp.changed).
+    var onChange as Method? = null;
 
     function initialize() {
         View.initialize();
@@ -61,19 +64,8 @@ class MarkerView extends WatchUi.View {
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_WHITE);
         dc.fillRectangle(left - cell, top - cell, side + 2 * cell, side + 2 * cell);
 
-        // The black border and the code's black cells: bit 15 is the top left data
-        // cell, row by row; 1 is white (MarkerDictionary).
-        dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_WHITE);
-        var code = MarkerDictionary.CODES[_id];
-        var data = MarkerDictionary.SIZE;
-        for (var row = 0; row < cells; row++) {
-            for (var col = 0; col < cells; col++) {
-                var border = row == 0 || col == 0 || row == cells - 1 || col == cells - 1;
-                if (border || ((code >> (data * data - 1 - ((row - 1) * data + (col - 1)))) & 1) == 0) {
-                    dc.fillRectangle(left + col * cell, top + row * cell, cell, cell);
-                }
-            }
-        }
+        // The black border and the code's black cells.
+        MarkerDraw.marker(dc, _id, left, top, cell);
 
         // The ID below the quiet zone, outside what the detector looks at.
         var below = top + side + cell;
@@ -87,20 +79,50 @@ class MarkerView extends WatchUi.View {
         var count = MarkerContent.IDS.size();
         _index = (_index + delta + count) % count;
         _id = MarkerContent.IDS[_index];
-        wake();
-        WatchUi.requestUpdate();
+        changed();
+    }
+
+    //! Marker `id`, if the viewer has a model for it (a viewer asked: `show`).
+    function showId(id as Number) as Void {
+        var index = MarkerContent.IDS.indexOf(id);
+        if (index < 0) {
+            return;
+        }
+        _index = index;
+        _id = id;
+        changed();
     }
 
     //! Starts or stops the automatic cycle through the markers.
     function toggleCycle() as Void {
-        _cycling = !_cycling;
+        setCycle(!_cycling);
+    }
+
+    function setCycle(on as Boolean) as Void {
+        _cycling = on;
         if (_cycling) {
             _cycleTimer.start(method(:cycle), CYCLE_MS, true);
         } else {
             _cycleTimer.stop();
         }
+        changed();
+    }
+
+    //! What the viewers are told: the marker shown and whether it cycles.
+    function shown() as Number {
+        return _id;
+    }
+
+    function cycling() as Boolean {
+        return _cycling;
+    }
+
+    private function changed() as Void {
         wake();
         WatchUi.requestUpdate();
+        if (onChange != null) {
+            onChange.invoke();
+        }
     }
 
     function cycle() as Void {
@@ -108,6 +130,9 @@ class MarkerView extends WatchUi.View {
         _index = (_index + 1) % count;
         _id = MarkerContent.IDS[_index];
         WatchUi.requestUpdate();
+        if (onChange != null) {
+            onChange.invoke();
+        }
     }
 
     //! The user acted: hold the display on again, also after the system refused.

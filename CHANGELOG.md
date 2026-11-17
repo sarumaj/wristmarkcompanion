@@ -8,6 +8,12 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Pairing with the watch and steering it, end-to-end encrypted
+  ([004](docs/decisions/004-control-channel.md)): the viewer reads the watch's pairing code (13
+  frames of four markers) through the camera, keeps the session in IndexedDB and sends the watch's
+  commands (next, previous, cycle, buzz, disconnect); the watch app shows the code, keeps up to four
+  viewers and polls the relay while open (written without the SDK, not compiled yet). Offered once
+  the relay is deployed.
 - The control channel's cryptography in the viewer (`js/channel.js`: HKDF-SHA256 keys from the
   watch's secret, AES-256-CBC with an HMAC-SHA256 tag, the replay and clock checks) and its test
   vectors (`protocol/channel-vectors.json`), made with Node's crypto, which the viewer matches

@@ -4,7 +4,9 @@
   id: the app's own UUID, kept for every version (the store knows the app by it).
   launcherIcon: required by the compiler; marker 0, 60x60 for the D2 Mach 1 (tools/generate-icon.mjs).
   minApiLevel 3.3.0: Attention.backlight with BacklightOnTooLongException needs 3.2.1.
-  No permissions: drawing, buttons, timers and Attention.backlight need none.
+  Communications: the control channel to the paired viewers, through the phone
+  (docs/decisions/004-control-channel.md). Drawing, buttons, timers, storage and
+  Attention need none.
   Languages: English and German, which decide the store's regions (manifest page,
   "Languages"); the one string, the app's name, needs no translation.
 -->
@@ -13,7 +15,9 @@
         <iq:products>
             <iq:product id="d2mach1"/>
         </iq:products>
-        <iq:permissions/>
+        <iq:permissions>
+            <iq:uses-permission id="Communications"/>
+        </iq:permissions>
         <iq:languages>
             <iq:language>eng</iq:language>
             <iq:language>deu</iq:language>

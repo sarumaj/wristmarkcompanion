@@ -13,6 +13,8 @@ import { GestureRecognizer } from "./gestures.js";
 import { touchControl, Turntable } from "./touch.js";
 import { HandInteraction } from "./hands.js";
 import { sensing, startMotion } from "./seen.js";
+import { Remote } from "./remote.js";
+import { FRAMES } from "./pairing.js";
 
 const params = new URLSearchParams(location.search);
 // The marker's black square, in millimeters: about the D2 Mach 1's (the watch's
@@ -397,7 +399,10 @@ async function run() {
       context.drawImage(video, 0, 0, width, height);
       const detectStart = performance.now();
       image = context.getImageData(0, 0, width, height);
-      marker = tracker.detect(image)[0] ?? null;
+      const found = tracker.detect(image);
+      // While pairing, the markers are the watch's code, not models.
+      if (remote.state === "pairing") remote.read(found);
+      marker = remote.state === "pairing" ? null : (found[0] ?? null);
       pose = marker ? tracker.pose(marker, width, height) : null;
       detectMs = performance.now() - detectStart;
       stats.frame(now, detectMs, Boolean(pose));
@@ -450,6 +455,8 @@ async function run() {
       document.body.classList.remove("with-tips");
       report(describe(marker.id, entry), "tracking");
       document.body.dataset.markerId = String(marker.id);
+    } else if (remote.state === "pairing") {
+      report(`Pairing: ${remote.frames} of ${FRAMES} read`, "searching");
     } else if (!smoothed) {
       const long = now - lastSeen > TIPS_AFTER_MS;
       report(
@@ -680,6 +687,79 @@ document.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") event.preventDefault();
   }
 });
+
+// The control channel (js/remote.js): the panel under the camera, opened with the Watch
+// button; pairing reads the watch's code through the camera, then the buttons steer it.
+const remotePanel = document.getElementById("remote");
+const remoteToggle = document.getElementById("remote-toggle");
+const remoteText = document.getElementById("remote-text");
+const remoteProgress = document.getElementById("remote-progress");
+const remoteButtons = document.getElementById("remote-buttons");
+const remotePair = document.getElementById("remote-pair");
+const remoteBadge = document.getElementById("remote-badge");
+const REMOTE_TEXTS = {
+  idle: "Steer the watch from here, end-to-end encrypted. On the watch, open the menu (hold the up button), choose Pair a viewer, start the camera here and hold the watch 15 to 25 cm from it.",
+  pairing: "Reading the watch's pairing code: hold its display toward the camera, 15 to 25 cm away.",
+  connecting: "Connecting…",
+  waiting: "Waiting for the watch: keep the app open on it.",
+};
+function showRemote(r) {
+  const connected = r.state === "connected";
+  remoteText.textContent =
+    connected && r.watch
+      ? `The watch shows marker ${r.watch.id}${r.watch.cycle ? ", cycling" : ""}; its battery is at ${r.watch.battery} %.`
+      : r.state === "failed"
+        ? r.error
+        : REMOTE_TEXTS[r.state];
+  remoteProgress.hidden = r.state !== "pairing";
+  remoteProgress.value = r.frames;
+  remoteButtons.hidden = !connected;
+  remoteBadge.hidden = !connected;
+  remoteButtons.querySelector('[data-op="cycle"]').setAttribute("aria-pressed", String(Boolean(r.watch?.cycle)));
+  remotePair.hidden = connected || r.state === "connecting" || r.state === "waiting";
+  remotePair.textContent = r.state === "pairing" ? "Cancel" : r.state === "failed" ? "Try again" : "Pair with the watch";
+  document.body.dataset.remote = r.state;
+  remoteToggle.classList.toggle("is-on", connected);
+}
+const remote = new Remote({
+  onChange: showRemote,
+  onEvent: (message) => {
+    if (message.op === "button") acknowledge(`Watch: ${message.key}`, { tick: false });
+  },
+});
+showRemote(remote);
+remoteToggle.addEventListener("click", () => {
+  remotePanel.hidden = !remotePanel.hidden;
+  remoteToggle.setAttribute("aria-expanded", String(!remotePanel.hidden));
+  if (!remotePanel.hidden) remotePanel.scrollIntoView({ block: "nearest" });
+});
+remotePair.addEventListener("click", () => {
+  if (remote.state === "pairing") remote.cancel();
+  else {
+    remote.startPairing();
+    if (document.body.dataset.state === "idle") run().catch(fail);
+  }
+});
+remoteButtons.addEventListener("click", (event) => {
+  const op = event.target.closest("button")?.dataset.op;
+  const send = (message) => remote.send(message).catch((error) => acknowledge(error.message, { tick: false }));
+  if (op === "previous") send({ op: "step", delta: -1 });
+  if (op === "next") send({ op: "step", delta: 1 });
+  if (op === "cycle") send({ op: "cycle", on: !remote.watch?.cycle });
+  if (op === "buzz") send({ op: "buzz", ms: 300 });
+  if (op === "disconnect") remote.disconnect();
+});
+// Offered only where the relay runs: its health says "ok". Until it is deployed beside
+// the viewer, nginx answers the same path with "off" (nginx.conf), and the Watch button
+// stays hidden.
+fetch("relay/v1/healthz", { cache: "no-store" })
+  .then((response) => (response.ok ? response.json() : null))
+  .then((health) => {
+    if (health?.status !== "ok") return;
+    remoteToggle.hidden = false;
+    remote.restore();
+  })
+  .catch(() => {});
 
 async function main() {
   if (params.has("test")) {
