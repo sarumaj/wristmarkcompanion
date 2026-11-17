@@ -19,6 +19,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: https://github.com/actions/checkout@v7
+        with:
+          lfs: true
 
       - name: Install the viewer's packages
         run: npm ci --prefix viewer --ignore-scripts --no-audit --no-fund
@@ -64,6 +66,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: https://github.com/actions/checkout@v7
+        with:
+          lfs: true
 
       - name: Install the viewer's packages
         run: npm ci --prefix viewer --ignore-scripts --no-audit --no-fund
@@ -105,6 +109,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: https://github.com/actions/checkout@v7
+        with:
+          lfs: true
 
       - name: Build the viewer's image
         run: docker build --pull --no-cache -t "wristmark-viewer:ci-${GITHUB_RUN_ID}" viewer
@@ -154,6 +160,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: https://github.com/actions/checkout@v7
+        with:
+          lfs: true
 
       # monkeyc needs Java 11 or later (Garmin's "Using Monkey C from the Command
       # Line").
