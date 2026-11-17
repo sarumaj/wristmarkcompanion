@@ -6,14 +6,31 @@ import { standing } from "./standing.js";
 // A smooth, never-repeating-looking wobble from a few sines: -1 to 1.
 const wobble = (t, seed) => (Math.sin(t * 7.1 + seed) + Math.sin(t * 11.3 + seed * 2.1) * 0.6 + Math.sin(t * 17.9 + seed * 3.7) * 0.3) / 1.9;
 
+// A soft round dot, white, for points to be drawn with instead of squares; made once.
+let dotTexture = null;
+function dot() {
+  if (dotTexture) return dotTexture;
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = 64;
+  const context = canvas.getContext("2d");
+  const gradient = context.createRadialGradient(32, 32, 0, 32, 32, 32);
+  gradient.addColorStop(0, "rgba(255, 255, 255, 1)");
+  gradient.addColorStop(0.5, "rgba(255, 255, 255, 0.8)");
+  gradient.addColorStop(1, "rgba(255, 255, 255, 0)");
+  context.fillStyle = gradient;
+  context.fillRect(0, 0, 64, 64);
+  dotTexture = new THREE.CanvasTexture(canvas);
+  return dotTexture;
+}
+
 // Points that rise and fade in a loop, each from where `start(i)` puts it: embers,
 // bubbles. Their places are functions of the time, so they need no state.
-function risers(count, { color, size, start, height, speed, blending = THREE.NormalBlending, opacity = 1 }) {
+export function risers(count, { color, size, start, height, speed, blending = THREE.NormalBlending, opacity = 1 }) {
   const positions = new Float32Array(count * 3);
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
   geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, height / 2, 0), height);
-  const points = new THREE.Points(geometry, new THREE.PointsMaterial({ color, size, transparent: true, opacity, depthWrite: false, blending }));
+  const points = new THREE.Points(geometry, new THREE.PointsMaterial({ color, size, map: dot(), transparent: true, opacity, depthWrite: false, blending }));
   return {
     points,
     update(t) {

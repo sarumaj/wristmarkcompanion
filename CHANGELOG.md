@@ -8,6 +8,9 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Eight more models (markers 28 to 35): an atom, DNA, a Newton's cradle, a metronome, a volcano,
+  a UFO with a cow, a toy train and a birthday cake, each set off by a tap. Rising smoke, embers
+  and bubbles are soft dots instead of squares.
 - Seven more models (markers 21 to 27): an attitude indicator that stays level with the camera's
   image as the wrist turns, a marble maze tilted by the watch, a penguin keeping its balance, a
   windmill among tulips, a sailboat on the waves, a Ferris wheel lit after dark and a bonsai in

@@ -182,6 +182,14 @@ where it's day now?
 | 25  | Sailboat             |                    |         |       |
 | 26  | Ferris wheel         |                    |         |       |
 | 27  | Bonsai               |                    |         |       |
+| 28  | Atom                 |                    |         |       |
+| 29  | DNA                  |                    |         |       |
+| 30  | Newton's cradle      |                    |         |       |
+| 31  | Metronome            |                    |         |       |
+| 32  | Volcano              |                    |         |       |
+| 33  | UFO                  |                    |         |       |
+| 34  | Toy train            |                    |         |       |
+| 35  | Birthday cake        |                    |         |       |
 
 ## 5. Anything else
 
