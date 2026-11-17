@@ -20,7 +20,11 @@ RUN read -r url sha256 < hand-model.txt \
 
 # The unprivileged image runs nginx as a non-root user on port 8080.
 FROM docker.io/nginxinc/nginx-unprivileged:1.31-alpine
+# The relay of the control channel beside the viewer (compose.yaml) or not: which of
+# nginx/relay-*.conf the server includes.
+ARG RELAY=off
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx/relay-${RELAY}.conf /etc/nginx/relay.conf
 COPY public/ /usr/share/nginx/html/
 COPY --from=libraries /vendor/ /usr/share/nginx/html/vendor/
 

@@ -8,6 +8,10 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- `compose.yaml`: the viewer with the control channel's relay, its nginx passing `/relay/` to it
+  unbuffered (`RELAY=on`); the plain image keeps saying the relay is off. CI starts both and
+  asks the relay's health through the viewer. Switching the app over is a step in the panel
+  ([deployment](docs/deployment.md#with-the-relay)).
 - Pairing with the watch and steering it, end-to-end encrypted
   ([004](docs/decisions/004-control-channel.md)): the viewer reads the watch's pairing code (13
   frames of four markers) through the camera, keeps the session in IndexedDB and sends the watch's

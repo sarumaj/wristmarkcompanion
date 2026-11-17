@@ -61,6 +61,9 @@ echo "$headers" | grep -q "Content-Security-Policy: .*connect-src 'self'" \
     || fail "the Content-Security-Policy does not limit connections to the origin"
 echo "$headers" | grep -q "Permissions-Policy: camera=(self)" || fail "no Permissions-Policy for the camera"
 
+# Without the relay (RELAY=off, the default), its health says so and pairing isn't offered.
+fetch /relay/v1/healthz | grep -q '"status":"off"' || fail "the relay's health does not say off"
+
 if docker exec "$name" wget -q -O /dev/null http://127.0.0.1:8080/missing 2> /dev/null; then
     fail "a missing file did not answer 404"
 fi
