@@ -166,6 +166,28 @@ only ever encrypts with its own key.
 The watch's buttons as a remote control give the [interaction](../interaction.md) a second
 input besides the wrist's movements.
 
+## Test vectors
+
+The bytes, exactly, so that the two sides agree (`viewer/public/js/channel.js`, the watch's to
+come):
+
+- **HKDF-SHA256** with `S` as the input key, the salt and the `info` as UTF-8.
+- **The channel's ID** (16 bytes) and **the tokens** (32 bytes) travel as unpadded base64url; the
+  relay keeps the SHA-256 of a token's text, in hex.
+- **The tag** is the first 16 bytes of HMAC-SHA256 over the version (1 byte), the direction (1
+  byte: 1 toward the watch, 2 toward the viewer), `r` (8 bytes), `s` and `ts` (4 bytes each,
+  unsigned big-endian: the watch's `ByteArray.encodeNumber` writes no wider; `ts` lasts to 2106),
+  the IV and the ciphertext. `r`, the IV, the ciphertext and the tag travel as standard base64.
+- **The plaintext** is the message's compact JSON in UTF-8.
+
+`protocol/channel-vectors.json` holds, from a fixed `S`, the derived ID, tokens, hashes and keys,
+five envelopes sealed with fixed runs, counters, times and IVs, and nine a receiver must refuse,
+with the reason (tag, clock, replay, version). `tools/generate-channel-vectors.mjs` makes it with
+Node's crypto, an implementation of its own: the viewer's tests check WebCrypto against it byte
+for byte, and the watch's unit tests are to check `Toybox.Cryptography` against the same file
+(decrypting and comparing the messages, since the watch writes its JSON by hand). CI fails while
+the file is stale.
+
 ## The relay's API
 
 Base path `/relay/v1`, on the viewer's origin. Every response is JSON with `Cache-Control:
@@ -280,8 +302,9 @@ origin, the CSP and the panel's single domain stay as they are.
 
 ## Plan
 
-Built so far: **the relay** (`relay/`, step 3 below), with its tests and its image; it is not
-deployed yet.
+Built so far: **the relay** (`relay/`, step 3 below), with its tests and its image, not deployed
+yet; and **the viewer's cryptography** with the shared test vectors (step 2, the watch's side to
+come).
 
 1. **Spike on the D2 Mach 1** (with a test relay on studio): how long the phone proxy holds a
    long-poll, the latency each way (median and 95th percentile), whether `Cipher` in CBC mode
