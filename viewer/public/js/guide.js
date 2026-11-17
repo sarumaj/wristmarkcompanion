@@ -355,7 +355,9 @@ export function startGuide({ root, content, markerSize, captureSeconds = 10, cou
       finish: (frames) => {
         capture = null;
         const times = sessionTimes(frames, { offMs: OFF_MS });
-        const manualDims = dimmedAt !== null && firstSeen !== null ? (dimmedAt - firstSeen) / 1000 : null;
+        // Pressed before the marker was first seen: it was dim from the start.
+        const manualDims = dimmedAt !== null && firstSeen !== null ? Math.max(0, dimmedAt - firstSeen) / 1000 : null;
+        const dimFromStart = dimmedAt !== null && firstSeen !== null && dimmedAt < firstSeen;
         const result = {
           kind: "session",
           startedBy: block.startedBy,
@@ -364,7 +366,10 @@ export function startGuide({ root, content, markerSize, captureSeconds = 10, cou
           offAfter: times.offAfter,
           rateWhileDimmed: times.rateWhileDimmed,
           onAgain: null,
-          note: manualDims !== null && times.dimsAfter !== null ? `dimming measured at ${round(times.dimsAfter)} s` : "",
+          note: [
+            dimFromStart ? "dim before the marker was seen" : "",
+            manualDims !== null && times.dimsAfter !== null ? `dimming measured at ${round(times.dimsAfter)} s` : "",
+          ].filter(Boolean).join("; "),
         };
         if (times.offAfter === null) {
           // Stopped by hand, the display still on.
