@@ -17,6 +17,11 @@ jobs:
     timeout-minutes: 10
     container: docker.io/library/node:24-bookworm
     steps:
+      # The image has no git-lfs, which the checkout needs for the icons the checks
+      # compare (docs/ci.md#binary-files).
+      - name: Install Git LFS
+        run: apt-get update -qq && apt-get install -y -qq --no-install-recommends git-lfs > /dev/null
+
       - name: Check out repository
         uses: https://github.com/actions/checkout@v7
         with:
@@ -64,10 +69,9 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.64.1-noble
       options: --ipc=host
     steps:
+      # Without LFS: the tests read none of its files, and the image has no git-lfs.
       - name: Check out repository
         uses: https://github.com/actions/checkout@v7
-        with:
-          lfs: true
 
       - name: Install the viewer's packages
         run: npm ci --prefix viewer --ignore-scripts --no-audit --no-fund

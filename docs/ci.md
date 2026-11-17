@@ -49,8 +49,9 @@ Artifacts and repository storage cost money on this Forgejo, so:
 Images, fonts and other binary files are kept in Git LFS (`.gitattributes`): the history holds
 a small pointer per version, Forgejo's LFS store the file. A clone needs `git lfs install`
 once; `git lfs pull` fetches what a checkout made without it. CI's checkouts fetch them
-(`actions/checkout` with `lfs: true`): the checks compare the generated icons, the watch's
-build packs its launcher icon.
+(`actions/checkout` with `lfs: true`; the `checks` job's image installs `git-lfs` first): the
+checks compare the generated icons, the watch's build packs its launcher icon. The e2e tests
+read none of them and check out without LFS.
 
 - **Except `viewer/public/`:** the app panel builds the viewer's image from its own clone of
   the repository, which isn't known to fetch LFS files; there, an icon would be deployed as
