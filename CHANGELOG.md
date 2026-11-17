@@ -8,6 +8,8 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- The model's size you choose is kept in the browser for your next visit; putting it back to
+  normal forgets it. The privacy page says so.
 - The last seven models (markers 43 to 49): a castle with a drawbridge, a house lit after dark, a
   snowman, a puzzle cube that scrambles and solves itself, a black hole, a treasure chest and a
   rain cloud with a rainbow. Every marker now has a model, and the watch shows all 50.
