@@ -42,6 +42,11 @@ jobs:
       - name: Check the watch's list of markers with content
         run: node tools/generate-content-ids.mjs --check
 
+      # The control channel's test vectors, made with Node's crypto, which the viewer's
+      # tests and the watch's check against.
+      - name: Check the control channel's test vectors
+        run: node tools/generate-channel-vectors.mjs --check
+
       # The launcher icon is marker 0 of that table.
       - name: Check the watch's launcher icon
         run: node tools/generate-icon.mjs --check

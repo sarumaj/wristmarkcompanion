@@ -8,6 +8,10 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- The control channel's cryptography in the viewer (`js/channel.js`: HKDF-SHA256 keys from the
+  watch's secret, AES-256-CBC with an HMAC-SHA256 tag, the replay and clock checks) and its test
+  vectors (`protocol/channel-vectors.json`), made with Node's crypto, which the viewer matches
+  byte for byte and the watch is to.
 - The control channel's relay (`relay/`, [004](docs/decisions/004-control-channel.md)): channels
   created by token hashes, a queue each way, the watch's long-poll over its channels, the viewer's
   event stream with resume, the limits, nothing logged; a 10 MB image that checks its own health.
