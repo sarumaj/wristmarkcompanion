@@ -77,20 +77,25 @@ jobs:
     runs-on: docker
     timeout-minutes: 10
     container: docker.io/library/golang:1.27-bookworm
-    defaults:
-      run:
-        working-directory: relay
     steps:
+      # The Go image has no Node.js for actions/checkout: plain git, with the job's token.
       - name: Check out repository
-        uses: https://github.com/actions/checkout@v7
+        run: |
+          git init -q . && git remote add origin "${{ github.server_url }}/${{ github.repository }}.git"
+          auth=$(printf 'ci:%s' "${{ github.token }}" | base64 -w0)
+          git -c http.extraHeader="Authorization: Basic $auth" fetch -q --depth 1 origin "${{ github.sha }}"
+          git checkout -q FETCH_HEAD
 
       - name: Check the formatting
+        working-directory: relay
         run: test -z "$(gofmt -l .)" || { gofmt -l .; exit 1; }
 
       - name: Vet
+        working-directory: relay
         run: go vet ./...
 
       - name: Run the tests
+        working-directory: relay
         run: go test -race -count=1 ./...
 
   # The images are built and tested here, pushed nowhere (deployment: milestone 5).
