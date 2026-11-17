@@ -16,5 +16,7 @@
 # Except the viewer's own files: the app panel builds its image from a plain clone,
 # which isn't known to fetch LFS (docs/ci.md#binary-files), so they stay in Git.
 viewer/public/** !filter !diff !merge
+# And the Android project's: F-Droid's build servers clone without LFS (docs/android.md#f-droid).
+app/android/** !filter !diff !merge
 viewer/public/** !text -filter -merge -diff
 app/android/** !text -filter -merge -diff
