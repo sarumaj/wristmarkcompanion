@@ -370,6 +370,23 @@ test("hand tracking loads under the CSP, from the viewer's own origin, and looks
   });
 });
 
+test("the size chosen is kept for the next visit, and forgotten when put back", async () => {
+  const context = await browser.newContext();
+  const { page, problems } = await open(context, "/index.html");
+  await page.keyboard.press("+");
+  await page.keyboard.press("+");
+  const chosen = await page.locator("body").getAttribute("data-zoom");
+  assert.ok(Number(chosen) > 1.2, chosen);
+  await page.reload();
+  await page.waitForFunction((value) => document.body.dataset.zoom === value, chosen);
+  await page.keyboard.press("0");
+  await page.reload();
+  assert.equal(await page.evaluate(() => localStorage.getItem("wristmark.zoom")), null);
+  assert.equal(await page.locator("body").getAttribute("data-zoom"), null);
+  assert.deepEqual(problems, []);
+  await context.close();
+});
+
 test("a marker without content gets the gizmo and says so", async () => {
   // Every ID has a model: this one is taken out of the content the page gets.
   const withoutLast = async (page) =>

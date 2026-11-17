@@ -481,13 +481,34 @@ function guideFrame(t, detectMs, marker, smoothed, image) {
 // The size by hand (pinch, wheel, keys), shown for a moment in a chip on the stage.
 const zoomChip = document.getElementById("zoom");
 let zoomShown = 0;
+// The size chosen is kept in the browser for the next visit (the privacy page says so);
+// back at 1, nothing is kept. Storage may be off or full: then it is only not kept.
+const ZOOM_KEY = "wristmark.zoom";
+const keep = (value) => {
+  try {
+    if (Math.abs(value - 1) < 0.005) localStorage.removeItem(ZOOM_KEY);
+    else localStorage.setItem(ZOOM_KEY, value.toFixed(2));
+  } catch {
+    // Not kept.
+  }
+};
 const zoom = zoomControl(stage, (value) => {
   zoomChip.textContent = `${value.toFixed(1)}×`;
   zoomChip.hidden = false;
   document.body.dataset.zoom = value.toFixed(2);
   clearTimeout(zoomShown);
   zoomShown = setTimeout(() => (zoomChip.hidden = true), 1200);
+  keep(value);
 });
+try {
+  const kept = Number(localStorage.getItem(ZOOM_KEY));
+  if (kept > 0) {
+    zoom.set(kept);
+    zoomChip.hidden = true;
+  }
+} catch {
+  // Nothing kept, or no storage: the size stays 1.
+}
 
 // The other hand in the camera's image (js/hands.js), when switched on: the hand button,
 // H, or ?hands. Its library and model load on first use; the hands are looked for 20
