@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## 0.2.0 - 2026-11-17
+
 ### Added
 
 - `compose.yaml`: the viewer with the control channel's relay, its nginx passing `/relay/` to it
