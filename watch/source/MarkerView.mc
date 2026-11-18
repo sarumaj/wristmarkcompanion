@@ -72,7 +72,7 @@ class MarkerView extends WatchUi.View {
 
     //! Keeps the marker and the cycle for the next run (the app's onStop).
     function save() as Void {
-        Application.Storage.setValue(KEPT, { "id" => _id, "cycle" => _cycling } as Dictionary<String, Application.Storage.ValueType>);
+        Application.Storage.setValue(KEPT, { "id" => _id, "cycle" => _cycling } as Dictionary<Application.Storage.KeyType, Application.Storage.ValueType>);
     }
 
     //! Also after the menu or the pairing screen closes: the cycle goes on where it was.
