@@ -9,6 +9,19 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## 0.4.0 - 2026-11-18
+
+### Added
+
+- **viewer:** the hand in front hides the model, and the model stays while a hand covers the marker
+- **viewer:** the moves a model takes shown as moving pictures
+- **viewer:** the black hole's light bent as a real one's
+- **watch:** the last marker and the automatic cycle kept between runs, and the cycle in the menu
+
+### Fixed
+
+- **watch:** the kept marker stored as Storage's own Dictionary type
+
 ## 0.3.1 - 2026-11-18
 
 ### Fixed
