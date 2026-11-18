@@ -78,11 +78,17 @@ try {
         const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
         renderer.setClearColor(0x1f232b);
         const scene = new THREE.Scene();
-        scene.add(...lights());
         const eye = new THREE.PerspectiveCamera(42, 1, 1, 1000);
         eye.position.set(...camera.position);
         eye.up.set(...camera.up);
         eye.lookAt(...camera.target);
+        // The lights as the viewer has them, whose scene is the camera's own space: the sky
+        // toward the image's top, the sun from above and behind the camera.
+        const [sky, sun] = lights();
+        sky.position.set(0, 1, 0).applyQuaternion(eye.quaternion);
+        sun.position.applyQuaternion(eye.quaternion).add(eye.position);
+        sun.target.position.copy(eye.position);
+        scene.add(sky, sun, sun.target);
         // The watch: a dark case with its display drawn black, as the viewer draws it.
         const display = new THREE.Mesh(new THREE.CircleGeometry(17.8, 64), new THREE.MeshBasicMaterial({ color: 0x050608 }));
         display.position.z = 0.05;
