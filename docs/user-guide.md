@@ -121,9 +121,9 @@ list](content.md#the-models) says what each one does.
 Where it's offered (the **Watch** button at the top), the viewer can control the watch: the
 next or previous marker, the automatic cycle, and a buzz to find it.
 
-1. On the watch, open the menu: hold the start button (top right) or the up button, or hold a
-   finger on the display. Choose **Pair a viewer**. It shows a pairing code: four small markers
-   that change three times a second.
+1. On the watch, go past the last marker (down button, or up from the first) to the **Viewers**
+   screen and press start or tap it; or hold a finger on the display. Choose **Pair a viewer**.
+   It shows a pairing code: four small markers that change three times a second.
 2. In the viewer, open **Watch**, tap **Pair with the watch**, and hold the watch 15 to 25 cm
    from the camera until the count reaches 13 of 13.
 3. The watch buzzes, shows its marker again, and the viewer says "Connected".

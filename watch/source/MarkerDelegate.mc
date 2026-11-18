@@ -5,9 +5,9 @@ import Toybox.WatchUi;
 
 //! The controls: down or a swipe up for the next marker, up or a swipe down for the
 //! previous one, a tap or a press of start to start or stop the automatic cycle; the menu
-//! for the paired viewers by holding up (the menu button) or holding start, since some
-//! watches keep holding up for their own controls. Back leaves the app (the system's
-//! default).
+//! for the paired viewers by holding up (the menu button), holding start, a long touch,
+//! or start or a tap on the Viewers screen (after the last marker), since a watch may keep
+//! a button for itself. Back leaves the app (the system's default).
 class MarkerDelegate extends WatchUi.BehaviorDelegate {
     //! How long start is held to open the menu, in milliseconds.
     const HOLD_MS = 800;
@@ -47,7 +47,7 @@ class MarkerDelegate extends WatchUi.BehaviorDelegate {
         }
         _hold.stop();
         if (!_held) {
-            _view.toggleCycle();
+            select();
         }
         _held = false;
         return true;
@@ -70,8 +70,23 @@ class MarkerDelegate extends WatchUi.BehaviorDelegate {
     }
 
     function onSelect() as Boolean {
-        _view.toggleCycle();
+        select();
         return true;
+    }
+
+    //! A long touch on the screen: the menu.
+    function onHold(clickEvent as WatchUi.ClickEvent) as Boolean {
+        onMenu();
+        return true;
+    }
+
+    //! Start or a tap: on the Viewers screen the menu, on a marker the cycle.
+    private function select() as Void {
+        if (_view.onViewers()) {
+            onMenu();
+        } else {
+            _view.toggleCycle();
+        }
     }
 
     //! The menu button or a long press: the viewers (pair, forget).

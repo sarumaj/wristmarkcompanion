@@ -69,14 +69,16 @@ then (`?size=18.6` on its URL uses this one).
 
 `MarkerDelegate`, a `WatchUi.BehaviorDelegate`:
 
-| Input                                                   | Action                                                                    |
-|---------------------------------------------------------|---------------------------------------------------------------------------|
-| Down button, swipe up (`onNextPage`)                    | Next ID with a model (`MarkerContent`); the last wraps to the first       |
-| Up button, swipe down (`onPreviousPage`)                | Previous ID with a model                                                  |
-| Start button pressed, tap (`onKeyReleased`, `onSelect`) | Start or stop the automatic cycle (5 s per marker); the label says `auto` |
-| Start button held 0.8 s (`onKeyPressed`, a timer)       | The viewers' menu: pair a viewer, forget one or all                       |
-| Up held, the menu button, a long press (`onMenu`)       | The same menu, where the watch doesn't keep it for its own controls       |
-| Back                                                    | Leave the app (the system's default)                                      |
+| Input                                                                | Action                                                                    |
+|----------------------------------------------------------------------|---------------------------------------------------------------------------|
+| Down button, swipe up (`onNextPage`)                                 | Next ID with a model (`MarkerContent`); the last wraps to the first       |
+| Up button, swipe down (`onPreviousPage`)                             | Previous ID with a model                                                  |
+| Start button pressed, tap (`onKeyReleased`, `onSelect`)              | Start or stop the automatic cycle (5 s per marker); the label says `auto` |
+| Start button held 0.8 s (`onKeyPressed`, a timer)                    | The viewers' menu: pair a viewer, forget one or all                       |
+| Up held, the menu button, a long press (`onMenu`)                    | The same menu, where the watch doesn't keep it for its own controls       |
+| Long touch on the display (`onHold`)                                 | The same menu                                                             |
+| Start or tap on the Viewers screen, after the last marker (`select`) | The same menu: the way no button setting of the watch takes               |
+| Back                                                                 | Leave the app (the system's default)                                      |
 
 ## Keeping the display on
 
@@ -96,9 +98,15 @@ What the app does with this (`MarkerView.keepOn`):
 
 - **While it's shown,** it calls `Attention.backlight(true)` every 5 seconds, so the display
   stays on past the user's timeout.
-- **When the system refuses** (`BacklightOnTooLongException`), it stops asking and the display
-  dims as the system decides. It doesn't catch and retry: that is the protection working.
-- **Any input** (a button, a swipe, a tap) asks again, so a press gives the next session.
+- **When the system refuses** (`BacklightOnTooLongException`, or anything else the call throws:
+  an uncaught exception would close the app), it stops asking and the display dims as the
+  system decides. It doesn't retry: on AMOLED that is the firmware's burn-in protection, which
+  no API overrides. The ID line then says how long the display was held (`ID 7 - lit 63s`)
+  until the next input, so a device test reads the limit off the watch.
+- **Any input** (a button, a swipe, a tap) and any command from a paired viewer asks again, so a
+  press gives the next session.
+- **Longer without the app:** the watch's own display timeout setting decides how long the
+  display stays on when nobody holds it; the longest one helps after a refusal.
 
 This is the legitimate way to extend a session: the app holds the display only while it's in
 use, the system's limit stays in force, and the user restarts a session by pressing a button.

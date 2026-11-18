@@ -786,7 +786,7 @@ const remoteButtons = document.getElementById("remote-buttons");
 const remotePair = document.getElementById("remote-pair");
 const remoteBadge = document.getElementById("remote-badge");
 const REMOTE_TEXTS = {
-  idle: "Steer the watch from here, end-to-end encrypted. On the watch, open the menu (hold the start button), choose Pair a viewer, start the camera here and hold the watch 15 to 25 cm from it.",
+  idle: "Steer the watch from here, end-to-end encrypted. On the watch, step past the last marker to Viewers and press start (or hold a finger on the display), choose Pair a viewer, start the camera here and hold the watch 15 to 25 cm from it.",
   pairing: "Reading the watch's pairing code: hold its display toward the camera, 15 to 25 cm away.",
   connecting: "Connecting…",
   waiting: "Waiting for the watch: keep the app open on it.",
