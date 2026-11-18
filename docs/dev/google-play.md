@@ -37,11 +37,21 @@ Then the app from Play and the APK from our releases (and F-Droid's) would carry
 and Android refuses to install one over the other.
 
 **Recommended: give Play a copy of our release key** (`wristmark`,
-[signing](android.md#signing)) before the first release goes to open testing or production:
-*Test and release → App integrity → Play app signing → Change key → "Provide a copy of your app
-signing key by following the instructions"*. The console gives a tool and an encryption key; you
-run it on studio against `~/wristmark-signing/wristmark-release.p12` and upload what it writes.
-Then every channel installs the same signature.
+[signing](android.md#signing)) before the first release goes to open testing or production. In
+*App signing preferences*, choose **Export and upload a key from Java keystore** (our PKCS12
+keystore is one). The console offers `pepk.jar` and an encryption key to download; with both in
+`~/wristmark-signing/` on studio (no Java there, so in a container):
+
+```sh
+docker run --rm -v ~/wristmark-signing:/k -w /k eclipse-temurin:21-jre \
+  java -jar pepk.jar --keystore=wristmark-release.p12 --alias=wristmark \
+    --keystore-pass=file:keystore-password.txt --key-pass=file:keystore-password.txt \
+    --output=wristmark-play.zip --include-cert --rsa-aes-encryption \
+    --encryption-key-path=encryption_public_key.pem
+```
+
+Upload `wristmark-play.zip`: the key in it is encrypted for Google alone. Then every channel
+installs the same signature.
 
 - **The upload key:** the release workflow signs the bundle with the same release key. Google
   recommends a separate upload key "for maximum security". If the console asks for one, make a
