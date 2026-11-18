@@ -469,6 +469,11 @@ body[data-state="tracking"] .status::before {
   -webkit-backdrop-filter: blur(12px);
 }
 
+.debug-note {
+  margin: 0;
+  color: #d5dbe6;
+}
+
 .debug-title {
   margin: 0 0 6px;
   color: #9aa3b5;
@@ -1004,6 +1009,27 @@ body[data-state="error"] .stage-controls {
   display: none;
 }
 
+/* The paired watch's buttons (js/remote.js): a row under the stage's own, at the right; a
+   row, not a column, so that a short stage (a landscape camera) has room for it. */
+.watch-bar {
+  position: absolute;
+  top: 64px;
+  right: 12px;
+  display: flex;
+  gap: 8px;
+}
+
+.watch-bar[hidden],
+body[data-state="idle"] .watch-bar,
+body[data-state="error"] .watch-bar {
+  display: none;
+}
+
+.watch-bar .icon-button {
+  display: grid;
+  place-items: center;
+}
+
 .icon-button {
   width: 44px;
   min-height: 44px;
@@ -1469,25 +1495,49 @@ body.immersive .stage {
 
 /* The control channel's panel (js/remote.js), under the camera like the device test. */
 .remote {
-  max-width: 560px;
-  margin: 16px auto 0;
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  z-index: 30;
+  width: min(560px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
   padding: 16px;
   border: 1px solid var(--border);
   border-radius: 20px;
   background: var(--surface);
   box-shadow: var(--shadow);
+  transform: translateX(-50%);
+}
+
+.remote[hidden] {
+  display: none;
 }
 
 .remote-head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
 }
 
 .remote h2 {
+  flex: 1;
   margin: 0;
   font-size: 18px;
+}
+
+.remote-close {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  min-height: 40px;
+  padding: 0;
+  border-radius: 50%;
+}
+
+.remote-close svg {
+  width: 20px;
+  height: 20px;
 }
 
 .remote p {

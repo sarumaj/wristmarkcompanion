@@ -577,6 +577,16 @@ test("the models that react to the wrist's gestures take them, and keep animatin
   await context.close();
 });
 
+test("the debug view says its numbers come with the camera, before it runs", async () => {
+  const context = await browser.newContext();
+  const { page, problems } = await open(context, "/index.html");
+  await page.getByRole("button", { name: "Debug" }).click();
+  assert.equal(await page.locator("#debug").isVisible(), true);
+  assert.match(await page.locator("#debug").textContent(), /The numbers show once the camera runs\./);
+  assert.deepEqual(problems, []);
+  await context.close();
+});
+
 test("the icons, the web app manifest and the social card are served and linked", async () => {
   const context = await browser.newContext();
   const { page, problems } = await open(context, "/index.html");

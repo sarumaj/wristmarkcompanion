@@ -74,6 +74,16 @@ let guide = null;
 const marks = document.getElementById("marks");
 function showDebug(visible) {
   debugPanel.hidden = !visible;
+  // Its numbers come with the camera's frames; until then it says so, rather than nothing.
+  if (visible && !debugPanel.childElementCount) {
+    const title = document.createElement("p");
+    title.className = "debug-title";
+    title.textContent = "Debug";
+    const note = document.createElement("p");
+    note.className = "debug-note";
+    note.textContent = "The numbers show once the camera runs.";
+    debugPanel.replaceChildren(title, note);
+  }
   marks.hidden = !visible;
   debugToggle.setAttribute("aria-pressed", String(visible));
 }
@@ -804,7 +814,7 @@ document.getElementById("help-close").addEventListener("click", () => help.close
 
 // Keys: + and - resize, the left and right arrows turn, 0 resets both, h the hand
 // tracking, d the debug view, f full screen, ? help, Escape
-// leaves full screen. Not while typing in a field, and not with a modifier.
+// closes the watch's card or leaves full screen. Not while typing in a field, and not with a modifier.
 document.addEventListener("keydown", (event) => {
   if (event.ctrlKey || event.metaKey || event.altKey || event.target.closest("input, textarea")) return;
   const keys = {
@@ -821,7 +831,11 @@ document.addEventListener("keydown", (event) => {
     h: () => setHands(!handsWanted),
     f: () => immersive(!document.body.classList.contains("immersive")),
     "?": () => help.showModal(),
-    Escape: () => immersive(false),
+    Escape: () => {
+      const card = document.getElementById("remote");
+      if (!card.hidden) card.querySelector("#remote-close").click();
+      else immersive(false);
+    },
   };
   // The arrows turn a model shown, and scroll the page (or the help) otherwise.
   if (event.key.startsWith("Arrow") && (!document.body.dataset.model || help.open)) return;
@@ -831,9 +845,11 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-// The control channel (js/remote.js): the panel under the camera, opened with the Watch
-// button; pairing reads the watch's code through the camera, then the buttons steer it.
+// The control channel (js/remote.js): the panel, a card over the stage opened with the
+// Watch button, pairs (reading the watch's code through the camera) and disconnects; once
+// connected, the buttons on the stage (the watch bar, in full screen too) steer the watch.
 const remotePanel = document.getElementById("remote");
+const watchBar = document.getElementById("watch-bar");
 const remoteToggle = document.getElementById("remote-toggle");
 const remoteText = document.getElementById("remote-text");
 const remoteProgress = document.getElementById("remote-progress");
@@ -846,8 +862,12 @@ const REMOTE_TEXTS = {
   connecting: "Connecting…",
   waiting: "Waiting for the watch: keep the app open on it.",
 };
+let wasConnected = false;
 function showRemote(r) {
   const connected = r.state === "connected";
+  // Paired just now: the card makes way for the watch bar.
+  if (connected && !wasConnected) openRemote(false);
+  wasConnected = connected;
   remoteText.textContent =
     connected && r.watch
       ? `The watch shows marker ${r.watch.id}${r.watch.cycle ? ", cycling" : ""}; its battery is at ${r.watch.battery} %.`
@@ -858,7 +878,8 @@ function showRemote(r) {
   remoteProgress.value = r.frames;
   remoteButtons.hidden = !connected;
   remoteBadge.hidden = !connected;
-  remoteButtons.querySelector('[data-op="cycle"]').setAttribute("aria-pressed", String(Boolean(r.watch?.cycle)));
+  watchBar.hidden = !connected;
+  for (const cycle of document.querySelectorAll('[data-op="cycle"]')) cycle.setAttribute("aria-pressed", String(Boolean(r.watch?.cycle)));
   remotePair.hidden = connected || r.state === "connecting" || r.state === "waiting";
   remotePair.textContent = r.state === "pairing" ? "Cancel" : r.state === "failed" ? "Try again" : "Pair with the watch";
   document.body.dataset.remote = r.state;
@@ -874,11 +895,15 @@ const remote = new Remote({
     if (message.op === "button") acknowledge(`Watch: ${message.key}`, { tick: false });
   },
 });
+function openRemote(open) {
+  remotePanel.hidden = !open;
+  remoteToggle.setAttribute("aria-expanded", String(open));
+}
 showRemote(remote);
-remoteToggle.addEventListener("click", () => {
-  remotePanel.hidden = !remotePanel.hidden;
-  remoteToggle.setAttribute("aria-expanded", String(!remotePanel.hidden));
-  if (!remotePanel.hidden) remotePanel.scrollIntoView({ block: "nearest" });
+remoteToggle.addEventListener("click", () => openRemote(remotePanel.hidden));
+document.getElementById("remote-close").addEventListener("click", () => {
+  openRemote(false);
+  remoteToggle.focus();
 });
 remotePair.addEventListener("click", () => {
   if (remote.state === "pairing") remote.cancel();
@@ -887,7 +912,7 @@ remotePair.addEventListener("click", () => {
     if (document.body.dataset.state === "idle") run().catch(fail);
   }
 });
-remoteButtons.addEventListener("click", (event) => {
+function steer(event) {
   const op = event.target.closest("button")?.dataset.op;
   const send = (message) => remote.send(message).catch((error) => acknowledge(error.message, { tick: false }));
   if (op === "previous") send({ op: "step", delta: -1 });
@@ -895,7 +920,9 @@ remoteButtons.addEventListener("click", (event) => {
   if (op === "cycle") send({ op: "cycle", on: !remote.watch?.cycle });
   if (op === "buzz") send({ op: "buzz", ms: 300 });
   if (op === "disconnect") remote.disconnect();
-});
+}
+remoteButtons.addEventListener("click", steer);
+watchBar.addEventListener("click", steer);
 // Offered only where the relay runs: its health says "ok". Until it is deployed beside
 // the viewer, nginx answers the same path with "off" (nginx.conf), and the Watch button
 // stays hidden.
