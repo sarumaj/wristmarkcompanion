@@ -9,6 +9,16 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## 0.5.0 - 2026-11-18
+
+### Added
+
+- **viewer:** the paired watch's buttons on the camera image, the Watch card over it, the debug view says why it's empty
+- **viewer:** a bee hive and a skate park in place of the last placeholders
+- **viewer:** the social card rendered with the hero image, 50 models, not drawn once with 21
+- **viewer:** a Tyrannosaurus rex, Glimmer, and the penguin as Tux
+- **viewer:** a tornado and a gumball machine in place of the snow globe and the birthday cake
+
 ## 0.4.0 - 2026-11-18
 
 ### Added
