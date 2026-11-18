@@ -94,7 +94,7 @@ Node.js and checks it:
 
 ```yaml
 Categories: [Multimedia]
-License: GPL-3.0-or-later
+License: GPL-3.0-only
 SourceCode: https://git.ciepiela.org/dawid/wristmarkcompanion
 IssueTracker: https://git.ciepiela.org/dawid/wristmarkcompanion/issues
 RepoType: git
