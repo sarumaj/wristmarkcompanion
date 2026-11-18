@@ -193,6 +193,8 @@ test("the models that react to a tap take it, and the action buttons reach them"
     snowman: "Hello!",
     puzzleCube: "Hurry",
     blackHole: "Fed a star",
+    tRex: "Roar!",
+    critter: "Sparkle!",
     treasureChest: "Closed",
     raincloud: "Thunder",
   });

@@ -1,5 +1,5 @@
 // Models that respond to how the watch is held (js/seen.js): an aircraft's attitude
-// indicator, a marble maze, a penguin keeping its balance. The camera stands in for
+// indicator, a marble maze, Tux keeping his balance. The camera stands in for
 // the world: its image's down for gravity, or its line of sight for a maze looked into.
 import * as THREE from "../vendor/three/three.module.js";
 import { standing } from "./standing.js";
@@ -208,54 +208,70 @@ export function maze(size) {
   };
 }
 
-// A penguin on the watch: it shifts from foot to foot, blinks, flaps now and then, and
-// keeps upright in the image as the wrist turns, leaning a little late, as if caught
-// off balance. A tap makes it hop.
+// Tux, the Linux penguin, on the watch (after Larry Ewing's drawing, made with The GIMP,
+// which he allows to be used and changed provided he is acknowledged: docs/user/models.md):
+// he shifts from foot to foot, blinks, flaps now and then, and keeps upright in the image as
+// the wrist turns, leaning a little late, as if caught off balance. A tap makes him hop.
 export function penguin(size) {
   const s = size / 20;
-  const black = new THREE.MeshStandardMaterial({ color: 0x1d2128, roughness: 0.5 });
-  const white = new THREE.MeshStandardMaterial({ color: 0xf5f5f0, roughness: 0.6 });
-  const orange = new THREE.MeshStandardMaterial({ color: 0xff8c1a, roughness: 0.5 });
+  const black = new THREE.MeshStandardMaterial({ color: 0x16181d, roughness: 0.45 });
+  const white = new THREE.MeshStandardMaterial({ color: 0xf7f7f2, roughness: 0.55 });
+  const yellow = new THREE.MeshStandardMaterial({ color: 0xf7b500, roughness: 0.4 });
+  // Tux's shape: plump, wider at the bottom, the white belly reaching up under the beak.
   const body = new THREE.Mesh(new THREE.SphereGeometry(6 * s, 32, 24), black);
-  body.scale.set(1, 1.35, 0.95);
+  body.scale.set(1.1, 1.3, 1);
   body.position.y = 8 * s;
-  const belly = new THREE.Mesh(new THREE.SphereGeometry(5.2 * s, 32, 24), white);
-  belly.scale.set(0.85, 1.2, 0.7);
-  belly.position.set(0, 7.5 * s, 1.9 * s);
-  // The head turns as one: the face, the beak and the eyes on it.
+  const bottom = new THREE.Mesh(new THREE.SphereGeometry(6.2 * s, 32, 24), black);
+  bottom.scale.set(1.15, 0.85, 1.05);
+  bottom.position.y = 5.6 * s;
+  const belly = new THREE.Mesh(new THREE.SphereGeometry(5.4 * s, 32, 24), white);
+  belly.scale.set(0.95, 1.25, 0.75);
+  belly.position.set(0, 6.8 * s, 2.6 * s);
+  // The head turns as one: the eyes' white patches, the pupils and the beak on it.
   const head = new THREE.Group();
-  head.position.y = 16 * s;
+  head.position.y = 15.6 * s;
   const skull = new THREE.Mesh(new THREE.SphereGeometry(4 * s, 32, 24), black);
-  const face = new THREE.Mesh(new THREE.SphereGeometry(3.1 * s, 24, 16), white);
-  face.scale.set(1, 0.85, 0.6);
-  face.position.set(0, -0.4 * s, 2 * s);
-  const beak = new THREE.Mesh(new THREE.ConeGeometry(0.9 * s, 2.4 * s, 12), orange);
-  beak.rotation.x = Math.PI / 2;
-  beak.position.set(0, -0.7 * s, 4.4 * s);
+  skull.scale.set(1.05, 0.95, 1);
+  const beak = new THREE.Group();
+  beak.position.set(0, -1.1 * s, 3.4 * s);
+  const upperBeak = new THREE.Mesh(new THREE.SphereGeometry(1.6 * s, 20, 12), yellow);
+  upperBeak.scale.set(1.25, 0.45, 1);
+  upperBeak.position.y = 0.2 * s;
+  const lowerBeak = new THREE.Mesh(new THREE.SphereGeometry(1.4 * s, 20, 12), yellow);
+  lowerBeak.scale.set(1.15, 0.35, 0.9);
+  lowerBeak.position.y = -0.35 * s;
+  beak.add(upperBeak, lowerBeak);
   const eyes = [-1, 1].map((side) => {
-    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.55 * s, 12, 8), black);
-    eye.position.set(side * 1.3 * s, 0.6 * s, 3.4 * s);
+    const eye = new THREE.Group();
+    eye.position.set(side * 1.25 * s, 0.9 * s, 3.3 * s);
+    eye.rotation.y = side * 0.3;
+    const patch = new THREE.Mesh(new THREE.SphereGeometry(1 * s, 16, 12), white);
+    patch.scale.set(0.8, 1.15, 0.4);
+    const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.45 * s, 12, 8), black);
+    pupil.scale.set(0.8, 1, 0.5);
+    pupil.position.set(side * 0.15 * s, -0.1 * s, 0.35 * s);
+    eye.add(patch, pupil);
     return eye;
   });
-  head.add(skull, face, beak, ...eyes);
+  head.add(skull, beak, ...eyes);
   const flippers = [-1, 1].map((side) => {
     const pivot = new THREE.Group();
-    pivot.position.set(side * 5.6 * s, 11 * s, 0);
+    pivot.position.set(side * 6.2 * s, 10.5 * s, 0);
     const flipper = new THREE.Mesh(new THREE.SphereGeometry(1 * s, 16, 12), black);
-    flipper.scale.set(1, 4.5, 2);
+    flipper.scale.set(1, 4.2, 2.2);
     flipper.position.y = -4 * s;
     pivot.add(flipper);
     return { side, pivot };
   });
   const feet = [-1, 1].map((side) => {
-    const foot = new THREE.Mesh(new THREE.SphereGeometry(1.4 * s, 16, 8), orange);
-    foot.scale.set(1, 0.35, 1.8);
-    foot.position.set(side * 2.2 * s, 0.5 * s, 2 * s);
+    const foot = new THREE.Mesh(new THREE.SphereGeometry(1.6 * s, 16, 8), yellow);
+    foot.scale.set(1.4, 0.4, 1.8);
+    foot.position.set(side * 2.8 * s, 0.5 * s, 2.6 * s);
     return foot;
   });
   // It leans about its feet: everything above them.
   const upper = new THREE.Group();
-  upper.add(body, belly, head, ...flippers.map(({ pivot }) => pivot));
+  upper.add(body, bottom, belly, head, ...flippers.map(({ pivot }) => pivot));
   const balance = new THREE.Group();
   balance.add(upper, ...feet);
   const ice = new THREE.Mesh(new THREE.CylinderGeometry(9 * s, 10 * s, 1 * s, 7), new THREE.MeshStandardMaterial({ color: 0xdff3ff, roughness: 0.2, metalness: 0.05 }));
