@@ -23,6 +23,7 @@ class WristmarkApp extends Application.AppBase {
 
     function onStop(state as Dictionary?) as Void {
         link.stop();
+        _view.save();
     }
 
     function getInitialView() as [WatchUi.Views] or [WatchUi.Views, WatchUi.InputDelegates] {

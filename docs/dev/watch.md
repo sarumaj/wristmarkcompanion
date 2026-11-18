@@ -100,11 +100,19 @@ then (`?size=18.6` on its URL uses this one).
 | Down button, swipe up (`onNextPage`)                                 | Next ID with a model (`MarkerContent`); the last wraps to the first       |
 | Up button, swipe down (`onPreviousPage`)                             | Previous ID with a model                                                  |
 | Start button pressed, tap (`onKeyReleased`, `onSelect`)              | Start or stop the automatic cycle (5 s per marker); the label says `auto` |
-| Start button held 0.8 s (`onKeyPressed`, a timer)                    | The viewers' menu: pair a viewer, forget one or all                       |
+| Start button held 0.8 s (`onKeyPressed`, a timer)                    | The menu: the automatic cycle, pair a viewer, forget one or all           |
 | Up held, the menu button, a long press (`onMenu`)                    | The same menu, where the watch doesn't keep it for its own controls       |
 | Long touch on the display (`onHold`)                                 | The same menu                                                             |
 | Start or tap on the Viewers screen, after the last marker (`select`) | The same menu: the way no button setting of the watch takes               |
 | Back                                                                 | Leave the app (the system's default)                                      |
+
+The menu's first item starts or stops the automatic cycle, as a tap does, but by name: on the
+Viewers screen a tap opens the menu instead, so there the menu is the way to the cycle.
+
+The marker shown and whether it cycles are kept when the app closes (`Application.Storage`, key
+`shown`, written in `onStop`) and taken up again when it opens, if that ID still has a model.
+A view over the markers (the menu, the pairing screen) stops the cycle's timer; it starts again
+when the markers come back (`onShow`).
 
 ## Keeping the display on
 

@@ -26,8 +26,12 @@ wrist. The viewer's **Help** button (or the `?` key) has the short version of th
    marker turns into a dark watch face with a model standing on it, and the line at the bottom
    names it.
 4. **The watch's down and up buttons** (or a swipe) show the next and the previous model; a tap
-   or a press of the start button cycles through them by itself. Holding the start button opens
-   the menu ([steer the watch](#steer-the-watch-from-the-viewer)).
+   or a press of the start button cycles through them by itself ("auto" below the number).
+   Holding the start button opens the menu, whose **Auto cycle** does the same
+   ([steer the watch](#steer-the-watch-from-the-viewer)).
+
+The watch remembers the marker it showed and whether it cycled: the next time you open the
+app, it goes on from there.
 
 On a phone, **full screen** (the corner button) gives the model the whole display.
 
