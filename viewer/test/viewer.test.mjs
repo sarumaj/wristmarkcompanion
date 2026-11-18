@@ -522,7 +522,9 @@ test("content.json passes its check, and every model stands on the marker", asyn
     return {
       mapped: [...content.values()].map((entry) => entry.model),
       models: MODEL_NAMES.map((name) => {
-        const model = createModel(name, 20);
+        // Half a minute in: the hourglass turns over at each minute, and dips below the
+        // face while it turns.
+        const model = createModel(name, 20, { now: () => new Date("2026-11-16T14:00:30Z") });
         model.animate(1.5);
         model.object.updateMatrixWorld(true);
         const box = new THREE.Box3().setFromObject(model.object);
