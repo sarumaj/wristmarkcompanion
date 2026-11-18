@@ -45,6 +45,21 @@ Which models react:
 A model reacts through an optional `gesture(event)` that returns `true` when it took the gesture
 (`js/models.js`).
 
+## Built: showing the moves
+
+Device tests showed the hints in the status line weren't enough: people didn't find out how
+to flick or twist. `js/coach.js` shows them instead:
+
+- **A card above the buttons**, the first time a model is seen on a device: a small animated
+  picture of each of its moves (tap, flick, shake, twist, tilt) with a line of text, 2.6 s each.
+  Which models have shown it is kept in `localStorage` (`wristmark.coached`).
+- **The moves of a model** come from its entry in `MODEL_GUIDES`: its actions (`touch` is a tap,
+  `gesture` names the move) and `tilt: true` for the models that follow the watch's tilt.
+- **The same pictures, still,** on each action button, so the button and its move look alike;
+  **?** after the buttons plays the card again. The help's list of moves has them too.
+- **The pictures** are SVG built in script and animated by `style.css` (`move-<kind>`), since
+  the Content-Security-Policy allows no inline styles; `prefers-reduced-motion` stops them.
+
 ## Built: the size by hand
 
 Two fingers pinching, the mouse wheel or a trackpad's pinch resize the model (`js/zoom.js`,
