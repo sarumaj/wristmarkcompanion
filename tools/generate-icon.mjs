@@ -13,11 +13,14 @@
 //   128x128, sRGB, 10 px of padding, no black or transparent background, no text).
 //   Their blue, #0055AA, is in the 64-color palette the guidelines ask for on
 //   memory-in-pixel displays, so one icon serves both kinds.
+// - fastlane/metadata/android/en-US/images/icon.png: the Android app's store icon, for
+//   F-Droid and Google Play (512x512, the marker well inside the circle Play's mask may cut
+//   it to; docs/dev/google-play.md).
 //
 //   node tools/generate-icon.mjs           write the files
 //   node tools/generate-icon.mjs --check   fail if one is stale
 //
-// RGB PNGs written with node:zlib, so nothing is installed.
+// PNGs written with node:zlib, so nothing is installed.
 
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -37,6 +40,8 @@ const ICONS = [
   { path: "watch/resources/drawables/launcher_icon.png", size: 60, cell: 7, background: BLACK },
   { path: "docs/dev/store-assets/icon-500.png", size: 500, cell: 42, background: STORE_BLUE },
   { path: "docs/dev/store-assets/icon-128.png", size: 128, cell: 11, background: STORE_BLUE },
+  // RGBA (all opaque): Play asks for a 32-bit PNG.
+  { path: "fastlane/metadata/android/en-US/images/icon.png", size: 512, cell: 40, background: STORE_BLUE, alpha: true },
 ];
 // The other launcher sizes: as large a cell as the shorter side holds.
 const BASE_LAUNCHER = "60x60";
@@ -94,20 +99,22 @@ function chunk(type, data) {
   return Buffer.concat([length, body, crc]);
 }
 
-function render({ size, height = size, cell, background }) {
+function render({ size, height = size, cell, background, alpha = false }) {
   const width = size;
   const left = Math.floor((width - 8 * cell) / 2);
   const top = Math.floor((height - 8 * cell) / 2);
   if (left < 0 || top < 0) fail(`a ${cell}-pixel cell does not fit ${width}x${height} pixels`);
   const rows = [];
   for (let y = 0; y < height; y++) {
-    const row = Buffer.alloc(1 + 3 * width); // filter byte 0, then RGB per pixel
+    const channels = alpha ? 4 : 3;
+    const row = Buffer.alloc(1 + channels * width, 255); // filter byte, then RGB(A) per pixel
+    row[0] = 0;
     for (let x = 0; x < width; x++) {
       const r = Math.floor((y - top) / cell);
       const c = Math.floor((x - left) / cell);
       const inside = y >= top && x >= left && r < 8 && c < 8;
       const color = inside ? (white(r, c) ? WHITE : BLACK) : background;
-      row.set(color, 1 + 3 * x);
+      row.set(color, 1 + channels * x);
     }
     rows.push(row);
   }
@@ -115,7 +122,7 @@ function render({ size, height = size, cell, background }) {
   header.writeUInt32BE(width, 0);
   header.writeUInt32BE(height, 4);
   header[8] = 8; // bit depth
-  header[9] = 2; // RGB
+  header[9] = alpha ? 6 : 2; // RGBA or RGB
   return Buffer.concat([
     Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
     chunk("IHDR", header),

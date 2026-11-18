@@ -18,5 +18,8 @@
 viewer/public/** !filter !diff !merge
 # And the Android project's: F-Droid's build servers clone without LFS (docs/dev/android.md#f-droid).
 app/android/** !filter !diff !merge
+# And the store listing's texts and images, which F-Droid reads from the same clone
+# (docs/dev/android.md#f-droid).
+fastlane/** !filter !diff !merge
 viewer/public/** !text -filter -merge -diff
 app/android/** !text -filter -merge -diff

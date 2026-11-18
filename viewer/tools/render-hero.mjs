@@ -1,8 +1,12 @@
-// Renders the store's hero image (docs/dev/publishing.md#images): docs/dev/store-assets/hero.png,
-// 1440 × 720 pixels. On the left the app's name, its line and what it does; on the right
-// a forearm wearing a round smartwatch (no particular one: no device's or maker's
-// branding) with a model standing on its display, framed as the camera sees it. The text
-// is English: the store wants an image per language where there's text.
+// Renders the Connect IQ Store's hero image (docs/dev/publishing.md#images),
+// docs/dev/store-assets/hero.png, 1440 × 720 pixels, and from it the Android app's feature
+// graphic for F-Droid and Google Play (docs/dev/google-play.md),
+// fastlane/metadata/android/en-US/images/featureGraphic.jpg (JPEG: Play takes no alpha),
+// 1024 × 500: scaled to 1024 × 512, 6 pixels cut off at the top and the bottom. On the left the app's name, its
+// line and what it does; on the right a forearm wearing a round smartwatch (no particular
+// one: no device's or maker's branding) with a model standing on its display, framed as the
+// camera sees it. The text is English: the stores want an image per language where there's
+// text.
 //
 //   docker run --rm --ipc=host -v "$PWD":/w -v <directory of the font>:/fonts:ro -w /w/viewer \
 //     mcr.microsoft.com/playwright:v1.64.1-noble node tools/render-hero.mjs /fonts/InterVariable.ttf
@@ -17,6 +21,7 @@ import { serve } from "../test/server.mjs";
 
 const ROOT = fileURLToPath(new URL("../..", import.meta.url));
 const OUT = `${ROOT}docs/dev/store-assets/hero.png`;
+const FEATURE = `${ROOT}fastlane/metadata/android/en-US/images/featureGraphic.jpg`;
 const WIDTH = 1440;
 const HEIGHT = 720;
 // The model on the watch, at a moment of its loop that shows it well, at night (its lights).
@@ -247,13 +252,21 @@ try {
         g.fillText(chip, x + 16, y - 1);
         x += w + 12;
       }
-      return out.toDataURL("image/png");
+      // Google Play's feature graphic: 1024 × 500, the hero scaled, its edges cut.
+      const feature = document.createElement("canvas");
+      feature.width = 1024;
+      feature.height = 500;
+      const scale = 1024 / width;
+      feature.getContext("2d").drawImage(out, 0, -(height * scale - 500) / 2, 1024, height * scale);
+      return [out.toDataURL("image/png"), feature.toDataURL("image/jpeg", 0.92)];
     },
     { model: MODEL, width: WIDTH, height: HEIGHT, text: TEXT, font },
   );
-  await mkdir(`${ROOT}docs/store-assets`, { recursive: true });
-  await writeFile(OUT, Buffer.from(data.split(",")[1], "base64"));
-  console.log("wrote docs/dev/store-assets/hero.png");
+  await mkdir(`${ROOT}docs/dev/store-assets`, { recursive: true });
+  await mkdir(`${ROOT}fastlane/metadata/android/en-US/images`, { recursive: true });
+  await writeFile(OUT, Buffer.from(data[0].split(",")[1], "base64"));
+  await writeFile(FEATURE, Buffer.from(data[1].split(",")[1], "base64"));
+  console.log("wrote docs/dev/store-assets/hero.png and the feature graphic");
 } finally {
   await browser.close();
   await server.close();

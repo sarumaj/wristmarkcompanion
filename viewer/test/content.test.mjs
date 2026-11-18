@@ -48,3 +48,17 @@ test("every mapped model has its picture, and the table in docs/user/models.md s
   const stale = [...pictures].filter((file) => !models.has(file.replace(/\.webp$/, "")));
   assert.deepEqual(stale, [], "pictures of models no longer mapped");
 });
+
+// The Android app's store listing (fastlane/, docs/dev/google-play.md), which F-Droid and
+// Google Play read: within both stores' limits, and one line per paragraph (the stores keep
+// line breaks as they are).
+test("the Android app's store texts fit the stores' limits", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const listing = new URL("../../fastlane/metadata/android/en-US/", import.meta.url);
+  const limits = { "title.txt": 30, "short_description.txt": 80, "full_description.txt": 4000 };
+  for (const [file, limit] of Object.entries(limits)) {
+    const text = (await readFile(new URL(file, listing), "utf8")).replace(/\n$/, "");
+    assert.ok(text.length > 0 && text.length <= limit, `${file}: ${text.length} characters, at most ${limit}`);
+    assert.doesNotMatch(text, /[^\n]\n[^\n]/, `${file}: a line break inside a paragraph`);
+  }
+});

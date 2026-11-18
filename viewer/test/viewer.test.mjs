@@ -383,6 +383,31 @@ test("hand tracking loads under the CSP, from the viewer's own origin, and looks
   });
 });
 
+// F-Droid's build leaves MediaPipe out and marks the page (tools/build-app-web.sh,
+// WRISTMARK_HANDS=off): no hand button, and ?hands and H load nothing.
+test("a build without hand tracking hides its button and loads nothing for it", async () => {
+  const withoutHands = async (page) => {
+    await page.route(/\/index\.html/, async (route) => {
+      const response = await route.fetch();
+      const body = (await response.text()).replace('<meta charset="utf-8">', '<meta charset="utf-8">\n  <meta name="wristmark-hands" content="off">');
+      await route.fulfill({ response, body });
+    });
+  };
+  await withCamera(
+    15,
+    "/index.html?autostart&hands",
+    async (page) => {
+      const requests = [];
+      page.on("request", (request) => requests.push(request.url()));
+      await page.keyboard.press("h");
+      assert.equal(await page.locator("#hands").isHidden(), true);
+      assert.notEqual(await page.locator("body").getAttribute("data-hands"), "on");
+      assert.deepEqual(requests.filter((url) => url.includes("mediapipe")), []);
+    },
+    withoutHands,
+  );
+});
+
 test("the size chosen is kept for the next visit, and forgotten when put back", async () => {
   const context = await browser.newContext();
   const { page, problems } = await open(context, "/index.html");
