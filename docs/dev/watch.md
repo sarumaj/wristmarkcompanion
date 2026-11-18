@@ -4,22 +4,16 @@ A Connect IQ **device app** (`type="watch-app"`, `watch/manifest.xml`) that show
 OpenCV's DICT_4X4_50 ([002](decisions/002-marker-dictionary.md)). First target: the D2 Mach 1
 (`d2mach1`).
 
-**Status:** compiled in CI for the D2 Mach 1 with the strict type check ([CI](ci.md),
-`tools/build-watch.sh`), and run in the simulator (below). Not yet run on a real watch.
-`viewer/test` tests what needs no SDK: the watch's table equals the detector's codes, and the
-layout below, drawn as `MarkerView` draws it, is detected for every ID.
+**Status:** runs on the D2 Mach 1; compiled in CI with the strict type check for every device
+of [the list](#devices) ([CI](ci.md), `tools/build-watch.sh`). `viewer/test` tests what needs no
+SDK: the watch's table equals the detector's codes, and the layout below, drawn as `MarkerView`
+draws it, is detected for every ID. The sources: `watch/source/`, one class or module a file,
+each described in its header; the generated ones say so and which tool writes them.
 
 ## In the simulator
 
-![Marker 0 on the D2 Mach 1 in the Connect IQ simulator](images/watch-d2mach1-simulator.png)
-
-The D2 Mach 1's display in the simulator (SDK 9.3.0), on 2026-11-15: marker 0 in its white quiet
-zone, whose corners the round display cuts off, and the ID below it. The app used 7.6 of 763.6 kB
-of memory. js-aruco2, set up as the viewer sets it up, detects ID 0 in this image, with a side of
-233 px (6 cells of 39 px). Everything outside the display is masked black: the simulator draws
-Garmin's picture of the watch around it, which is part of the SDK.
-
-To run it again (needs Docker, and the SDK, the device and its fonts from the SDK Manager):
+To see the app on a device without one (needs Docker, and the SDK, the device and its fonts
+from the SDK Manager; the store's screenshot, `store-assets/screenshot-d2mach1.png`, is one):
 
 ```sh
 tools/build-watch.sh 9.3.0

@@ -1,6 +1,6 @@
 // Playful models, from three.js's shapes: a robot mascot and a snow globe. Their
 // animations are loops of the time alone; reacting to the wrist's movements comes
-// with the interaction (docs/interaction.md).
+// with the interaction (docs/dev/interaction.md).
 import * as THREE from "../vendor/three/three.module.js";
 import { standing } from "./standing.js";
 import { dot } from "./dot.js";
@@ -274,7 +274,7 @@ const FACE_UP = { 1: [0, 0, 0], 6: [Math.PI, 0, 0], 3: [0, 0, Math.PI / 2], 4: [
 
 // Two dice thrown onto the watch every five seconds: they tumble in, bounce and settle
 // on a new roll, which stays a while. The rolls follow from the time, so they look
-// random but need no state (a flick of the wrist will throw them, docs/interaction.md).
+// random but need no state (a flick of the wrist will throw them, docs/dev/interaction.md).
 export function dice(size) {
   const side = size * 0.28;
   const faces = DIE_VALUES.map(dieFace);

@@ -54,7 +54,7 @@ class WristmarkApp extends Application.AppBase {
         buzz(80);
     }
 
-    //! A command from a paired viewer (docs/decisions/004-control-channel.md#messages).
+    //! A command from a paired viewer (docs/dev/decisions/004-control-channel.md#messages).
     function command(session as Dictionary, message as Dictionary) as Void {
         var op = message["op"] as Object?;
         if ("show".equals(op) && message["id"] instanceof Number) {

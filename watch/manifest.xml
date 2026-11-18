@@ -5,7 +5,7 @@
   launcherIcon: required by the compiler; marker 0, 60x60 for the D2 Mach 1 (tools/generate-icon.mjs).
   minApiLevel 3.3.0: Attention.backlight with BacklightOnTooLongException needs 3.2.1.
   Communications: the control channel to the paired viewers, through the phone
-  (docs/decisions/004-control-channel.md). Drawing, buttons, timers, storage and
+  (docs/dev/decisions/004-control-channel.md). Drawing, buttons, timers, storage and
   Attention need none.
   Languages: English and German, which decide the store's regions (manifest page,
   "Languages"); the one string, the app's name, needs no translation.

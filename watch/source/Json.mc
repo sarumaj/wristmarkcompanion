@@ -3,7 +3,7 @@ import Toybox.Lang;
 //! The control channel's messages as compact JSON, written and read here: they're
 //! encrypted, so makeWebRequest's own encoding can't do it. Flat objects only, whose
 //! values are strings, whole numbers and booleans, which is all the messages have
-//! (docs/decisions/004-control-channel.md#messages).
+//! (docs/dev/decisions/004-control-channel.md#messages).
 module Json {
     //! A flat object as compact JSON, its keys in the order given (`keys`), as the
     //! viewer's JSON.stringify writes them.

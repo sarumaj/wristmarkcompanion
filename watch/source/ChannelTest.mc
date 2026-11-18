@@ -5,7 +5,7 @@ import Toybox.Test;
 //! from protocol/channel-vectors.json's values): the same keys, the same envelopes byte for
 //! byte as Node's crypto and the viewer's WebCrypto, every bad one refused for its reason,
 //! and the same pairing frames. Run in the simulator: monkeyc --unit-test, then
-//! monkeydo <app>.prg d2mach1 /t (docs/watch.md).
+//! monkeydo <app>.prg d2mach1 /t (docs/dev/watch.md).
 (:test)
 module ChannelTest {
     function keysOf() as Dictionary {

@@ -6,15 +6,15 @@ app does the same way: the camera, the models, the hand tracking, pairing with t
 is no iOS app: iOS builds need macOS and an Apple developer account (decided 2026-11-17);
 iPhones use the viewer in Safari.
 
-| Part                        | Where                                                                |
-|-----------------------------|----------------------------------------------------------------------|
-| Capacitor's project         | `app/` (`capacitor.config.json`, `package.json`), `app/android/`     |
-| The viewer's files          | `app/www`, made by `tools/build-app-web.sh` (not in Git)             |
-| Launcher icons, splash      | From the viewer's icons by `tools/generate-app-icons.sh` (libvips)   |
-| The SDK                     | `tools/install-android-sdk.sh`: Google's tools, pinned and checked   |
-| The build                   | `tools/build-android.sh debug\|release`                              |
-| CI                          | The `android` job: the debug APK of every pull request, not kept     |
-| Release                     | `release.yml`: the signed APK on the release, `wristmark-vX.Y.Z.apk` |
+| Part                   | Where                                                                |
+|------------------------|----------------------------------------------------------------------|
+| Capacitor's project    | `app/` (`capacitor.config.json`, `package.json`), `app/android/`     |
+| The viewer's files     | `app/www`, made by `tools/build-app-web.sh` (not in Git)             |
+| Launcher icons, splash | From the viewer's icons by `tools/generate-app-icons.sh` (libvips)   |
+| The SDK                | `tools/install-android-sdk.sh`: Google's tools, pinned and checked   |
+| The build              | `tools/build-android.sh debug\|release`                              |
+| CI                     | The `android` job: the debug APK of every pull request, not kept     |
+| Release                | `release.yml`: the signed APK on the release, `wristmark-vX.Y.Z.apk` |
 
 ## How it differs from the web viewer
 
@@ -65,9 +65,8 @@ and its password are never in Git.
 
 ## Install
 
-From the release's assets, `wristmark-vX.Y.Z.apk`: open it on the phone and allow installing
-apps from that source when Android asks. Updates install over it, as long as they come from the
-same key (above).
+From a release's `wristmark-vX.Y.Z.apk` ([the user guide](../user/guide.md#what-you-need)).
+Updates install over it as long as they come from the same key (above).
 
 ## F-Droid {#f-droid}
 

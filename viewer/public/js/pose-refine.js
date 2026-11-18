@@ -1,7 +1,7 @@
 // A marker's pose made to fit its corners as closely as they allow. POSIT (js-aruco2's
 // posit1.js) gives the planar marker's two poses approximately; a few Gauss-Newton steps
 // then minimize the distance, in pixels, between the corners seen and those the pose
-// projects (docs/decisions/003-pose.md#stability). Plain arrays: rotation as 3×3 rows,
+// projects (docs/dev/decisions/003-pose.md#stability). Plain arrays: rotation as 3×3 rows,
 // translation [x, y, z], POSIT's frame (x right, y up, z away from the camera); image
 // points around the image's center, y up, as POSIT takes them.
 

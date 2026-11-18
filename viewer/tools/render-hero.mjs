@@ -1,4 +1,4 @@
-// Renders the store's hero image (docs/publishing.md#images): docs/store-assets/hero.png,
+// Renders the store's hero image (docs/dev/publishing.md#images): docs/dev/store-assets/hero.png,
 // 1440 × 720 pixels. On the left the app's name, its line and what it does; on the right
 // a forearm wearing a round smartwatch (no particular one: no device's or maker's
 // branding) with a model standing on its display, framed as the camera sees it. The text
@@ -16,7 +16,7 @@ import { chromium } from "playwright";
 import { serve } from "../test/server.mjs";
 
 const ROOT = fileURLToPath(new URL("../..", import.meta.url));
-const OUT = `${ROOT}docs/store-assets/hero.png`;
+const OUT = `${ROOT}docs/dev/store-assets/hero.png`;
 const WIDTH = 1440;
 const HEIGHT = 720;
 // The model on the watch, at a moment of its loop that shows it well, at night (its lights).
@@ -253,7 +253,7 @@ try {
   );
   await mkdir(`${ROOT}docs/store-assets`, { recursive: true });
   await writeFile(OUT, Buffer.from(data.split(",")[1], "base64"));
-  console.log("wrote docs/store-assets/hero.png");
+  console.log("wrote docs/dev/store-assets/hero.png");
 } finally {
   await browser.close();
   await server.close();

@@ -7,11 +7,14 @@ wrist. The viewer's **Help** button (or the `?` key) has the short version of th
 ## What you need
 
 - **The watch app**, WristMarkCompanion, on your watch. Testers install it by hand
-  ([device tests](device-tests.md#the-watch-app)) until it is in the store.
+  ([device tests](../dev/device-tests.md#the-watch-app)) until it is in the store.
 - **A phone or a laptop with a camera** and a current browser: Chrome, Safari, Firefox or Edge.
 - **The viewer's address,** <https://wristmark.apps.ciepiela.org>, and an internet connection to
   load it once. No account, nothing to install. The watch shows it as a QR code too: go past
   the last marker to the **Viewers** screen and point the phone's camera at it.
+- **Or, on Android, the app:** `wristmark-vX.Y.Z.apk` from a release's files. Open it on the
+  phone and allow installing apps from that source when Android asks; a newer one installs
+  over it. It is the viewer, without the browser.
 
 ## Step by step
 
@@ -102,7 +105,7 @@ snow globe, a campfire, an aquarium, a lighthouse, a volcano, an atom, DNA, a Ne
 metronome, a UFO, a toy train, a birthday cake, a jellyfish, butterflies, a carousel, a race track,
 a satellite, a sundial, a lava lamp, a castle, a house, a snowman, a puzzle cube, a black hole, a
 treasure chest, a rain cloud, a robot, a penguin, and four simple shapes. [The full
-list](content.md#the-models) says what each one does.
+list](models.md) says what each one does.
 
 ## When something doesn't work
 
@@ -142,7 +145,7 @@ laptop or a tablet and point the phone's camera at it.
 
 The camera's image is processed in your browser and never sent, saved or recorded. The viewer has no
 accounts, no cookies and no tracking; the watch app collects nothing, and connects only when you
-pair it with a viewer, end-to-end encrypted. The [privacy page](../viewer/public/privacy.html) has
+pair it with a viewer, end-to-end encrypted. The [privacy page](../../viewer/public/privacy.html) has
 the details.
 
 ## Questions

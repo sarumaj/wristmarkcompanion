@@ -1,4 +1,4 @@
-// The optical handshake (docs/decisions/004-control-channel.md#pairing-the-optical-handshake):
+// The optical handshake (docs/dev/decisions/004-control-channel.md#pairing-the-optical-handshake):
 // the watch's secret S in 13 frames of four markers, and the viewer's reading of them.
 //
 // A round is 156 bits, most significant first: the version (4 bits), S (128 bits), a

@@ -1,5 +1,5 @@
 // The marker dictionary of both sides: OpenCV's DICT_4X4_50, which is the first 50
-// codes of js-aruco2's ARUCO_4X4_1000 (docs/decisions/002-marker-dictionary.md).
+// codes of js-aruco2's ARUCO_4X4_1000 (docs/dev/decisions/002-marker-dictionary.md).
 // The watch's table (watch/source/MarkerDictionary.mc) is generated from the same
 // library file. Needs the classic scripts vendor/js-aruco2/cv.js, aruco.js and
 // dictionaries/aruco_4x4_1000.js loaded first (they define the global AR).

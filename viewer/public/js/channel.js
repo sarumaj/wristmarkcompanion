@@ -1,4 +1,4 @@
-// The control channel's cryptography in the viewer (docs/decisions/004-control-channel.md):
+// The control channel's cryptography in the viewer (docs/dev/decisions/004-control-channel.md):
 // the keys derived from the watch's secret S with HKDF-SHA256, and the envelopes,
 // AES-256-CBC then HMAC-SHA256 (encrypt-then-MAC), with WebCrypto. The watch does the
 // same with Toybox.Cryptography; protocol/channel-vectors.json holds outputs both must

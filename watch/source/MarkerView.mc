@@ -8,7 +8,7 @@ import Toybox.Timer;
 import Toybox.WatchUi;
 
 //! One marker of MarkerDictionary, as large as the display allows with the quiet zone
-//! the detector needs (docs/watch.md#devices), and its ID below it: on a round display
+//! the detector needs (docs/dev/watch.md#devices), and its ID below it: on a round display
 //! its corners a cell inside the circle; on a rectangular one the shorter side; where a
 //! small second display sits at the top (Instinct's subscreen), below it, the ID in it.
 //! Only the markers the viewer has a model for are shown (MarkerContent); after the
@@ -18,7 +18,7 @@ class MarkerView extends WatchUi.View {
     private const CYCLE_MS = 5000;
     //! How often the display is asked to stay on. Garmin turns it off after its own
     //! timeout unless an app asks again; on AMOLED (burn-in protection) it refuses
-    //! after about a minute held on (Attention.backlight, docs/watch.md).
+    //! after about a minute held on (Attention.backlight, docs/dev/watch.md).
     private const KEEP_ON_MS = 5000;
 
     //! Where in MarkerContent.IDS the shown marker is; its size (one past the last) is
@@ -32,7 +32,7 @@ class MarkerView extends WatchUi.View {
     private var _keepingOn as Boolean = true;
     //! Since when (seconds) the app has held the display in this session, and after how
     //! many seconds the system refused, shown below the ID until the next input
-    //! (docs/watch.md#keeping-the-display-on): what the device tests read off the watch.
+    //! (docs/dev/watch.md#keeping-the-display-on): what the device tests read off the watch.
     private var _heldSince as Number? = null;
     private var _refusedAfter as Number? = null;
     private var _cycleTimer as Timer.Timer;

@@ -1,4 +1,4 @@
-# The relay of the control channel (docs/decisions/004-control-channel.md): a static
+# The relay of the control channel (docs/dev/decisions/004-control-channel.md): a static
 # binary in an empty image, run as nobody.
 FROM docker.io/library/golang:1.27-alpine AS build
 WORKDIR /src

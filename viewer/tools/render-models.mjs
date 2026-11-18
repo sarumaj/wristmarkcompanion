@@ -1,5 +1,5 @@
 // Renders a picture of every model content.json maps, for the documentation:
-// docs/images/models/<model>.webp, 320 pixels square, each on a dark watch seen at an angle,
+// docs/user/images/models/<model>.webp, 320 pixels square, each on a dark watch seen at an angle,
 // at a fixed date and at a moment of its loop that shows what it does (MOMENTS). Run it in
 // Playwright's image, as the tests run, after adding or changing a model:
 //
@@ -14,7 +14,7 @@ import { chromium } from "playwright";
 import { serve } from "../test/server.mjs";
 
 const ROOT = fileURLToPath(new URL("../..", import.meta.url));
-const OUT = `${ROOT}docs/images/models`;
+const OUT = `${ROOT}docs/user/images/models`;
 const SIZE = 320;
 // The date every picture shows, so that the moon, the globes and the seasons don't change
 // from one run to the next: an afternoon in November (UTC).
@@ -107,7 +107,7 @@ try {
     );
     const file = `${OUT}/${model}.webp`;
     await writeFile(file, Buffer.from(data.split(",")[1], "base64"));
-    console.log(`wrote docs/images/models/${model}.webp`);
+    console.log(`wrote docs/user/images/models/${model}.webp`);
   }
 } finally {
   await browser.close();

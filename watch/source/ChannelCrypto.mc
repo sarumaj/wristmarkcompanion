@@ -1,7 +1,7 @@
 import Toybox.Cryptography;
 import Toybox.Lang;
 
-//! The control channel's cryptography on the watch (docs/decisions/004-control-channel.md):
+//! The control channel's cryptography on the watch (docs/dev/decisions/004-control-channel.md):
 //! the keys HKDF-SHA256 derives from the secret S, and the envelopes, AES-256-CBC then a
 //! 16-byte HMAC-SHA256 tag over the version, the direction, the run, the counter, the
 //! time, the IV and the ciphertext. protocol/channel-vectors.json holds what it must

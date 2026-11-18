@@ -18,7 +18,7 @@ jobs:
     container: docker.io/library/node:24-bookworm
     steps:
       # The image has no git-lfs, which the checkout needs for the icons the checks
-      # compare (docs/ci.md#binary-files).
+      # compare (docs/dev/ci.md#binary-files).
       - name: Install Git LFS
         run: apt-get update -qq && apt-get install -y -qq --no-install-recommends git-lfs > /dev/null
 
@@ -86,7 +86,7 @@ jobs:
       - name: Run the end-to-end tests
         run: npm test --prefix viewer
 
-  # The control channel's relay (relay/, docs/decisions/004-control-channel.md):
+  # The control channel's relay (relay/, docs/dev/decisions/004-control-channel.md):
   # formatted, vetted, and its tests under the race detector.
   relay:
     runs-on: docker
@@ -158,13 +158,13 @@ jobs:
           docker image rm -f "wristmark-viewer:ci-${GITHUB_RUN_ID}" "wristmark-relay:ci-${GITHUB_RUN_ID}" || true
 
   # The watch app compiled for every device in its manifest. The Connect IQ SDK
-  # can't be downloaded here (its license, docs/ci.md): it's installed by hand on
+  # can't be downloaded here (its license, docs/dev/ci.md): it's installed by hand on
   # the runner's host and mounted read-only at /opt/connectiq in the runner
   # container `ci`, whose host label is ubuntu-latest. CONNECTIQ_SDK must be a
   # version installed there (runbook connectiq-update); Renovate doesn't update it.
   watch:
     runs-on: ubuntu-latest
-    # Every device of the manifest compiles: a hundred or more (docs/watch.md#devices).
+    # Every device of the manifest compiles: a hundred or more (docs/dev/watch.md#devices).
     timeout-minutes: 30
     env:
       CONNECTIQ_SDK: 9.3.0
@@ -191,7 +191,7 @@ jobs:
       - name: Build the watch app
         run: tools/build-watch.sh "$CONNECTIQ_SDK" "$RUNNER_TEMP/watch"
 
-  # The Android app (app/, docs/android.md): its debug APK built from the viewer's files,
+  # The Android app (app/, docs/dev/android.md): its debug APK built from the viewer's files,
   # to see that it builds; nothing is kept. The SDK and Gradle's downloads are cached.
   android:
     runs-on: docker

@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# The Android app's APK (docs/android.md): the viewer's files into app/www, Capacitor's
+# The Android app's APK (docs/dev/android.md): the viewer's files into app/www, Capacitor's
 # sync into the Android project, and Gradle's build. Needs Java 21, ANDROID_HOME (the
 # SDK, tools/install-android-sdk.sh) and the viewer's node_modules (npm ci in viewer/).
 #
 #   tools/build-android.sh debug|release [output directory, default app/build]
 #
 # For release, APP_VERSION (X.Y.Z) sets the version, and ANDROID_KEYSTORE_FILE with
-# ANDROID_KEYSTORE_PASSWORD sign it (docs/android.md#signing); without them it's unsigned.
+# ANDROID_KEYSTORE_PASSWORD sign it (docs/dev/android.md#signing); without them it's unsigned.
 set -euo pipefail
 
 variant=${1:?debug or release}

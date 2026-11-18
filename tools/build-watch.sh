@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Compiles the watch app for every device in watch/manifest.xml, with the Connect IQ
-# SDK of the given version from the SDK manager's directory (docs/ci.md): a test
+# SDK of the given version from the SDK manager's directory (docs/dev/ci.md): a test
 # package of all of them (wristmark-test.iq, one compiler run), and a .prg to sideload
 # or simulate for the D2 Mach 1 or the devices WATCH_DEVICES names.
 #
@@ -28,7 +28,7 @@
 #   WRISTMARK_ORIGIN=https://wristmark.example.org tools/build-watch.sh 9.3.0
 #
 # The viewer's address the app is built for: its relay and the Viewers screen's QR code
-# (docs/watch.md#the-viewers-address). Unset or empty, the committed default; set, the
+# (docs/dev/watch.md#the-viewers-address). Unset or empty, the committed default; set, the
 # build writes watch/source/ViewerAddress.mc for it (tools/generate-viewer-address.mjs,
 # the viewer's node_modules needed) and puts the committed file back afterwards.
 set -euo pipefail

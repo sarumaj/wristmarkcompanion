@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// The devices the app is built for (docs/watch.md#devices): every one whose Connect IQ can
+// The devices the app is built for (docs/dev/watch.md#devices): every one whose Connect IQ can
 // run it, watches, bike computers and handhelds alike, from the SDK's device files, written down in watch/devices.json; and from
 // that list the manifest's <iq:products> and watch/devices.jungle, which gives each device
 // the launcher icon of its size (tools/generate-icon.mjs draws them).
@@ -9,7 +9,7 @@
 //   node tools/generate-devices.mjs --check [--sdk ...]   fail if one is stale
 //
 // The SDK's device files are only where the SDK is installed (CI's watch job, on anvil:
-// docs/ci.md); without --sdk the list is taken as committed.
+// docs/dev/ci.md); without --sdk the list is taken as committed.
 
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";

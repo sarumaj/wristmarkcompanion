@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
-// The version from APP_VERSION (X.Y.Z, the release tag without its v; docs/android.md),
+// The version from APP_VERSION (X.Y.Z, the release tag without its v; docs/dev/android.md),
 // its code X·10000 + Y·100 + Z; 0.0.1 for a build without one (the code must be above 0).
 def appVersion = System.getenv("APP_VERSION") ?: "0.0.1"
 def (major, minor, patch) = appVersion.tokenize(".").collect { it as int }
-// The release signing key (docs/android.md#signing): a PKCS12 keystore whose path and
+// The release signing key (docs/dev/android.md#signing): a PKCS12 keystore whose path and
 // password CI passes; without them the release build stays unsigned.
 def keystore = System.getenv("ANDROID_KEYSTORE_FILE")
 
@@ -36,7 +36,7 @@ android {
         }
     }
     // No dependency metadata in the APK's signing block: Google's encrypted blob, which
-    // F-Droid's scanner refuses (docs/android.md#f-droid).
+    // F-Droid's scanner refuses (docs/dev/android.md#f-droid).
     dependenciesInfo {
         includeInApk = false
         includeInBundle = false

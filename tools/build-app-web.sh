@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# The Android app's web files (app/www, docs/android.md): the viewer's public/ and its
+# The Android app's web files (app/www, docs/dev/android.md): the viewer's public/ and its
 # libraries, as the viewer's Dockerfile assembles them for nginx, from the viewer's
 # node_modules (npm ci in viewer/ first) and the hand model checked against
 # hand-model.txt. Kept in viewer/node_modules/.cache between runs.
 #
 # The app reaches the relay at the homelab's deployment, or at WRISTMARK_ORIGIN's where
 # that is set: the viewer's address the watch app is built for
-# (docs/watch.md#the-viewers-address).
+# (docs/dev/watch.md#the-viewers-address).
 set -euo pipefail
 
 root=$(cd "$(dirname "$0")/.." && pwd)

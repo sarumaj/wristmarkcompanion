@@ -1,4 +1,4 @@
-// The guided device test's report: docs/device-tests.md's tables, filled in from
+// The guided device test's report: docs/dev/device-tests.md's tables, filled in from
 // the results, as Markdown to paste into the document or a message.
 import { farthest } from "./guide-metrics.js";
 

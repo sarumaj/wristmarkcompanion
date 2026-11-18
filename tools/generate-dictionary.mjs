@@ -8,7 +8,7 @@
 //
 // The dictionary is OpenCV's DICT_4X4_50: the first 50 codes of DICT_4X4_1000
 // (OpenCV builds both from the same byte table), which js-aruco2 ships as
-// ARUCO_4X4_1000. See docs/decisions/002-marker-dictionary.md.
+// ARUCO_4X4_1000. See docs/dev/decisions/002-marker-dictionary.md.
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";

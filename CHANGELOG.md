@@ -13,9 +13,9 @@ All notable changes to this project are documented here. The format follows
 - `compose.yaml`: the viewer with the control channel's relay, its nginx passing `/relay/` to it
   unbuffered (`RELAY=on`); the plain image keeps saying the relay is off. CI starts both and
   asks the relay's health through the viewer. Switching the app over is a step in the panel
-  ([deployment](docs/deployment.md#with-the-relay)).
+  ([deployment](docs/dev/deployment.md#with-the-relay)).
 - Pairing with the watch and steering it, end-to-end encrypted
-  ([004](docs/decisions/004-control-channel.md)): the viewer reads the watch's pairing code (13
+  ([004](docs/dev/decisions/004-control-channel.md)): the viewer reads the watch's pairing code (13
   frames of four markers) through the camera, keeps the session in IndexedDB and sends the watch's
   commands (next, previous, cycle, buzz, disconnect); the watch app shows the code, keeps up to four
   viewers and polls the relay while open (written without the SDK, not compiled yet). Offered once
@@ -24,7 +24,7 @@ All notable changes to this project are documented here. The format follows
   watch's secret, AES-256-CBC with an HMAC-SHA256 tag, the replay and clock checks) and its test
   vectors (`protocol/channel-vectors.json`), made with Node's crypto, which the viewer matches
   byte for byte and the watch is to.
-- The control channel's relay (`relay/`, [004](docs/decisions/004-control-channel.md)): channels
+- The control channel's relay (`relay/`, [004](docs/dev/decisions/004-control-channel.md)): channels
   created by token hashes, a queue each way, the watch's long-poll over its channels, the viewer's
   event stream with resume, the limits, nothing logged; a 10 MB image that checks its own health.
   Not deployed yet.
@@ -36,7 +36,7 @@ All notable changes to this project are documented here. The format follows
 - The last seven models (markers 43 to 49): a castle with a drawbridge, a house lit after dark, a
   snowman, a puzzle cube that scrambles and solves itself, a black hole, a treasure chest and a
   rain cloud with a rainbow. Every marker now has a model, and the watch shows all 50.
-- A picture of every model in `docs/content.md`'s table, rendered from the models themselves at
+- A picture of every model in `docs/dev/content.md`'s table, rendered from the models themselves at
   a fixed date (`viewer/tools/render-models.mjs`); a test fails while a mapped model has none.
   They replace six strips that left out the placeholders, the lighthouse and the balloon.
   Snow and the fireworks' sparks are soft dots too.
@@ -60,7 +60,7 @@ All notable changes to this project are documented here. The format follows
   each tap.
 - The brand where customers meet it: the logo as the icon in the browser and on the home screen,
   a web app manifest, a description and a social card for shared links, a README that starts with
-  the product, a [user guide](docs/user-guide.md), and the store descriptions updated.
+  the product, a [user guide](docs/user/guide.md), and the store descriptions updated.
 - Gestures of the wrist (`js/gestures.js`): a flick, a twist, a shake and a hold, from the
   smoothed pose. The dice, the snow globe, the robot, the fireworks, the campfire and the
   orrery react to them; the debug overlay shows the last one.
@@ -71,7 +71,7 @@ All notable changes to this project are documented here. The format follows
   above the North Pole with eight cities' local times), an open watch movement whose hands
   show the time, an hourglass that runs out every minute, and a helicopter lifting off from a
   helipad on the watch.
-- The guided device test (`?test`): `docs/device-tests.md` step by step under the camera's
+- The guided device test (`?test`): `docs/dev/device-tests.md` step by step under the camera's
   image, spoken too, measuring detection, distance, tilt, jitter and flips, the display's
   dimming and switching off, and each model; red light (night mode) as a switch; a report
   in the protocol's tables.
@@ -85,11 +85,11 @@ All notable changes to this project are documented here. The format follows
 ### Changed
 
 - Elements marked hidden stay hidden where a style sets their display (the action bar did not).
-- After the first device test ([results](docs/device-tests/2026-11-17-laptop.md)): the viewer
+- After the first device test ([results](docs/dev/device-tests/2026-11-17-laptop.md)): the viewer
   detects once per camera frame, not at every display refresh (the FPS read 120 on a 30-frame
   camera); the detection's width grows toward the camera's own where it is fast, for range and
   for distances read true far away; a dimming noted before the marker was seen counts as 0 s.
-- From a customer's view ([review](docs/ux-review.md)): the status names the model and its
+- From a customer's view (a review, removed later): the status names the model and its
   hint and gives tips when the watch isn't found; errors say what to do; a Help dialog; buttons
   that do what the gestures do; keys; full screen; a camera switch; the marker page names the
   models; no accessibility violations left in axe's audit.
@@ -123,7 +123,7 @@ All notable changes to this project are documented here. The format follows
 - The viewer's content: `content.json` maps marker IDs to models, checked on load; four
   placeholder models generated in code; an ID without content shows the gizmo.
 - The viewer's debug overlay: ID, distance, FPS, detection rate and time, camera resolution.
-- The device test protocol (`docs/device-tests.md`): range, angle, session length, models.
+- The device test protocol (`docs/dev/device-tests.md`): range, angle, session length, models.
 - `tools/build-watch.sh` runs on macOS too, and builds the store package (`--package`).
 - The release workflow: on a version tag, the store package, the viewer's files and the notes
   from this changelog on a Forgejo release, and the viewer deployed to
@@ -132,7 +132,7 @@ All notable changes to this project are documented here. The format follows
 - The app's name is WristMarkCompanion ("WristMark" is taken by an iPhone app), the
   repository `wristmarkcompanion`; the viewer's address stays `wristmark.apps.ciepiela.org`.
 - The release bot's configuration (`.cz.toml`).
-- The store guide (`docs/publishing.md`) and the store icons; German declared in the manifest.
+- The store guide (`docs/dev/publishing.md`) and the store icons; German declared in the manifest.
 - Decisions: js-aruco2 for detection, OpenCV's DICT_4X4_50 as the marker dictionary.
 - The watch's marker table, generated from js-aruco2's dictionary data.
 - The viewer behind nginx, with a Content-Security-Policy that keeps every connection on its own
