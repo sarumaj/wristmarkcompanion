@@ -175,6 +175,42 @@ watch) can touch the model. It suits a held-still watch: a phone on a stand, a l
 - **Depth is a guess** from one camera, so the touch is on the image: where the finger covers
   the model. Reaching behind the model counts as touching it.
 
+## Built: the hand in front
+
+**Occlusion** (`js/occlusion.js`). The camera's image is flat, so a model is drawn over
+everything in it, a finger in front included. While hand tracking is on, each hand becomes a
+rough hand of spheres and tubes (8 mm fingers, 11 mm palm bones, the palm a fan of triangles),
+drawn first and into the depth buffer only: invisible, but the model's pixels behind it fail
+the depth test, and the real hand shows through.
+
+- **Where the hand is:** MediaPipe gives each hand's points in the image and in meters about
+  the hand's center (its world landmarks). The offset from the camera that projects the second
+  onto the first is a linear least squares fit (`placeHand`), so the hand's size and how it's
+  turned count, not a guessed palm length.
+- **A margin:** the hand is put 10 mm farther than measured. A hand guessed a little too near
+  would cut into a model it's only next to; a little too far only shows the model over the
+  fingertip touching it.
+- **Limits:** only the hands hide the model, nothing else in the picture; the shape is rough
+  (a few pixels off at the edges); it follows the hands 20 times a second, so a fast hand's
+  edge lags. The debug view draws it in color. `?occlusion=0` turns it off, to compare.
+
+Not chosen for now: WebXR's depth sensing. It is only in Chrome on ARCore phones with depth
+(not in the Android app's WebView, not on iPhones), its AR session takes the camera, so finding
+the marker would need Chrome's raw camera access as a second way of running, and ARCore's depth
+is tuned for half a meter and more, farther than the watch is held.
+
+**The model kept under a hand** (`js/smoothing.js`, `PoseSmoother.lost(now, holdMs)`). A hand
+reaching for the model usually covers the marker, and the model then went within 0.3 s.
+
+- **Under a hand:** while hand tracking sees a hand within half a marker's width of where the
+  marker was (`handOver`), the pose stays, up to 4 s (`HAND_HOLD_MS`).
+- **Otherwise** the model fades out over 1 s (`FADE_HOLD_MS`, the overlay's opacity) instead of
+  going at once.
+- **Found again** after more than the smoother's own 0.3 s, the pose glides there, 30 % of the
+  way each frame for 0.25 s, whatever the turn: the filter alone, after a long gap, jumps.
+- The phone's motion sensors could turn the held model with the phone, but hand tracking is
+  for a phone on a stand or a laptop, which don't turn: left out.
+
 The cost, as foreseen:
 
 | What        | Size or effect                                                                  |

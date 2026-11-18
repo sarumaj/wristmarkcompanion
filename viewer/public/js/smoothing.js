@@ -44,8 +44,13 @@ export class PoseSmoother {
     holdMs = 300,
     flipTolerance = 2,
     jumpDegrees = 45,
+    glideMs = 250,
+    glideShare = 0.3,
   } = {}) {
-    Object.assign(this, { minCutoff, turnBeta, moveBeta, speedCutoff, holdMs, flipTolerance, jumpDegrees });
+    Object.assign(this, { minCutoff, turnBeta, moveBeta, speedCutoff, holdMs, flipTolerance, jumpDegrees, glideMs, glideShare });
+    // Until when the pose glides to the marker found again after a longer hold (lost):
+    // this share of the way each frame, not the filter's, which a long gap makes a jump.
+    this.glideUntil = -Infinity;
     this.current = null;
     this.lastSeen = -Infinity;
     this.pending = null;
@@ -59,9 +64,12 @@ export class PoseSmoother {
     const candidates = [pose.best, pose.alternative]
       .filter((solution) => solution && solution.error <= this.flipTolerance * pose.best.error + 1)
       .map(toThree);
-    const fresh = !this.current || now - this.lastSeen > this.holdMs;
+    // A pose still held (lost with a longer hold) is glided from, not started afresh.
+    const fresh = !this.current;
+    const back = !fresh && now - this.lastSeen > this.holdMs;
     const dt = Math.max(1, now - this.lastSeen) / 1000;
     this.lastSeen = now;
+    if (back) this.glideUntil = now + this.glideMs;
     if (fresh) {
       this.current = candidates[0];
       this.pending = null;
@@ -73,6 +81,15 @@ export class PoseSmoother {
       this.current.quaternion.angleTo(a.quaternion) <= this.current.quaternion.angleTo(b.quaternion) ? a : b,
     );
     const turn = (this.current.quaternion.angleTo(closest.quaternion) * 180) / Math.PI;
+    if (now < this.glideUntil) {
+      // The watch moved while hidden: there, in a few frames, whatever the turn.
+      this.pending = null;
+      this.turnSpeed = 0;
+      this.moveSpeed = 0;
+      this.current.quaternion.slerp(closest.quaternion, this.glideShare);
+      this.current.position.lerp(closest.position, this.glideShare);
+      return this.current;
+    }
     if (turn > this.jumpDegrees) {
       // A jump: taken only when the next frame agrees with it, then without smoothing.
       const confirmed = this.pending && (this.pending.quaternion.angleTo(closest.quaternion) * 180) / Math.PI < this.jumpDegrees / 2;
@@ -91,9 +108,11 @@ export class PoseSmoother {
     return this.current;
   }
 
-  // A frame without the marker: the last pose while it is held, else null.
-  lost(now) {
-    if (this.current && now - this.lastSeen > this.holdMs) {
+  // A frame without the marker: the last pose while it is held, else null. `holdMs`, longer
+  // than the smoother's own, holds it while something explains the loss (a hand over the
+  // marker); found again, the pose then glides there.
+  lost(now, holdMs = this.holdMs) {
+    if (this.current && now - this.lastSeen > Math.max(holdMs, this.holdMs)) {
       this.current = null;
     }
     return this.current;

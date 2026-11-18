@@ -248,7 +248,8 @@ export class HandInteraction {
 }
 
 // MediaPipe's hand landmarker, loaded on first use: on the GPU where the browser lets it,
-// on the CPU otherwise. Resolves to {detect(video, t) → landmarks of each hand, close()}.
+// on the CPU otherwise. Resolves to {detect(video, t) → {image, world}, close()}: each hand's
+// points in the image (0 to 1) and in meters about the hand's center (js/occlusion.js).
 export async function loadHandTracker(base = "vendor/mediapipe") {
   const { FilesetResolver, HandLandmarker } = await import(`../${base}/vision_bundle.mjs`);
   const files = await FilesetResolver.forVisionTasks(new URL(`${base}/wasm`, document.baseURI).href);
@@ -260,7 +261,10 @@ export async function loadHandTracker(base = "vendor/mediapipe") {
     });
   const landmarker = await create("GPU").catch(() => create("CPU"));
   return {
-    detect: (video, t) => landmarker.detectForVideo(video, t).landmarks ?? [],
+    detect: (video, t) => {
+      const result = landmarker.detectForVideo(video, t);
+      return { image: result.landmarks ?? [], world: result.worldLandmarks ?? [] };
+    },
     close: () => landmarker.close(),
   };
 }
