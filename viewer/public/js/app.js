@@ -10,36 +10,42 @@ import { createModel, lights, MODEL_GUIDES, MODEL_NAMES } from "./models.js";
 import { DebugStats } from "./debug.js";
 import { zoomControl } from "./zoom.js";
 import { GestureRecognizer } from "./gestures.js";
-import { touchControl, Turntable } from "./touch.js";
+import { OWN, touchControl, Turntable } from "./touch.js";
 import { HandInteraction } from "./hands.js";
 import { drawMarks } from "./marks.js";
 import { sensing, startMotion } from "./seen.js";
 import { Remote } from "./remote.js";
-import { FRAMES } from "./pairing.js";
+import { FRAMES, readFrame } from "./pairing.js";
 import { Coach, moveIcon, movesOf } from "./coach.js";
 import { HandOccluder, handOver, placeHand } from "./occlusion.js";
 
 const params = new URLSearchParams(location.search);
+// A number from the URL within its range, else the default: ?size=Infinity or ?detect=abc
+// would make NaN of the frame's size and stop the loop.
+const parameter = (name, fallback, low, high) => {
+  const value = Number(params.get(name) ?? NaN);
+  return params.has(name) && Number.isFinite(value) && value >= low && value <= high ? value : fallback;
+};
 // The marker's black square, in millimeters: about the D2 Mach 1's (the watch's
 // layout fixes it exactly). The desktop marker page shows other sizes; give its
 // size as ?size=.
-const MARKER_SIZE = Number(params.get("size")) || 20;
+const MARKER_SIZE = parameter("size", 20, 1, 1000);
 // The models are built this many times the marker's size, so that they read well at
 // arm's length: the marker is under 2 cm. ?scale= sets it.
-const MODEL_SCALE = Number(params.get("scale")) || 2.5;
+const MODEL_SCALE = parameter("scale", 2.5, 0.1, 100);
 // The watch's round display, in marker sides: the D2 Mach 1's is 416 pixels across, its
 // marker 234 (docs/dev/watch.md). Where a model shows, the display is drawn black over the
 // camera's image, so the model stands on a dark watch face, not on the marker. ?screen=0
 // leaves the marker visible.
-const SCREEN_RATIO = params.has("screen") ? Number(params.get("screen")) : 416 / 234;
-// The camera's horizontal field of view, assumed (docs/dev/decisions/003-pose.md).
-const FOV_DEGREES = Number(params.get("fov")) || 65;
+const SCREEN_RATIO = parameter("screen", 416 / 234, 0, 10);
+// The camera's field of view across its longer side, assumed (docs/dev/decisions/003-pose.md).
+const FOV_DEGREES = parameter("fov", 65, 10, 170);
 // Frames are scaled to a width for detection: 640 pixels to start with, enough for the
 // marker's cells at arm's length and fast on a mid-range phone. Where detection is
 // quick, the width grows toward the camera's own, so that a far marker keeps enough
 // pixels (at 75 cm, 640 pixels leave it 13 wide: its distance read 16 % short in the
 // first device test); where it is slow, it shrinks back. ?detect= fixes the width.
-const DETECT_WIDTHS = params.has("detect") ? [Number(params.get("detect"))] : [640, 960, 1280, 1920];
+const DETECT_WIDTHS = params.has("detect") ? [Math.round(parameter("detect", 640, 64, 4096))] : [640, 960, 1280, 1920];
 // Faster than this on average (ms), the next width; slower than the second, the one before.
 const DETECT_FAST_MS = 6;
 const DETECT_SLOW_MS = 18;
@@ -57,6 +63,8 @@ const DATE_OFFSET = params.has("date") ? Date.parse(params.get("date")) - Date.n
 const now = () => new Date(Date.now() + DATE_OFFSET);
 
 const video = document.getElementById("camera");
+// In the Android app (app/, Capacitor's WebView), not a browser.
+const NATIVE = Boolean(globalThis.Capacitor?.isNativePlatform?.());
 const stage = document.querySelector(".stage");
 const overlay = document.getElementById("overlay");
 const status = document.getElementById("status");
@@ -93,6 +101,8 @@ debugToggle.addEventListener("click", () => showDebug(debugPanel.hidden));
 // The status line. It changes only when its text does: screen readers announce it
 // (role="status"), and a line rewritten every frame would be repeated endlessly.
 function report(text, state) {
+  // A failure stays until the page starts again: the loop's next line mustn't hide it.
+  if (document.body.dataset.state === "error" && state !== "error") return;
   if (status.textContent !== text) status.textContent = text;
   if (document.body.dataset.state !== state) document.body.dataset.state = state;
 }
@@ -100,9 +110,12 @@ function report(text, state) {
 // What went wrong, in words a person can act on; the browser's own message is kept
 // below it, small, for a support question.
 function explain(error) {
+  const declined = NATIVE
+    ? "Camera access was declined. Allow the camera for this app in Android's settings (Apps, its permissions), then try again."
+    : "Camera access was declined. Allow the camera for this site in your browser's settings, then try again.";
   const advice = {
-    NotAllowedError: "Camera access was declined. Allow the camera for this site in your browser's settings, then try again.",
-    SecurityError: "Camera access was declined. Allow the camera for this site in your browser's settings, then try again.",
+    NotAllowedError: declined,
+    SecurityError: declined,
     NotFoundError: "No camera was found. Connect one, or open this page on your phone.",
     OverconstrainedError: "No camera was found. Connect one, or open this page on your phone.",
     NotReadableError: "The camera is busy in another app. Close it there, then try again.",
@@ -125,6 +138,21 @@ document.getElementById("retry").addEventListener("click", () => location.reload
 let cameras = [];
 let cameraId = null;
 
+// The stage takes the camera's aspect, so that the overlay lies exactly on the image;
+// a phone turned around changes it.
+const fit = () => video.videoWidth && stage.style.setProperty("--aspect", String(video.videoWidth / video.videoHeight));
+video.addEventListener("resize", fit);
+
+// The camera's track ended (the permission taken back, another app took the camera):
+// said, with the way to start again, instead of a frozen image.
+function watchTrack(stream) {
+  for (const track of stream.getVideoTracks()) {
+    track.addEventListener("ended", () => {
+      if (video.srcObject === stream) fail(new Error("The camera stopped: another app may have taken it, or its permission was taken back. Start again to go on."));
+    });
+  }
+}
+
 async function openCamera(deviceId = null) {
   if (!window.isSecureContext) {
     throw new Error("The camera only works on a secure (https://) address. Open the viewer's https:// address instead.");
@@ -142,18 +170,42 @@ async function openCamera(deviceId = null) {
   });
   for (const track of video.srcObject?.getTracks() ?? []) track.stop();
   video.srcObject = stream;
+  watchTrack(stream);
   cameraId = stream.getVideoTracks()[0]?.getSettings().deviceId ?? deviceId;
   // Their labels and IDs are known once the permission is given; a second camera
   // brings the switch.
   cameras = (await navigator.mediaDevices.enumerateDevices()).filter((device) => device.kind === "videoinput");
   document.getElementById("switch-camera").hidden = cameras.length < 2;
   await video.play();
-  // The stage takes the camera's aspect, so that the overlay lies exactly on the image;
-  // a phone turned around changes it.
-  const fit = () => video.videoWidth && stage.style.setProperty("--aspect", String(video.videoWidth / video.videoHeight));
   fit();
-  video.addEventListener("resize", fit);
 }
+
+// Another camera: the open one stopped first, since many phones open one at a time; the
+// one before opened again if the new one won't. Said on the stage, not as a failure of the
+// viewer, and one switch at a time.
+let switching = false;
+async function switchCamera() {
+  if (switching || cameras.length < 2) return;
+  switching = true;
+  const before = cameraId;
+  const next = cameras[(cameras.findIndex((camera) => camera.deviceId === cameraId) + 1) % cameras.length];
+  try {
+    const old = video.srcObject;
+    video.srcObject = null;
+    for (const track of old?.getTracks() ?? []) track.stop();
+    await openCamera(next.deviceId);
+  } catch (error) {
+    acknowledge(explain(error), { tick: false });
+    await openCamera(before).catch(fail);
+  } finally {
+    switching = false;
+  }
+}
+
+// Back from the background (iOS pauses the video there): the camera's image goes on.
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && video.srcObject && video.paused) video.play().catch(() => {});
+});
 
 function scene() {
   const renderer = new THREE.WebGLRenderer({ canvas: overlay, alpha: true, antialias: true });
@@ -313,10 +365,27 @@ function describe(id, entry) {
   return hint ? `${entry.name} · ${hint}` : entry.name;
 }
 
+// A model's GPU memory freed: its geometries, materials and their textures. three.js keeps
+// them (and their vertex arrays) until disposed, so a model per marker change grew without
+// bound under the automatic cycle. Shared ones (a module's texture) are uploaded again when
+// next used.
+function dispose(object) {
+  object.traverse((node) => {
+    node.geometry?.dispose();
+    if (node.isInstancedMesh) node.dispose();
+    for (const material of [node.material].flat()) {
+      if (!material) continue;
+      for (const value of Object.values(material)) if (value?.isTexture) value.dispose();
+      material.dispose();
+    }
+  });
+}
+
 // What the anchor shows for marker `id`: its model, or the gizmo alone.
 function show(view, content, id) {
   if (view.model) {
     view.anchor.remove(view.model.object);
+    dispose(view.model.object);
     view.model = null;
   }
   const entry = content.get(id);
@@ -361,10 +430,7 @@ async function run() {
   let shownId = null;
   let entry = null;
   let lastSeen = performance.now();
-  document.getElementById("switch-camera").addEventListener("click", async () => {
-    const next = cameras[(cameras.findIndex((camera) => camera.deviceId === cameraId) + 1) % cameras.length];
-    await openCamera(next.deviceId).catch(fail);
-  });
+  document.getElementById("switch-camera").addEventListener("click", switchCamera);
   // One finger or the mouse: a tap on the model, a drag turning it about the watch.
   touchControl(stage, {
     tap: (x, y) => tapModel(view, entry, x, y, performance.now()),
@@ -462,22 +528,45 @@ async function run() {
     else if (average > DETECT_SLOW_MS && widthIndex > 0) widthIndex--;
   };
 
+  // When the camera last delivered a frame: none for this long, and what was found is no
+  // longer where the watch is (the camera stalled, or the page was in the background).
+  let freshAt = performance.now();
+  const STALL_MS = 1000;
   const loop = (now) => {
+    try {
+      frameOnce(now);
+    } catch (error) {
+      // One bad frame (a camera between sizes, a model's animate) doesn't stop the viewer.
+      console.error(error);
+    } finally {
+      previous = now;
+      requestAnimationFrame(loop);
+    }
+  };
+  const frameOnce = (now) => {
     adaptWidth(now);
     const width = Math.min(DETECT_WIDTHS[widthIndex], video.videoWidth || DETECT_WIDTHS[0]);
     const height = Math.round((width * video.videoHeight) / video.videoWidth);
     if (frame.width !== width || frame.height !== height) {
       frame.width = width;
       frame.height = height;
-      // The same field of view as the detection's focal length, vertically.
-      view.camera.fov = (2 * Math.atan(Math.tan((FOV_DEGREES * Math.PI) / 360) * (height / width)) * 180) / Math.PI;
+      // The same field of view as the detection's focal length (across the longer side),
+      // vertically.
+      view.camera.fov = (2 * Math.atan(Math.tan((FOV_DEGREES * Math.PI) / 360) * (height / Math.max(width, height))) * 180) / Math.PI;
     }
     const box = overlay.getBoundingClientRect();
     view.renderer.setSize(box.width, box.height, false);
     view.camera.aspect = width / height;
     view.camera.updateProjectionMatrix();
 
-    const fresh = freshFrame();
+    const fresh = freshFrame() && width > 0 && height > 0;
+    if (fresh) freshAt = now;
+    else if (now - freshAt > STALL_MS && (pose || smoothed)) {
+      marker = null;
+      pose = null;
+      lastCorners = null;
+      smoothed = smoother.lost(now, FADE_HOLD_MS);
+    }
     if (fresh) {
       const detectStart = performance.now();
       // Around where the marker was first; the whole frame where it isn't there, while
@@ -495,9 +584,11 @@ async function run() {
         const ms = performance.now() - searchStart;
         searchMs = searchMs ? 0.8 * searchMs + 0.2 * ms : ms;
       }
-      // While pairing, the markers are the watch's code, not models.
+      // While pairing, the markers are the watch's code, not models; also once this side has
+      // read it, while the watch still shows it until the relay's hello comes.
       if (remote.state === "pairing") remote.read(found);
-      marker = remote.state === "pairing" ? null : (found.find((m) => m.id === shownId) ?? found[0] ?? null);
+      const code = remote.state === "pairing" || readFrame(found) !== null;
+      marker = code ? null : (found.find((m) => m.id === shownId) ?? found[0] ?? null);
       pose = marker ? tracker.pose(marker, width, height) : null;
       lastCorners = pose ? marker.corners : null;
       if (pose) heldCorners = { corners: marker.corners, width, height };
@@ -542,7 +633,8 @@ async function run() {
       const hop = view.hop ? (now - view.hop) / 350 : 1;
       const bounce = hop < 1 ? 1 + 0.12 * Math.sin(hop * Math.PI) : 1;
       view.model?.object.scale.setScalar(zoom.value * bounce);
-      turntable.step(now - previous);
+      // At most a tenth of a second: after the page was hidden, a coasting turn would jump.
+      turntable.step(Math.min(now - previous, 100));
       if (view.model) view.model.object.rotation.z = turntable.angle;
       document.body.dataset.turn = String(Math.round((turntable.angle * 180) / Math.PI));
       view.gizmo.visible = !entry || !debugPanel.hidden;
@@ -599,11 +691,16 @@ async function run() {
     }
     if (handTracker && handsWanted && now - handsAt >= HAND_INTERVAL_MS) {
       handsAt = now;
-      followHands(view, entry, now, Boolean(smoothed));
+      try {
+        followHands(view, entry, now, Boolean(smoothed));
+      } catch (error) {
+        // MediaPipe failing (its GPU delegate, a frame between sizes): the hands off, the
+        // viewer on.
+        console.warn("Hand tracking stopped:", error);
+        setHands(false);
+      }
     }
     view.renderer.render(view.world, view.camera);
-    previous = now;
-    requestAnimationFrame(loop);
   };
   requestAnimationFrame(loop);
 }
@@ -681,6 +778,9 @@ handsButton.hidden = !handsAvailable;
 const handCursor = document.getElementById("hand-cursor");
 const handInteraction = new HandInteraction();
 let handTracker = null;
+// The tracker loading, kept: toggled off and on meanwhile, the same load is awaited, not a
+// second one (14 MB of WebAssembly and GPU memory).
+let handsLoading = null;
 let handsWanted = false;
 // For the debug view: the tracker's time per look (smoothed) and the hands it saw.
 let handsMs = 0;
@@ -702,9 +802,10 @@ async function setHands(on) {
     handsButton.setAttribute("aria-busy", "true");
     acknowledge("Loading hand tracking…", { tick: false });
     try {
-      const { loadHandTracker } = await import("./hands.js");
-      handTracker = await loadHandTracker();
+      handsLoading ??= import("./hands.js").then(({ loadHandTracker }) => loadHandTracker());
+      handTracker = await handsLoading;
     } catch (error) {
+      handsLoading = null;
       console.warn("Hand tracking couldn't start:", error);
       handsWanted = false;
       handsButton.setAttribute("aria-pressed", "false");
@@ -787,7 +888,9 @@ function followHands(view, entry, now, tracked) {
 // The model's turn by hand (a drag, or the arrow keys), about the watch's center; a
 // double tap or click puts it back, with the size.
 const turntable = new Turntable();
-stage.addEventListener("dblclick", () => turntable.reset());
+stage.addEventListener("dblclick", (event) => {
+  if (!event.target.closest(OWN)) turntable.reset();
+});
 
 // Full screen: the page's own (Android, desktops), or the stage filling the window
 // where a browser has none for pages (Safari on iPhone).
@@ -796,6 +899,9 @@ function immersive(on) {
   document.body.classList.toggle("immersive", on);
   expand.setAttribute("aria-pressed", String(on));
   expand.setAttribute("aria-label", on ? "Leave full screen" : "Full screen");
+  // The Android app's WebView leaves an element's full screen at once (Capacitor hides its
+  // custom view), which would undo this: there the stage fills the app's window alone.
+  if (NATIVE) return;
   if (on && document.fullscreenEnabled && !document.fullscreenElement) {
     document.documentElement.requestFullscreen().catch(() => {});
   } else if (!on && document.fullscreenElement) {
@@ -804,7 +910,7 @@ function immersive(on) {
 }
 expand.addEventListener("click", () => immersive(!document.body.classList.contains("immersive")));
 document.addEventListener("fullscreenchange", () => {
-  if (!document.fullscreenElement) immersive(false);
+  if (!document.fullscreenElement && !NATIVE) immersive(false);
 });
 
 for (const opener of document.querySelectorAll("[data-open-help]")) {

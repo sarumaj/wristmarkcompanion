@@ -99,6 +99,10 @@ export function startGuide({ root, content, markerSize, captureSeconds = 10, cou
   async function keepAwake() {
     try {
       wakeLock = (await navigator.wakeLock?.request("screen")) ?? null;
+      // Released by the browser when the page is hidden: taken again when it shows.
+      wakeLock?.addEventListener("release", () => {
+        wakeLock = null;
+      });
     } catch {
       wakeLock = null;
     }
@@ -532,7 +536,8 @@ export function startGuide({ root, content, markerSize, captureSeconds = 10, cou
         h("button", { type: "button", onclick: () => {
           const link = h("a", { href: URL.createObjectURL(new Blob([markdown], { type: "text/markdown" })), download: `device-test-${state.setup.date || "results"}.md` });
           link.click();
-          URL.revokeObjectURL(link.href);
+          // Not at once: Safari and Firefox may still be reading it.
+          setTimeout(() => URL.revokeObjectURL(link.href), 60000);
         } }, "Download"),
         navigator.share ? h("button", { type: "button", onclick: () => navigator.share({ title: "Device test results", text: markdown }).catch(() => {}) }, "Share") : null,
         back(), copied),
