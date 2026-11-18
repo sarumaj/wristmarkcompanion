@@ -135,15 +135,18 @@ list](models.md) says what each one does.
 
 ## Steer the watch from the viewer
 
-Where it's offered (the **Watch** button at the top), the viewer can control the watch: the
-next or previous marker, the automatic cycle, and a buzz to find it.
+Where it's offered (the **Watch** button at the top, a watch icon on a phone), the viewer can
+control the watch: the next or previous marker, the automatic cycle, and a buzz to find it.
 
 1. On the watch, go past the last marker (down button, or up from the first) to the **Viewers**
    screen (the QR code) and press start or tap it; or hold a finger on the display. Choose
    **Pair a viewer**. It shows a pairing code: four small markers that change three times a second.
 2. In the viewer, open **Watch**, tap **Pair with the watch**, and hold the watch 15 to 25 cm
    from the camera until the count reaches 13 of 13.
-3. The watch buzzes, shows its marker again, and the viewer says "Connected".
+3. The watch buzzes and shows its marker again. The card closes, and a row of buttons appears on
+   the camera image, under its own at the top right: previous and next marker, the automatic
+   cycle and a buzz to find the watch. It stays in full screen. The **Watch** button opens the
+   card again, with the watch's state and **Disconnect**.
 
 The pairing is kept on both sides: next time it connects by itself while the app is open. A
 watch keeps up to four viewers; forget one in its menu, or tap **Disconnect** in the viewer.

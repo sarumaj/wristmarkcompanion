@@ -82,6 +82,20 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       </div>
+      <div id="watch-bar" class="watch-bar" role="group" aria-label="The paired watch" hidden>
+        <button type="button" class="icon-button" data-op="previous" aria-label="Previous marker" title="Previous marker">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button type="button" class="icon-button" data-op="next" aria-label="Next marker" title="Next marker">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button type="button" class="icon-button" data-op="cycle" aria-label="Auto cycle" title="Auto cycle" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v4h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button type="button" class="icon-button" data-op="buzz" aria-label="Find the watch" title="Find the watch">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h6v12H9zM5 9v6M19 9v6M2 10.5v3M22 10.5v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
       <section class="intro" aria-labelledby="intro-title">
         <svg class="intro-art" viewBox="0 0 160 150" aria-hidden="true">
           <defs>
@@ -136,6 +150,9 @@
       <div class="remote-head">
         <h2 id="remote-title">Control the watch</h2>
         <span id="remote-badge" class="remote-badge" hidden>Connected</span>
+        <button id="remote-close" class="remote-close" type="button" aria-label="Close" title="Close">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
       </div>
       <p id="remote-text" aria-live="polite"></p>
       <progress id="remote-progress" max="13" value="0" hidden></progress>
@@ -217,10 +234,12 @@
     </dl>
 
     <h3>Steer the watch</h3>
-    <p>Where the <strong>Watch</strong> button shows: on the watch, open the menu and choose
-      <em>Pair a viewer</em>; here, tap <em>Pair with the watch</em> and hold the watch 15 to 25 cm
-      from the camera. Then the buttons step through its markers, start its cycle or make it buzz.
-      End-to-end encrypted.</p>
+    <p>Where the <strong>Watch</strong> button shows (the watch icon at the top): on the watch,
+      open the menu and choose <em>Pair a viewer</em>; here, tap <em>Pair with the watch</em> and
+      hold the watch 15 to 25 cm from the camera. Then a row of buttons on the camera image, under
+      its own, steps through its markers (‹ ›), starts its cycle (↻) or makes it buzz, in full
+      screen too; the <strong>Watch</strong> button opens the rest, such as Disconnect. End-to-end
+      encrypted.</p>
 
     <h3>No watch at hand?</h3>
     <p>Open the <a href="markers.html">markers</a> on another screen and point the camera at them.</p>

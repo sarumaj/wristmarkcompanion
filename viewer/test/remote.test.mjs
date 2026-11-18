@@ -122,18 +122,26 @@ test("pairing through the camera, then steering the watch, and connected again a
       const started = Date.now();
       const mark = (what) => console.log(`${what} after ${((Date.now() - started) / 1000).toFixed(1)} s`);
       await page.goto(`${server.url}/index.html`);
-      await page.getByRole("button", { name: "Watch" }).click();
+      await page.getByRole("button", { name: "Watch", exact: true }).click();
       await page.getByRole("button", { name: "Pair with the watch" }).click();
       // Read in a few rounds of 13 frames, then the relay's handshake and the state.
       await page.waitForFunction(() => document.body.dataset.remote === "connected", null, { timeout: 30000 });
       mark("paired");
       assert.deepEqual(sent[0], { op: "hello", name: viewerName(await page.evaluate(() => navigator.userAgent)) });
       assert.match(await page.locator("#remote-text").textContent(), /marker 15.*87 %/);
-      // The buttons send their commands.
-      await page.getByRole("button", { name: "Next" }).click();
-      await page.getByRole("button", { name: "Find the watch" }).click();
+      // Paired: the card makes way for the watch bar on the stage, whose buttons send their
+      // commands; the card, opened again, has the same and Disconnect.
+      assert.equal(await page.locator("#remote").isHidden(), true);
+      const bar = page.getByRole("group", { name: "The paired watch" });
+      await bar.getByRole("button", { name: "Next marker" }).click();
+      await bar.getByRole("button", { name: "Find the watch" }).click();
+      await page.getByRole("button", { name: "Watch", exact: true }).click();
+      await page.locator("#remote").getByRole("button", { name: "Previous" }).click();
+      assert.equal(await page.getByRole("button", { name: "Disconnect" }).isVisible(), true);
+      await page.keyboard.press("Escape");
+      assert.equal(await page.locator("#remote").isHidden(), true);
       await new Promise((resolve) => setTimeout(resolve, 300));
-      assert.deepEqual(sent.slice(1), [{ op: "step", delta: 1 }, { op: "buzz", ms: 300 }]);
+      assert.deepEqual(sent.slice(1), [{ op: "step", delta: 1 }, { op: "buzz", ms: 300 }, { op: "step", delta: -1 }]);
       // Kept in IndexedDB: after a reload it connects again, without pairing.
       await page.reload();
       await page.waitForFunction(() => document.body.dataset.remote === "connected", null, { timeout: 15000 });
