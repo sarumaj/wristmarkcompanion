@@ -190,8 +190,8 @@ season, a volcano, an atom, DNA, a Newton's cradle, a metronome, dice, a marble 
 fireworks, a tornado, a campfire, an aquarium, a lighthouse, a UFO, a toy train, a gumball machine,
 a carousel, a race track, a satellite, a sundial, a jellyfish, butterflies, a lava lamp, a castle, a
 house lit at night, a snowman, a puzzle cube that solves itself, a black hole, a treasure chest, a
-rain cloud with a rainbow, a robot, Tux the Linux penguin, a Tyrannosaurus rex and Glimmer, a
-little creature with a glowing crystal.
+rain cloud with a rainbow, a bee hive, a skate park, a robot, Tux the Linux penguin, a
+Tyrannosaurus rex and Glimmer, a little creature with a glowing crystal.
 
 Move your wrist and they react: flick it to roll the dice or launch a firework, shake it to whip
 up the tornado or stir the fire, twist it to move the planets a month. Pinch to resize; full
@@ -236,8 +236,8 @@ ein Lagerfeuer, ein Aquarium, ein Leuchtturm, ein UFO, eine Spielzeugeisenbahn, 
 Kaugummiautomat, ein Karussell, eine Rennstrecke, ein Satellit, eine Sonnenuhr, eine Qualle,
 Schmetterlinge, eine Lavalampe, eine Burg, ein Haus, das nachts leuchtet, ein Schneemann, ein
 Zauberwürfel, der sich selbst löst, ein Schwarzes Loch, eine Schatztruhe, eine Regenwolke mit
-Regenbogen, ein Roboter, Tux der Linux-Pinguin, ein Tyrannosaurus rex und Glimmer, ein kleines
-Wesen mit leuchtendem Kristall.
+Regenbogen, ein Bienenstock, ein Skatepark, ein Roboter, Tux der Linux-Pinguin, ein
+Tyrannosaurus rex und Glimmer, ein kleines Wesen mit leuchtendem Kristall.
 
 Beweg dein Handgelenk, und sie reagieren: Ein schneller Dreh würfelt oder schießt eine Rakete,
 Schütteln facht den Tornado oder das Feuer an, ein Drehen um die Uhr verschiebt die Planeten

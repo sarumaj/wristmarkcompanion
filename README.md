@@ -22,7 +22,8 @@ screen.
   hourglass, a sundial, a metronome), science (an atom, DNA, a Newton's cradle, a puzzle cube that
   solves itself), flight (an attitude indicator, a landing, a helicopter, a balloon, a rocket
   launch, a UFO), places (a windmill, a sailboat, a Ferris wheel, a carousel, a race track, a
-  castle, a house, a bonsai through the seasons, a volcano, a lighthouse, a rain cloud) and fun
+  castle, a house, a bonsai through the seasons, a volcano, a lighthouse, a rain cloud, a bee
+  hive, a skate park) and fun
   (dice, a marble maze, fireworks, a tornado, a snowman, a campfire, an aquarium, a jellyfish,
   butterflies, a lava lamp, a treasure chest, a robot, Tux the Linux penguin, a Tyrannosaurus rex,
   Glimmer the crystal-tailed creature, a toy train, a gumball machine).
