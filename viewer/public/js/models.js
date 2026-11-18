@@ -17,7 +17,10 @@ import { atom, dna, metronome, newtonsCradle } from "./science-models.js";
 import { cake, train, ufo, volcano } from "./play-models.js";
 import { butterflies, jellyfish } from "./life-models.js";
 import { carousel, lavaLamp, raceTrack } from "./fair-models.js";
-import { castle, house, raincloud, snowman, treasureChest } from "./home-models.js";
+import { castle, snowman } from "./home-models.js";
+import { house } from "./house-models.js";
+import { raincloud } from "./weather-models.js";
+import { treasureChest } from "./island-models.js";
 import { blackHole, puzzleCube } from "./wonder-models.js";
 
 const MODELS = {
@@ -190,8 +193,14 @@ export const MODEL_GUIDES = {
   snowman: { hint: "Tap it and it tips its hat", actions: [{ label: "Tip the hat", touch: true }] },
   puzzleCube: { hint: "It scrambles and solves itself; tap it to hurry", actions: [{ label: "Hurry", touch: true }] },
   blackHole: { hint: "Tap it to feed it a star", actions: [{ label: "Feed a star", touch: true }] },
-  treasureChest: { hint: "Tap it to open or close it", actions: [{ label: "Open or close", touch: true }] },
-  raincloud: { hint: "A rainbow after the rain; tap it for thunder", actions: [{ label: "Thunder", touch: true }] },
+  treasureChest: {
+    hint: "Tap it to open or close it; shake your wrist to rattle it",
+    actions: [{ label: "Open or close", touch: true }, { label: "Rattle", gesture: "shake" }],
+  },
+  raincloud: {
+    hint: "Rain, then sun and a rainbow; tap for lightning, shake your wrist for a downpour",
+    actions: [{ label: "Lightning", touch: true }, { label: "Downpour", gesture: "shake" }],
+  },
   orrery: {
     hint: "Tap a planet for its name; twist your wrist to move a month",
     actions: [

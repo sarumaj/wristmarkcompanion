@@ -188,7 +188,8 @@ test("the models that react to a tap take it, and the action buttons reach them"
     sundial: result.reacting.sundial,
     lavaLamp: "Ocean",
     castle: "Drawbridge up",
-    house: "Lights",
+    // Which way the lights go depends on the clock.
+    house: result.reacting.house,
     snowman: "Hello!",
     puzzleCube: "Hurry",
     blackHole: "Fed a star",
@@ -196,6 +197,7 @@ test("the models that react to a tap take it, and the action buttons reach them"
     raincloud: "Thunder",
   });
   assert.match(result.reacting.sundial, /^(The sundial reads \d\d:\d\d|Night: no shadow)$/);
+  assert.match(result.reacting.house, /^Lights (on|off)$/);
   assert.deepEqual(result.orphans, []);
   assert.match(result.mars, /^Mars, 1\.[3-7]\d au from the Sun$/);
   assert.deepEqual(problems, []);
@@ -562,6 +564,8 @@ test("the models that react to the wrist's gestures take them, and keep animatin
     fireworks: ["flick", "shake"],
     dice: ["flick", "shake"],
     campfire: ["shake"],
+    treasureChest: ["shake"],
+    raincloud: ["shake"],
   });
   assert.deepEqual(problems, []);
   await context.close();

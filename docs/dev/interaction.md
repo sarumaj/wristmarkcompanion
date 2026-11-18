@@ -31,14 +31,16 @@ overlay shows the last one; a chip on the stage confirms a gesture the model rea
 
 Which models react:
 
-| Model      | Gesture        | Reaction                                   |
-|------------|----------------|--------------------------------------------|
-| Dice       | flick or shake | Thrown at once                             |
-| Snow globe | shake or flick | The snow swirls up and settles again       |
-| Robot      | flick          | Waves                                      |
-| Fireworks  | flick or shake | The rocket waiting longest goes up at once |
-| Campfire   | shake          | Taller flames and a burst of embers        |
-| Orrery     | twist          | The date moves a month either way          |
+| Model          | Gesture        | Reaction                                             |
+|----------------|----------------|------------------------------------------------------|
+| Dice           | flick or shake | Thrown at once                                       |
+| Snow globe     | shake or flick | The snow swirls up and settles again                 |
+| Robot          | flick          | Waves                                                |
+| Fireworks      | flick or shake | The rocket waiting longest goes up at once           |
+| Campfire       | shake          | Taller flames and a burst of embers                  |
+| Treasure chest | shake          | It rattles: the coins jump, or the closed lid knocks |
+| Rain cloud     | shake          | A downpour at once, twice the rain                   |
+| Orrery         | twist          | The date moves a month either way                    |
 
 A model reacts through an optional `gesture(event)` that returns `true` when it took the gesture
 (`js/models.js`).
