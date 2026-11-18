@@ -51,6 +51,21 @@ flowchart TB
 - **The ID** is drawn below the quiet zone in `FONT_XTINY` (30 px on this device), outside the
   area the detector reads.
 
+### The Viewers screen
+
+After the last marker, the Viewers screen shows the QR code of the viewer's address, for a
+phone's camera, with "Start: pair" below it (and "Viewer" above it on a round display).
+
+- **The code:** `watch/source/ViewerQr.mc`, written by `tools/generate-viewer-qr.mjs` (the
+  `qrcode` package, a dev dependency of the viewer) from the origin of `Link.RELAY`, so the
+  address is in one place. It encodes `HTTPS://WRISTMARK.APPS.CIEPIELA.ORG/` in upper case:
+  QR's alphanumeric mode keeps it at version 2, 25 modules a side, level M (15% may be lost).
+  A URL's scheme and host are the same in either case. CI's `checks` job fails when the file
+  is stale.
+- **Size:** the layout of the marker (`MarkerView.layout`) with 25 cells and two modules of
+  white around them: the standard asks for four, phones read two, and the modules get bigger.
+  On 416 px, 10 px modules: 250 px of code. Drawn as one rectangle per run of dark modules.
+
 ### Physical size
 
 | Device    | Display       | Pixels    | Marker (6 cells) | Marker in mm  |

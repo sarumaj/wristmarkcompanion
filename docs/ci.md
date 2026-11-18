@@ -19,6 +19,7 @@ viewer/node_modules/.bin/markdownlint-cli2 "**/*.md" "#viewer/node_modules"
 node tools/align-tables.mjs docs/*.md   # aligns tables, which markdownlint only reports
 node tools/generate-dictionary.mjs --check
 node tools/generate-icon.mjs --check
+node tools/generate-viewer-qr.mjs --check
 docker build -t wristmark-viewer:test viewer && tools/smoke-test.sh wristmark-viewer:test
 # the end-to-end tests, in the image CI uses (its Playwright matches package-lock.json):
 docker run --rm --ipc=host -v "$PWD:/w" -w /w/viewer mcr.microsoft.com/playwright:v1.64.1-noble npm test

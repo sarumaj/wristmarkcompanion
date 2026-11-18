@@ -11,7 +11,8 @@ import Toybox.WatchUi;
 //! the detector needs (docs/watch.md#devices), and its ID below it: on a round display
 //! its corners a cell inside the circle; on a rectangular one the shorter side; where a
 //! small second display sits at the top (Instinct's subscreen), below it, the ID in it.
-//! Only the markers the viewer has a model for are shown (MarkerContent).
+//! Only the markers the viewer has a model for are shown (MarkerContent); after the
+//! last, the Viewers screen (drawViewers).
 class MarkerView extends WatchUi.View {
     //! How long each marker shows in the automatic cycle.
     private const CYCLE_MS = 5000;
@@ -20,10 +21,10 @@ class MarkerView extends WatchUi.View {
     //! after about a minute held on (Attention.backlight, docs/watch.md).
     private const KEEP_ON_MS = 5000;
 
-    //! Where in MarkerContent.IDS the shown marker is, and its ID.
     //! Where in MarkerContent.IDS the shown marker is; its size (one past the last) is
-    //! the Viewers screen, between the last marker and the first, from where start or a
-    //! tap opens the viewers' menu: a way to pairing no button setting of the watch takes.
+    //! the Viewers screen, between the last marker and the first: the QR code of the
+    //! viewer's address, and from there start or a tap opens the viewers' menu, a way to
+    //! pairing no button setting of the watch takes.
     private var _index as Number = 0;
     private var _id as Number = MarkerContent.IDS[0];
     private var _cycling as Boolean = false;
@@ -57,49 +58,18 @@ class MarkerView extends WatchUi.View {
     }
 
     function onUpdate(dc as Graphics.Dc) as Void {
-        var width = dc.getWidth();
-        var height = dc.getHeight();
         if (onViewers()) {
-            dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
-            dc.clear();
-            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(width / 2, height / 2 - dc.getFontHeight(Graphics.FONT_MEDIUM) / 2, Graphics.FONT_MEDIUM,
-                "Viewers", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-            dc.drawText(width / 2, height / 2 + dc.getFontHeight(Graphics.FONT_XTINY), Graphics.FONT_XTINY,
-                "Start or tap: pair", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+            drawViewers(dc);
             return;
         }
+        var width = dc.getWidth();
         var cells = MarkerDictionary.SIZE + 2;
         var font = Graphics.FONT_XTINY;
-        var line = dc.getFontHeight(font);
-        var centerY = height / 2;
-        var cell;
-        // Where the ID goes: x, y.
-        var labelY;
+        var box = layout(dc, cells, 1, dc.getFontHeight(font));
+        var cell = box[0];
+        var centerY = box[1];
+        var labelY = box[2];
         var subscreen = MarkerDraw.subscreen();
-        if (subscreen != null) {
-            // Below the subscreen, in the room left; the display's cut corners cost a
-            // little more than a round one's, hence the margin of two cells.
-            var room = height - (subscreen[1] + subscreen[3]);
-            var shorter = room < width ? room : width;
-            cell = shorter / (cells + 4);
-            centerY = height - room / 2;
-            labelY = subscreen[1] + subscreen[3] / 2;
-        } else if (System.getDeviceSettings().screenShape == System.SCREEN_SHAPE_RECTANGLE) {
-            // The marker and its quiet zone in the shorter side, a line for the ID below.
-            var room = height - line;
-            var shorter = room < width ? room : width;
-            cell = shorter / (cells + 2);
-            centerY = room / 2;
-            labelY = centerY + (cells / 2 + 1) * cell + line / 2;
-        } else {
-            // Round (and semi-round): the largest whole cell for which the marker's
-            // corners stay a cell inside the circle: side s = 6 cells, s / sqrt(2) +
-            // cell <= radius.
-            var radius = (width < height ? width : height) / 2;
-            cell = (radius / (cells / Math.sqrt(2) + 1.0)).toNumber();
-            labelY = (height / 2 + (cells / 2 + 1) * cell + height / 2 + radius) / 2;
-        }
         var side = cells * cell;
         var left = width / 2 - side / 2;
         var top = centerY - side / 2;
@@ -121,6 +91,84 @@ class MarkerView extends WatchUi.View {
         dc.drawText(labelX, labelY, font,
             (_cycling ? "auto " : "") + "ID " + _id + (_refusedAfter != null ? " - lit " + _refusedAfter + "s" : ""),
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+    }
+
+    //! Where a square code of `cells` cells a side goes, with `quiet` cells of white
+    //! around it, and a line of text `line` pixels high: [cell, center y, the text's y].
+    //! On a round display the largest whole cell for which the code's corners stay
+    //! `quiet` cells inside the circle (side s: s / sqrt(2) + quiet cells <= radius),
+    //! the white's own corners falling outside, the text in the room below; on a
+    //! rectangular one the shorter side, the text below; where a small second display
+    //! sits at the top (Instinct's subscreen), below it, the text in it.
+    private function layout(dc as Graphics.Dc, cells as Number, quiet as Number, line as Number) as Array<Number> {
+        var width = dc.getWidth();
+        var height = dc.getHeight();
+        var subscreen = MarkerDraw.subscreen();
+        if (subscreen != null) {
+            // The display's cut corners cost a little more than a round one's, hence
+            // the margin of a cell more on each side.
+            var room = height - (subscreen[1] + subscreen[3]);
+            var shorter = room < width ? room : width;
+            return [shorter / (cells + 2 * quiet + 2), height - room / 2, subscreen[1] + subscreen[3] / 2] as Array<Number>;
+        }
+        if (System.getDeviceSettings().screenShape == System.SCREEN_SHAPE_RECTANGLE) {
+            var room = height - line;
+            var shorter = room < width ? room : width;
+            var cell = shorter / (cells + 2 * quiet);
+            return [cell, room / 2, room / 2 + (cells * cell) / 2 + quiet * cell + line / 2] as Array<Number>;
+        }
+        var radius = (width < height ? width : height) / 2;
+        var cell = (radius / (cells / Math.sqrt(2) + quiet)).toNumber();
+        var below = height / 2 + (cells * cell) / 2 + quiet * cell;
+        return [cell, height / 2, (below + height / 2 + radius) / 2] as Array<Number>;
+    }
+
+    //! The Viewers screen: the QR code of the viewer's address (ViewerQr), for a phone's
+    //! camera, and how to pair (start or a tap: the viewers' menu).
+    private function drawViewers(dc as Graphics.Dc) as Void {
+        var width = dc.getWidth();
+        var height = dc.getHeight();
+        var font = Graphics.FONT_XTINY;
+        var size = ViewerQr.SIZE;
+        // Two modules of white around it: the readers' quiet zone, smaller than the
+        // standard's four, as phones read it (and more modules for the code).
+        var quiet = 2;
+        var box = layout(dc, size, quiet, dc.getFontHeight(font));
+        var cell = box[0];
+        var side = size * cell;
+        var left = width / 2 - side / 2;
+        var top = box[1] - side / 2;
+
+        dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
+        dc.clear();
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_WHITE);
+        dc.fillRectangle(left - quiet * cell, top - quiet * cell, side + 2 * quiet * cell, side + 2 * quiet * cell);
+        // The dark modules, a rectangle per run of them in a row.
+        dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_WHITE);
+        for (var row = 0; row < size; row++) {
+            var bits = ViewerQr.ROWS[row];
+            var col = 0;
+            while (col < size) {
+                if (((bits >> (size - 1 - col)) & 1) == 0) {
+                    col++;
+                    continue;
+                }
+                var start = col;
+                while (col < size && ((bits >> (size - 1 - col)) & 1) == 1) {
+                    col++;
+                }
+                dc.fillRectangle(left + start * cell, top + row * cell, (col - start) * cell, cell);
+            }
+        }
+
+        var subscreen = MarkerDraw.subscreen();
+        var labelX = subscreen != null ? subscreen[0] + subscreen[2] / 2 : width / 2;
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(labelX, box[2], font, "Start: pair", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        // On a round display the room above the code names it.
+        if (subscreen == null && System.getDeviceSettings().screenShape != System.SCREEN_SHAPE_RECTANGLE) {
+            dc.drawText(width / 2, height - box[2], font, "Viewer", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        }
     }
 
     //! The next (1) or previous (-1) marker, the Viewers screen between the last and the first.
