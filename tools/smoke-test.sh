@@ -54,7 +54,7 @@ docker exec "$name" wget -q -S -O /dev/null http://127.0.0.1:8080/vendor/mediapi
     | grep -q "Content-Type: application/wasm" || fail "the WebAssembly is not served as application/wasm"
 [ "$(fetch /vendor/mediapipe/hand_landmarker.task | wc -c)" -gt 7000000 ] || fail "the hand model is not served"
 fetch /icons/icon-192.png > /dev/null || fail "the icons are not served"
-fetch /social.png > /dev/null || fail "the social card is not served"
+fetch /social.jpg > /dev/null || fail "the social card is not served"
 
 headers=$(docker exec "$name" wget -q -S -O /dev/null http://127.0.0.1:8080/ 2>&1)
 echo "$headers" | grep -q "Content-Security-Policy: .*connect-src 'self'" \

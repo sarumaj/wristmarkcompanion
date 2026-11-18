@@ -117,7 +117,8 @@ Ferris wheel lit at night, a bonsai in today's season, dice, a marble maze you t
 tornado, a campfire, an aquarium, a lighthouse, a volcano, an atom, DNA, a Newton's cradle, a
 metronome, a UFO, a toy train, a gumball machine, a jellyfish, butterflies, a carousel, a race
 track, a satellite, a sundial, a lava lamp, a castle, a house, a snowman, a puzzle cube, a black
-hole, a treasure chest, a rain cloud, a robot, a penguin, and four simple shapes. [The full
+hole, a treasure chest, a rain cloud, a robot, Tux the Linux penguin, a
+Tyrannosaurus rex, Glimmer, and two simple shapes. [The full
 list](models.md) says what each one does.
 
 ## When something doesn't work

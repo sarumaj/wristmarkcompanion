@@ -90,7 +90,7 @@ The models with a tap of their own:
 | Balloon         | The burner fires, between burns                                    |
 | Rocket          | The countdown starts at T-3, while the pad waits                   |
 | Maze            | The ball goes back to the start                                    |
-| Penguin         | It hops, flapping                                                  |
+| Tux             | He hops, flapping                                                  |
 | Windmill        | A gust: the sails speed up for three seconds                       |
 | Sailboat        | It comes about and sails the other way round                       |
 | Ferris wheel    | The rim's lights chase for six seconds, by day too                 |
@@ -115,6 +115,8 @@ The models with a tap of their own:
 | Snowman         | It tips its hat                                                    |
 | Puzzle cube     | It hurries: three times as fast until it is solved                 |
 | Black hole      | It gets a star, pulled into a stream as it spirals in, and flares  |
+| T. rex          | It rears its head and roars, jaws wide, its tiny arms waving       |
+| Glimmer         | It hops and spins, its crystal flaring and throwing sparkles       |
 | Treasure chest  | It closes, or opens                                                |
 | Rain cloud      | Lightning, twice                                                   |
 

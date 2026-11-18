@@ -190,11 +190,12 @@ season, a volcano, an atom, DNA, a Newton's cradle, a metronome, dice, a marble 
 fireworks, a tornado, a campfire, an aquarium, a lighthouse, a UFO, a toy train, a gumball machine,
 a carousel, a race track, a satellite, a sundial, a jellyfish, butterflies, a lava lamp, a castle, a
 house lit at night, a snowman, a puzzle cube that solves itself, a black hole, a treasure chest, a
-rain cloud with a rainbow, a robot and a penguin.
+rain cloud with a rainbow, a robot, Tux the Linux penguin, a Tyrannosaurus rex and Glimmer, a
+little creature with a glowing crystal.
 
-Move your wrist and they react: flick it to roll the dice or launch a firework, shake it to stir
-the snow or the fire, twist it to move the planets a month. Pinch to resize; full screen on a
-phone.
+Move your wrist and they react: flick it to roll the dice or launch a firework, shake it to whip
+up the tornado or stir the fire, twist it to move the planets a month. Pinch to resize; full
+screen on a phone.
 
 On the watch, the up and down buttons switch the model; a tap or the start button cycles
 through them. The display stays on while the marker is shown, as long as the watch allows; a
@@ -230,15 +231,16 @@ sie gerade sind, die Planeten, wie sie heute stehen, eine Weltzeituhr, ein Uhrwe
 zeigt, eine Sanduhr, ein künstlicher Horizont, der deinem Handgelenk folgt, eine Landung, ein
 Hubschrauber, ein Heißluftballon, ein Raketenstart, eine Windmühle, ein Segelboot, ein Riesenrad,
 das nachts leuchtet, ein Bonsai in der Jahreszeit von heute, Würfel, ein Kugellabyrinth zum Kippen,
-ein Vulkan, ein Atom, eine DNA, ein Kugelstoßpendel, ein Metronom, ein Feuerwerk, eine Schneekugel,
-ein Lagerfeuer, ein Aquarium, ein Leuchtturm, ein UFO, eine Spielzeugeisenbahn, eine
-Geburtstagstorte, ein Karussell, eine Rennstrecke, ein Satellit, eine Sonnenuhr, eine Qualle,
+ein Vulkan, ein Atom, eine DNA, ein Kugelstoßpendel, ein Metronom, ein Feuerwerk, ein Tornado,
+ein Lagerfeuer, ein Aquarium, ein Leuchtturm, ein UFO, eine Spielzeugeisenbahn, ein
+Kaugummiautomat, ein Karussell, eine Rennstrecke, ein Satellit, eine Sonnenuhr, eine Qualle,
 Schmetterlinge, eine Lavalampe, eine Burg, ein Haus, das nachts leuchtet, ein Schneemann, ein
 Zauberwürfel, der sich selbst löst, ein Schwarzes Loch, eine Schatztruhe, eine Regenwolke mit
-Regenbogen, ein Roboter und ein Pinguin.
+Regenbogen, ein Roboter, Tux der Linux-Pinguin, ein Tyrannosaurus rex und Glimmer, ein kleines
+Wesen mit leuchtendem Kristall.
 
 Beweg dein Handgelenk, und sie reagieren: Ein schneller Dreh würfelt oder schießt eine Rakete,
-Schütteln wirbelt den Schnee oder das Feuer auf, ein Drehen um die Uhr verschiebt die Planeten
+Schütteln facht den Tornado oder das Feuer an, ein Drehen um die Uhr verschiebt die Planeten
 um einen Monat. Mit zwei Fingern änderst du die Größe; auf dem Handy auch im Vollbild.
 
 Auf der Uhr wechseln die Tasten oben und unten das Modell; Tippen oder die Start-Taste zeigt sie

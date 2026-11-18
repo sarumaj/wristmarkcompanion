@@ -20,6 +20,7 @@ import { carousel, lavaLamp, raceTrack } from "./fair-models.js";
 import { castle, snowman } from "./home-models.js";
 import { house } from "./house-models.js";
 import { raincloud, tornado } from "./weather-models.js";
+import { critter, tRex } from "./creature-models.js";
 import { treasureChest } from "./island-models.js";
 import { blackHole, puzzleCube } from "./wonder-models.js";
 
@@ -70,35 +71,8 @@ const MODELS = {
   blackHole,
   treasureChest,
   raincloud,
-
-  // A cube with a color per face, on the marker, turning slowly.
-  cube(size) {
-    const colors = [0xe4572e, 0x29335c, 0xf3a712, 0x669bbc, 0xa8c686, 0xdb2b39].map(
-      (color) => new THREE.MeshStandardMaterial({ color, roughness: 0.6 }),
-    );
-    const side = size * 0.8;
-    const cube = new THREE.Mesh(new THREE.BoxGeometry(side, side, side), colors);
-    cube.position.y = side / 2;
-    const { root } = standing(cube);
-    return { object: root, animate: (t) => (cube.rotation.y = t * 0.6) };
-  },
-
-  // A torus knot above the marker, turning.
-  knot(size) {
-    const knot = new THREE.Mesh(
-      new THREE.TorusKnotGeometry(size * 0.35, size * 0.11, 128, 16),
-      new THREE.MeshStandardMaterial({ color: 0x8e44ad, metalness: 0.3, roughness: 0.35 }),
-    );
-    knot.position.y = size * 0.9;
-    const { root } = standing(knot);
-    return {
-      object: root,
-      animate: (t) => {
-        knot.rotation.y = t * 0.8;
-        knot.rotation.x = Math.sin(t * 0.5) * 0.4;
-      },
-    };
-  },
+  tRex,
+  critter,
 
   // A planet with a ring and a moon around it.
   planet(size) {
@@ -168,7 +142,7 @@ export const MODEL_GUIDES = {
   rocket: { hint: "Tap it to count down the next launch", actions: [{ label: "Count down", touch: true }] },
   attitude: { tilt: true, hint: "Turn your wrist to bank, tilt the watch to pitch", actions: [{ label: "Use the phone's tilt", sensor: true }] },
   maze: { tilt: true, hint: "Tilt the watch to roll the ball to the middle", actions: [{ label: "Ball back", touch: true }, { label: "Use the phone's tilt", sensor: true }] },
-  penguin: { tilt: true, hint: "Turn your wrist and it keeps its balance; tap it to hop", actions: [{ label: "Hop", touch: true }, { label: "Use the phone's tilt", sensor: true }] },
+  penguin: { tilt: true, hint: "Turn your wrist and Tux keeps his balance; tap him to hop", actions: [{ label: "Hop", touch: true }, { label: "Use the phone's tilt", sensor: true }] },
   windmill: { hint: "Tap it for a gust of wind", actions: [{ label: "Gust", touch: true }] },
   sailboat: { hint: "Tap it to come about", actions: [{ label: "Come about", touch: true }] },
   ferrisWheel: { hint: "Lit after dark; tap it for the lights", actions: [{ label: "Lights", touch: true }] },
@@ -193,6 +167,8 @@ export const MODEL_GUIDES = {
   snowman: { hint: "Tap it and it tips its hat", actions: [{ label: "Tip the hat", touch: true }] },
   puzzleCube: { hint: "It scrambles and solves itself; tap it to hurry", actions: [{ label: "Hurry", touch: true }] },
   blackHole: { hint: "Tap it to feed it a star", actions: [{ label: "Feed a star", touch: true }] },
+  tRex: { hint: "Tap it and it roars", actions: [{ label: "Roar", touch: true }] },
+  critter: { hint: "Tap Glimmer to make it sparkle", actions: [{ label: "Sparkle", touch: true }] },
   treasureChest: {
     hint: "Tap it to open or close it; shake your wrist to rattle it",
     actions: [{ label: "Open or close", touch: true }, { label: "Rattle", gesture: "shake" }],

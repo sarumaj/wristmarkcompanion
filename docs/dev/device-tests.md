@@ -158,8 +158,8 @@ where it's day now?
 | 1   | Earth, day and night |                    |         |       |
 | 2   | Robot                |                    |         |       |
 | 3   | Tornado              |                    |         |       |
-| 4   | Cube                 |                    |         |       |
-| 5   | Torus knot           |                    |         |       |
+| 4   | Tyrannosaurus rex    |                    |         |       |
+| 5   | Glimmer              |                    |         |       |
 | 6   | Planet               |                    |         |       |
 | 7   | Crystal              |                    |         |       |
 | 8   | The planets today    |                    |         |       |
@@ -177,7 +177,7 @@ where it's day now?
 | 20  | Rocket launch        |                    |         |       |
 | 21  | Attitude indicator   |                    |         |       |
 | 22  | Marble maze          |                    |         |       |
-| 23  | Penguin              |                    |         |       |
+| 23  | Tux                  |                    |         |       |
 | 24  | Windmill             |                    |         |       |
 | 25  | Sailboat             |                    |         |       |
 | 26  | Ferris wheel         |                    |         |       |

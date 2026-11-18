@@ -4,7 +4,7 @@
 alive on your wrist: tonight's moon, the planets as they stand today, a campfire, dice you roll
 with a flick of the wrist.
 
-![WristMarkCompanion: a phone showing two dice standing on a watch](viewer/public/social.png)
+![WristMarkCompanion: your watch, in 3D. A Ferris wheel standing on a watch on a wrist](viewer/public/social.jpg)
 
 ## Use it
 
@@ -24,7 +24,8 @@ screen.
   launch, a UFO), places (a windmill, a sailboat, a Ferris wheel, a carousel, a race track, a
   castle, a house, a bonsai through the seasons, a volcano, a lighthouse, a rain cloud) and fun
   (dice, a marble maze, fireworks, a tornado, a snowman, a campfire, an aquarium, a jellyfish,
-  butterflies, a lava lamp, a treasure chest, a robot, a penguin, a toy train, a gumball machine).
+  butterflies, a lava lamp, a treasure chest, a robot, Tux the Linux penguin, a Tyrannosaurus rex,
+  Glimmer the crystal-tailed creature, a toy train, a gumball machine).
   [The full list](docs/user/models.md).
 - **Move your wrist:** flick, shake or twist it, and the model reacts. Buttons do the same.
 - **Any size:** pinch, scroll or `+` and `−`; full screen with `F`.
