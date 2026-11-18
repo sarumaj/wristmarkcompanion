@@ -52,7 +52,8 @@ the axis gizmo for any other ID. It works the same on a phone (rear camera) and 
 All of them are generated in code with three.js (`js/models.js`, `js/sky-models.js`,
 `js/fun-models.js`, `js/aviation-models.js`, `js/clock-models.js`, `js/nature-models.js`,
 `js/pose-models.js`, `js/scene-models.js`, `js/science-models.js`, `js/play-models.js`,
-`js/life-models.js`, `js/fair-models.js`, `js/home-models.js`, `js/wonder-models.js`), so there are
+`js/life-models.js`, `js/fair-models.js`, `js/home-models.js`, `js/house-models.js`,
+`js/island-models.js`, `js/weather-models.js`, `js/wonder-models.js`), so there are
 no asset files and nothing to license apart from this project's own code (GPL-3.0) and Natural
 Earth's land, which is in the public domain. Each stands on the marker's face, sized from the
 marker's side, and moves a little so that it reads as 3D. The pictures are rendered from the models

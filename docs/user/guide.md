@@ -35,11 +35,11 @@ On a phone, **full screen** (the corner button) gives the model the whole displa
 
 Some models react when you move the watch:
 
-| Move                                           | What happens                                                        |
-|------------------------------------------------|---------------------------------------------------------------------|
-| **Flick:** a quick turn of the wrist           | The dice roll, a firework goes up, the robot waves, the snow swirls |
-| **Shake:** a quick back and forth              | The dice roll, the snow globe swirls, the campfire flares up        |
-| **Twist:** turn the watch about its own center | The planets move a month, forward or back                           |
+| Move                                           | What happens                                                                                                   |
+|------------------------------------------------|----------------------------------------------------------------------------------------------------------------|
+| **Flick:** a quick turn of the wrist           | The dice roll, a firework goes up, the robot waves, the snow swirls                                            |
+| **Shake:** a quick back and forth              | The dice roll, the snow globe swirls, the campfire flares up, the treasure chest rattles, the rain cloud pours |
+| **Twist:** turn the watch about its own center | The planets move a month, forward or back                                                                      |
 
 The line at the bottom says what the model shown does, and a tag at the top confirms a move it
 took. **The buttons under the model do the same**, for when your hands are busy.
