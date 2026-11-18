@@ -1,7 +1,7 @@
 // A rain cloud over a meadow: twelve seconds of rain, drops splashing and a puddle
 // growing, flowers closed; then the cloud drifts aside, the sun comes out, the flowers
 // open and a rainbow draws itself across the sky, for eight. A loop of the time alone; a tap
-// brings lightning, a shake of the wrist a downpour.
+// brings lightning, a shake of the wrist a downpour. And a tornado over a dusty plain.
 import * as THREE from "../vendor/three/three.module.js";
 import { standing } from "./standing.js";
 import { dot } from "./dot.js";
@@ -302,6 +302,115 @@ export function raincloud(size) {
       // White in the sun, lit from inside by the lightning.
       top.emissiveIntensity = lit ? 0.5 : 0.3 * clear;
       belly.emissiveIntensity = lit ? 0.5 : 0.15 * clear;
+    },
+  };
+}
+
+// A tornado over a dusty plain: a funnel of dust spinning down from a dark cloud, swaying,
+// planks and leaves whirled up round it, a skirt of dust where it touches the ground. Its
+// dust is a function of the time; a shake or a flick of the wrist whips it up, faster and
+// wider, for a few seconds.
+export function tornado(size) {
+  const height = size * 1.05;
+  const plain = at(new THREE.Mesh(new THREE.CylinderGeometry(size * 0.55, size * 0.58, size * 0.03, 48), material(0xb59a6a, { flatShading: true })), 0, size * 0.015, 0);
+  const ground = size * 0.03;
+  // Tufts of dry grass on the plain.
+  const grass = material(0x8a8a3c, { flatShading: true });
+  const tufts = Array.from({ length: 14 }, (_, i) => {
+    const angle = i * 2.399963;
+    const r = size * (0.3 + 0.2 * random(i));
+    return at(new THREE.Mesh(new THREE.ConeGeometry(size * 0.02, size * 0.05, 5), grass), Math.cos(angle) * r, ground + size * 0.025, Math.sin(angle) * r);
+  });
+  // The cloud it hangs from: flattened puffs in a ring, turning slowly.
+  const cloud = at(new THREE.Group(), 0, height, 0);
+  const grey = material(0x4a4f57, { flatShading: true });
+  for (let i = 0; i < 9; i++) {
+    const angle = (i / 9) * Math.PI * 2;
+    const r = size * (0.16 + 0.08 * random(i + 40));
+    const puff = at(new THREE.Mesh(new THREE.IcosahedronGeometry(size * (0.1 + 0.04 * random(i + 50)), 1), grey), Math.cos(angle) * r, size * 0.02 * random(i + 60), Math.sin(angle) * r);
+    puff.scale.y = 0.55;
+    cloud.add(puff);
+  }
+  cloud.add(at(new THREE.Mesh(new THREE.IcosahedronGeometry(size * 0.14, 1), grey), 0, size * 0.03, 0));
+
+  // The funnel's dust: each grain has a height (0 at the ground, 1 at the cloud), a start
+  // angle and a speed; it circles the funnel's axis, faster low down, and climbs.
+  const count = 900;
+  const grains = Array.from({ length: count }, (_, i) => ({
+    height: random(i + 100),
+    angle: random(i + 200) * Math.PI * 2,
+    spin: 3 + 3 * random(i + 300),
+    climb: 0.05 + 0.08 * random(i + 400),
+    spread: 0.75 + 0.5 * random(i + 500),
+  }));
+  const positions = new Float32Array(count * 3);
+  const colors = new Float32Array(count * 3);
+  const dust = new THREE.Color(0x9c8b72);
+  const dark = new THREE.Color(0x5d5850);
+  const shade = new THREE.Color();
+  grains.forEach((grain, i) => {
+    shade.copy(dust).lerp(dark, grain.height * 0.8 + 0.2 * random(i + 600));
+    colors.set([shade.r, shade.g, shade.b], i * 3);
+  });
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+  geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+  geometry.boundingBox = new THREE.Box3(new THREE.Vector3(-size * 0.6, ground, -size * 0.6), new THREE.Vector3(size * 0.6, height, size * 0.6));
+  geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, height / 2, 0), height);
+  const funnel = new THREE.Points(geometry, new THREE.PointsMaterial({ size: size * 0.07, map: dot(), vertexColors: true, transparent: true, opacity: 0.75, depthWrite: false }));
+
+  // Debris whirled round it: planks and leaves, tumbling.
+  const wood = material(0x8b5a2b);
+  const leaf = material(0x5f8f3a, { side: THREE.DoubleSide });
+  const debris = Array.from({ length: 10 }, (_, i) => {
+    const piece = i % 3 === 2
+      ? new THREE.Mesh(new THREE.PlaneGeometry(size * 0.04, size * 0.03), leaf)
+      : new THREE.Mesh(new THREE.BoxGeometry(size * 0.08, size * 0.012, size * 0.02), wood);
+    return { piece, start: random(i + 700), speed: 0.05 + 0.05 * random(i + 800), angle: random(i + 900) * Math.PI * 2 };
+  });
+
+  const { root } = standing(plain, ...tufts, funnel, ...debris.map(({ piece }) => piece), cloud);
+  // Where the funnel's axis is at height `k` (0 to 1): its foot wanders, the top stays.
+  const sway = (t, k, strength) => {
+    const lean = (1 - k) * (1 - k) * size * (0.1 + 0.05 * strength);
+    return [Math.sin(t * 0.6) * lean + Math.sin(t * 1.7 + k * 4) * size * 0.015, Math.cos(t * 0.45) * lean * 0.6];
+  };
+  // The funnel's radius at height `k`: narrow at the foot, flaring into the cloud.
+  const radius = (k, strength) => size * (0.035 + 0.24 * k ** 1.8) * (1 + 0.35 * strength);
+  let clock = 0;
+  let whippedAt = -Infinity;
+  return {
+    object: root,
+    gesture: (event) => {
+      if (event.name !== "shake" && event.name !== "flick") return false;
+      whippedAt = clock;
+      return true;
+    },
+    animate: (t) => {
+      clock = t;
+      const strength = Math.exp(-Math.max(0, t - whippedAt) / 2.5);
+      const speed = 1 + 1.2 * strength;
+      cloud.rotation.y = t * 0.15;
+      grains.forEach((grain, i) => {
+        const k = (grain.height + t * grain.climb * speed) % 1;
+        const [cx, cz] = sway(t, k, strength);
+        // Faster near the ground, where the funnel is narrow; a skirt of dust at its foot.
+        const skirt = k < 0.08 ? (1 - k / 0.08) * size * 0.12 * grain.spread : 0;
+        const r = radius(k, strength) * grain.spread + skirt;
+        const angle = grain.angle + t * grain.spin * speed * (1.3 - 0.8 * k);
+        positions[i * 3] = cx + Math.cos(angle) * r;
+        positions[i * 3 + 1] = ground + k * (height - ground) + (k < 0.08 ? size * 0.02 * random(i) : 0);
+        positions[i * 3 + 2] = cz + Math.sin(angle) * r;
+      });
+      geometry.attributes.position.needsUpdate = true;
+      debris.forEach(({ piece, start, speed: climb, angle: start0 }, i) => {
+        const k = 0.1 + 0.75 * ((start + t * climb * speed) % 1);
+        const [cx, cz] = sway(t, k, strength);
+        const r = radius(k, strength) * 1.6 + size * 0.05;
+        const angle = start0 + t * 2.2 * speed;
+        piece.position.set(cx + Math.cos(angle) * r, ground + k * (height - ground), cz + Math.sin(angle) * r);
+        piece.rotation.set(t * (2 + i * 0.3), -angle, t * (1.5 + i * 0.2));
+      });
     },
   };
 }

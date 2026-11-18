@@ -1,6 +1,6 @@
 Your watch, in 3D. WristMarkCompanion shows a marker on your smartwatch's display; point your phone's camera at it, and a 3D model stands on your wrist and follows it as you move.
 
-50 models, one per marker: the moon in tonight's phase, the Earth with day and night as they are now, the planets as they stand today, a world clock, a watch movement showing the time, an hourglass, an attitude indicator that follows your wrist, a helicopter, a rocket launch, a Ferris wheel lit at night, a bonsai in today's season, dice, a marble maze you tilt, fireworks, a snow globe, a campfire, an aquarium, a lighthouse, a puzzle cube that solves itself, a black hole, a robot, a penguin and more.
+50 models, one per marker: the moon in tonight's phase, the Earth with day and night as they are now, the planets as they stand today, a world clock, a watch movement showing the time, an hourglass, an attitude indicator that follows your wrist, a helicopter, a rocket launch, a Ferris wheel lit at night, a bonsai in today's season, dice, a marble maze you tilt, fireworks, a tornado, a campfire, an aquarium, a lighthouse, a puzzle cube that solves itself, a black hole, a robot, a penguin and more.
 
 Move your wrist and they react: flick it to roll the dice or launch a firework, shake it to stir the snow or the fire, twist it to move the planets a month. Tap a model, or pinch to resize it.
 

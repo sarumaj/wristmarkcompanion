@@ -39,11 +39,11 @@ On a phone, **full screen** (the corner button) gives the model the whole displa
 
 Some models react when you move the watch:
 
-| Move                                           | What happens                                                                                                   |
-|------------------------------------------------|----------------------------------------------------------------------------------------------------------------|
-| **Flick:** a quick turn of the wrist           | The dice roll, a firework goes up, the robot waves, the snow swirls                                            |
-| **Shake:** a quick back and forth              | The dice roll, the snow globe swirls, the campfire flares up, the treasure chest rattles, the rain cloud pours |
-| **Twist:** turn the watch about its own center | The planets move a month, forward or back                                                                      |
+| Move                                           | What happens                                                                                                  |
+|------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
+| **Flick:** a quick turn of the wrist           | The dice roll, a firework goes up, the robot waves, the tornado whips up                                      |
+| **Shake:** a quick back and forth              | The dice roll, the tornado whips up, the campfire flares up, the treasure chest rattles, the rain cloud pours |
+| **Twist:** turn the watch about its own center | The planets move a month, forward or back                                                                     |
 
 The first time a model that takes moves appears, a card above its buttons shows each move as a
 small moving picture, with a line saying what to do. **?** next to the buttons shows it again,
@@ -114,10 +114,10 @@ with day and night as they are now, the planets around the sun as they stand tod
 an open watch movement showing the time, an hourglass, an aircraft's attitude indicator that follows
 your wrist, a landing, a helicopter, a hot-air balloon, a rocket launch, a windmill, a sailboat, a
 Ferris wheel lit at night, a bonsai in today's season, dice, a marble maze you tilt, fireworks, a
-snow globe, a campfire, an aquarium, a lighthouse, a volcano, an atom, DNA, a Newton's cradle, a
-metronome, a UFO, a toy train, a birthday cake, a jellyfish, butterflies, a carousel, a race track,
-a satellite, a sundial, a lava lamp, a castle, a house, a snowman, a puzzle cube, a black hole, a
-treasure chest, a rain cloud, a robot, a penguin, and four simple shapes. [The full
+tornado, a campfire, an aquarium, a lighthouse, a volcano, an atom, DNA, a Newton's cradle, a
+metronome, a UFO, a toy train, a gumball machine, a jellyfish, butterflies, a carousel, a race
+track, a satellite, a sundial, a lava lamp, a castle, a house, a snowman, a puzzle cube, a black
+hole, a treasure chest, a rain cloud, a robot, a penguin, and four simple shapes. [The full
 list](models.md) says what each one does.
 
 ## When something doesn't work

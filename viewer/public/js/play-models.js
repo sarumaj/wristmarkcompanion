@@ -1,5 +1,5 @@
-// Playful scenes on the watch: a volcano, a UFO after a cow, a toy train, a birthday
-// cake. Loops of the time alone, from three.js's shapes; a tap sets each one off.
+// Playful scenes on the watch: a volcano, a UFO after a cow, a toy train, a gumball
+// machine. Loops of the time alone, from three.js's shapes; a tap sets each one off.
 import * as THREE from "../vendor/three/three.module.js";
 import { standing } from "./standing.js";
 import { risers } from "./nature-models.js";
@@ -221,66 +221,113 @@ export function train(size) {
   };
 }
 
-// A birthday cake: two tiers with icing and sprinkles, candles with flames that flicker.
-// A tap blows them out, wisps of smoke rise, and they light again after a few seconds.
-export function cake(size) {
-  const plate = at(new THREE.Mesh(new THREE.CylinderGeometry(size * 0.42, size * 0.42, size * 0.02, 48), material(0xf1f3f5, { roughness: 0.2 })), 0, size * 0.01, 0);
-  const sponge = material(0xf4c38a);
-  const icing = material(0xffc9de, { roughness: 0.4 });
-  const lower = at(new THREE.Mesh(new THREE.CylinderGeometry(size * 0.33, size * 0.33, size * 0.16, 48), sponge), 0, size * 0.1, 0);
-  const lowerIcing = at(new THREE.Mesh(new THREE.CylinderGeometry(size * 0.335, size * 0.335, size * 0.03, 48), icing), 0, size * 0.18, 0);
-  const upper = at(new THREE.Mesh(new THREE.CylinderGeometry(size * 0.22, size * 0.22, size * 0.13, 48), sponge), 0, size * 0.255, 0);
-  const upperIcing = at(new THREE.Mesh(new THREE.CylinderGeometry(size * 0.225, size * 0.225, size * 0.03, 48), icing), 0, size * 0.32, 0);
-  const colors = [0xff6b6b, 0x4dabf7, 0xffd43b, 0x69db7c, 0xda77f2];
-  const sprinkles = Array.from({ length: 40 }, (_, i) => {
-    const angle = i * 2.4;
-    const r = size * (i % 2 ? 0.27 : 0.12) * (0.6 + ((i * 0.37) % 0.4));
-    const y = i % 2 ? size * 0.196 : size * 0.336;
-    const sprinkle = at(new THREE.Mesh(new THREE.CapsuleGeometry(size * 0.004, size * 0.012, 2, 4), material(colors[i % colors.length])), Math.cos(angle) * r, y, Math.sin(angle) * r);
-    sprinkle.rotation.set(Math.PI / 2, 0, angle * 3);
-    return sprinkle;
+// A gumball machine: a glass globe full of gumballs on a red stand. A tap turns the knob, and
+// a gumball drops out, rolls down the chute and bounces into the tray, saying its flavor;
+// every twelve seconds it gives one by itself. The globe empties a little each time and is
+// filled again when it runs low.
+const FLAVORS = [
+  ["Cherry", 0xe63946], ["Lime", 0x8ac926], ["Blueberry", 0x1982c4], ["Lemon", 0xffca3a],
+  ["Grape", 0x7b4fb0], ["Orange", 0xff8c42], ["Bubble gum", 0xff70a6],
+];
+export function gumballMachine(size) {
+  const s = size;
+  const red = material(0xd62828, { roughness: 0.35, metalness: 0.3 });
+  const chrome = material(0xdfe3e8, { roughness: 0.2, metalness: 0.9 });
+  const foot = at(new THREE.Mesh(new THREE.CylinderGeometry(s * 0.17, s * 0.22, s * 0.1, 40), red), 0, s * 0.05, 0);
+  const column = at(new THREE.Mesh(new THREE.CylinderGeometry(s * 0.12, s * 0.15, s * 0.32, 40), red), 0, s * 0.26, 0);
+  const seat = at(new THREE.Mesh(new THREE.CylinderGeometry(s * 0.17, s * 0.13, s * 0.05, 40), red), 0, s * 0.445, 0);
+  // The coin plate and its knob on the front (+z), the handle turning about z.
+  const plate = at(new THREE.Mesh(new THREE.BoxGeometry(s * 0.14, s * 0.12, s * 0.03), chrome), 0, s * 0.33, s * 0.135);
+  const knob = at(new THREE.Group(), 0, s * 0.33, s * 0.155);
+  const hub = new THREE.Mesh(new THREE.CylinderGeometry(s * 0.035, s * 0.035, s * 0.03, 20), chrome);
+  hub.rotation.x = Math.PI / 2;
+  knob.add(hub, at(new THREE.Mesh(new THREE.BoxGeometry(s * 0.11, s * 0.022, s * 0.022), chrome), 0, 0, s * 0.02));
+  // The outlet below it, the chute down to the tray in front.
+  const outlet = at(new THREE.Mesh(new THREE.BoxGeometry(s * 0.07, s * 0.06, s * 0.04), chrome), 0, s * 0.2, s * 0.14);
+  const outletAt = new THREE.Vector3(0, s * 0.2, s * 0.16);
+  const trayAt = new THREE.Vector3(0, s * 0.045, s * 0.33);
+  const chute = new THREE.Mesh(new THREE.BoxGeometry(s * 0.07, s * 0.012, outletAt.distanceTo(trayAt)), chrome);
+  chute.position.lerpVectors(outletAt, trayAt, 0.5);
+  chute.position.y -= s * 0.035;
+  chute.rotation.x = Math.atan2(outletAt.y - trayAt.y, trayAt.z - outletAt.z);
+  const tray = at(new THREE.Mesh(new THREE.CylinderGeometry(s * 0.065, s * 0.05, s * 0.025, 24), chrome), trayAt.x, s * 0.0125, trayAt.z);
+
+  // The globe, its cap and the gumballs in it, the lowest first: hiding the last ones
+  // (InstancedMesh.count) takes them off the top.
+  const globeRadius = s * 0.22;
+  const center = new THREE.Vector3(0, s * 0.47 + globeRadius * 0.92, 0);
+  const glass = at(new THREE.Mesh(new THREE.SphereGeometry(globeRadius, 40, 24),
+    new THREE.MeshStandardMaterial({ color: 0xe8f6ff, transparent: true, opacity: 0.2, roughness: 0.05, metalness: 0.1, depthWrite: false })), center.x, center.y, center.z);
+  const cap = at(new THREE.Mesh(new THREE.CylinderGeometry(s * 0.08, s * 0.1, s * 0.05, 32), red), 0, center.y + globeRadius * 0.95, 0);
+  const capKnob = at(new THREE.Mesh(new THREE.SphereGeometry(s * 0.03, 16, 12), red), 0, center.y + globeRadius * 0.95 + s * 0.04, 0);
+  const ball = s * 0.03;
+  const places = [];
+  const step = ball * 2.05;
+  for (let y = -globeRadius; y <= globeRadius * 0.35; y += step * 0.86) {
+    for (let x = -globeRadius; x <= globeRadius; x += step) {
+      for (let z = -globeRadius; z <= globeRadius; z += step) {
+        // Each layer shifted by half a ball, so they sit in the gaps of the one below.
+        const shift = Math.round(y / step) % 2 ? ball : 0;
+        const place = new THREE.Vector3(x + shift, y, z + shift);
+        if (place.length() < globeRadius - ball * 1.1) places.push(place);
+      }
+    }
+  }
+  places.sort((a, b) => a.y - b.y);
+  const balls = new THREE.InstancedMesh(new THREE.SphereGeometry(ball, 14, 10), material(0xffffff, { roughness: 0.3 }), places.length);
+  const matrix = new THREE.Matrix4();
+  const tint = new THREE.Color();
+  places.forEach((place, i) => {
+    balls.setMatrixAt(i, matrix.makeTranslation(place.x + center.x, place.y + center.y, place.z + center.z));
+    balls.setColorAt(i, tint.setHex(FLAVORS[Math.floor(((Math.sin(i * 12.9898) * 43758.5453) % 1 + 1) * FLAVORS.length) % FLAVORS.length][1]));
   });
-  const flameMaterial = new THREE.MeshBasicMaterial({ color: 0xffb703, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false });
-  const candles = Array.from({ length: 6 }, (_, i) => {
-    const angle = (i / 6) * Math.PI * 2;
-    const group = at(new THREE.Group(), Math.cos(angle) * size * 0.14, size * 0.335, Math.sin(angle) * size * 0.14);
-    const stick = at(new THREE.Mesh(new THREE.CylinderGeometry(size * 0.01, size * 0.01, size * 0.09, 8), material(colors[i % colors.length], { roughness: 0.4 })), 0, size * 0.045, 0);
-    const flame = at(new THREE.Mesh(new THREE.SphereGeometry(size * 0.016, 10, 8), flameMaterial), 0, size * 0.11, 0);
-    flame.scale.y = 1.8;
-    group.add(stick, flame);
-    return { group, flame, seed: i * 1.7 };
-  });
-  const light = new THREE.PointLight(0xffb347, 1.5, size * 2, 1.5);
-  light.position.y = size * 0.5;
-  const wisps = risers(12, {
-    color: 0xdedede, size: size * 0.06, height: size * 0.3, speed: 0.4, opacity: 0.7,
-    start: (i) => {
-      const { group } = candles[i % candles.length];
-      return [group.position.x, size * 0.44, group.position.z];
-    },
-  });
-  const { root } = standing(plate, lower, lowerIcing, upper, upperIcing, ...sprinkles, ...candles.map(({ group }) => group), light, wisps.points);
+  // The one given: rolling out, then waiting in the tray for the next. One waits there
+  // from the start.
+  const given = new THREE.Mesh(new THREE.SphereGeometry(ball, 16, 12), material(FLAVORS[6][1], { roughness: 0.3 }));
+  given.position.copy(trayAt);
+  given.position.y += ball * 0.3;
+
+  const { root } = standing(foot, column, seat, plate, knob, outlet, chute, tray, glass, cap, capKnob, balls, given);
+  const full = places.length;
   let clock = 0;
-  let blownAt = -Infinity;
+  let last = null;
+  let droppedAt = -Infinity;
+  let gifts = 0;
+  const give = (t) => {
+    const [flavor, color] = FLAVORS[gifts % FLAVORS.length];
+    gifts += 1;
+    given.material.color.setHex(color);
+    // Low: filled again.
+    balls.count = balls.count - 1 < full * 0.4 ? full : balls.count - 1;
+    droppedAt = t;
+    return flavor;
+  };
   return {
     object: root,
-    touch: () => {
-      if (clock - blownAt < 5) return null;
-      blownAt = clock;
-      return "Make a wish";
-    },
+    touch: () => (clock - droppedAt < 1.4 ? null : give(clock)),
     animate: (t) => {
       clock = t;
-      const out = t - blownAt < 5;
-      for (const { flame, seed } of candles) {
-        flame.visible = !out;
-        flame.scale.set(1 + 0.15 * Math.sin(t * 13 + seed), 1.8 + 0.4 * Math.sin(t * 17 + seed * 2), 1);
-        flame.position.x = size * 0.004 * Math.sin(t * 9 + seed);
+      // One by itself at 3 s past each twelve, unless one was just given.
+      if (last !== null && Math.floor((t - 3) / 12) > Math.floor((last - 3) / 12) && t - droppedAt > 1.4) give(t);
+      last = t;
+      const k = t - droppedAt;
+      // A full turn of the knob in half a second.
+      knob.rotation.z = k < 0.5 ? -(k / 0.5) * Math.PI * 2 : 0;
+      // Taken from the tray while the knob turns, then on its way.
+      given.visible = k >= 0.45;
+      if (k < 0.45 || !Number.isFinite(k)) return;
+      if (k < 0.85) {
+        // Down the chute, rolling.
+        const share = (k - 0.45) / 0.4;
+        given.position.lerpVectors(outletAt, trayAt, share * share);
+        given.position.y += ball * 0.3;
+      } else {
+        // A few bounces in the tray, each lower.
+        const b = k - 0.85;
+        given.position.copy(trayAt);
+        given.position.y += ball * 0.3 + (b < 2 ? s * 0.06 * Math.exp(-b * 4) * Math.abs(Math.sin(b * 12)) : 0);
       }
-      light.intensity = out ? 0 : 1.5 + 0.3 * Math.sin(t * 15);
-      // The wisps start where the flames were, when they went out.
-      wisps.points.visible = out;
-      if (out) wisps.update(t - blownAt);
+      given.rotation.x = Math.min(k, 0.85) * 18;
     },
   };
 }

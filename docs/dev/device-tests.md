@@ -157,7 +157,7 @@ where it's day now?
 | 0   | Moon phase           |                    |         |       |
 | 1   | Earth, day and night |                    |         |       |
 | 2   | Robot                |                    |         |       |
-| 3   | Snow globe           |                    |         |       |
+| 3   | Tornado              |                    |         |       |
 | 4   | Cube                 |                    |         |       |
 | 5   | Torus knot           |                    |         |       |
 | 6   | Planet               |                    |         |       |
@@ -189,7 +189,7 @@ where it's day now?
 | 32  | Volcano              |                    |         |       |
 | 33  | UFO                  |                    |         |       |
 | 34  | Toy train            |                    |         |       |
-| 35  | Birthday cake        |                    |         |       |
+| 35  | Gumball machine      |                    |         |       |
 | 36  | Jellyfish            |                    |         |       |
 | 37  | Butterflies          |                    |         |       |
 | 38  | Carousel             |                    |         |       |
