@@ -8,7 +8,7 @@
 //   Connect IQ SDK), on black like the app's screen; and one for each other size the
 //   devices of watch/devices.json need, in watch/resources-launcher-<w>x<h>/
 //   (watch/devices.jungle gives each device its own, tools/generate-devices.mjs);
-// - docs/store-assets/icon-500.png and icon-128.png: the store's icon and its
+// - docs/dev/store-assets/icon-500.png and icon-128.png: the store's icon and its
 //   optional on-device icon (Garmin's Connect IQ brand guidelines: 500x500 and
 //   128x128, sRGB, 10 px of padding, no black or transparent background, no text).
 //   Their blue, #0055AA, is in the 64-color palette the guidelines ask for on
@@ -35,8 +35,8 @@ const STORE_BLUE = [0x00, 0x55, 0xaa];
 // grid (marker and quiet zone), and the color around it.
 const ICONS = [
   { path: "watch/resources/drawables/launcher_icon.png", size: 60, cell: 7, background: BLACK },
-  { path: "docs/store-assets/icon-500.png", size: 500, cell: 42, background: STORE_BLUE },
-  { path: "docs/store-assets/icon-128.png", size: 128, cell: 11, background: STORE_BLUE },
+  { path: "docs/dev/store-assets/icon-500.png", size: 500, cell: 42, background: STORE_BLUE },
+  { path: "docs/dev/store-assets/icon-128.png", size: 128, cell: 11, background: STORE_BLUE },
 ];
 // The other launcher sizes: as large a cell as the shorter side holds.
 const BASE_LAUNCHER = "60x60";

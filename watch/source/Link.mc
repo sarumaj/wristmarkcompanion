@@ -5,7 +5,7 @@ import Toybox.PersistedContent;
 import Toybox.Time;
 import Toybox.Timer;
 
-//! The watch's end of the control channel (docs/decisions/004-control-channel.md): one
+//! The watch's end of the control channel (docs/dev/decisions/004-control-channel.md): one
 //! request at a time to the relay through the phone. Mostly the long-poll over every
 //! session's channel (and the one being paired); a message to send cancels it, goes out,
 //! and the long-poll starts again. Only while the app is open: started in onShow, stopped

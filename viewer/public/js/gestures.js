@@ -1,4 +1,4 @@
-// Gestures of the wrist, from the smoothed pose of the watch (docs/interaction.md):
+// Gestures of the wrist, from the smoothed pose of the watch (docs/dev/interaction.md):
 // a flick (a quick turn of the watch), a twist (a turn about its own axis), a shake
 // (a quick back and forth) and a hold (still for a moment after moving). Plain numbers
 // in and out, so that Node's tests run it on made-up movements.

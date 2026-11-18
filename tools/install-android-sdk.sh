@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# The Android SDK's parts the app's build needs (docs/android.md), into $1 (ANDROID_HOME):
+# The Android SDK's parts the app's build needs (docs/dev/android.md), into $1 (ANDROID_HOME):
 # Google's command-line tools at a pinned version, checked against their SHA-256 (its
 # SHA-1 matches Google's repository manifest, repository2-3.xml), then the platform and
 # build tools through sdkmanager, its licenses accepted. Needs Java 17 or later.

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Generates watch/source/ViewerAddress.mc: the viewer's address the watch app is built
-// for (docs/watch.md#the-viewers-address), its relay (Link) and the QR code of it that
+// for (docs/dev/watch.md#the-viewers-address), its relay (Link) and the QR code of it that
 // the Viewers screen shows, so that a phone's camera opens the viewer. The address is
 // WRISTMARK_ORIGIN, by default the homelab's deployment (DEFAULT_ORIGIN). The code is
 // made by the qrcode package (the viewer's dev dependencies: npm ci in viewer/ first)

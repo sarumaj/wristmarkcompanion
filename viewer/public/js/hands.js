@@ -2,7 +2,7 @@
 // hand landmarker finds the hands' 21 points in the camera's image, in the browser; the
 // hand that isn't wearing the watch can then touch the model. Its library (1.2 MB of
 // JavaScript, 14 MB of WebAssembly) and its model (7.8 MB) come from the viewer's own
-// origin, and only when it is switched on (docs/interaction.md).
+// origin, and only when it is switched on (docs/dev/interaction.md).
 //
 // Seen from one camera, how far away a finger is can only be guessed; so the touch is
 // on the image, where the finger covers the model:

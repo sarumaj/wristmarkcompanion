@@ -1,6 +1,6 @@
 // The marker's corners to a fraction of a pixel. js-aruco2 finds them on the outline of
 // its thresholded image, to the nearest pixel, and the pose's angles follow every pixel
-// they jump (docs/decisions/003-pose.md#stability). Here each of the four edges is
+// they jump (docs/dev/decisions/003-pose.md#stability). Here each of the four edges is
 // found again in the grey image: across the edge, at points along it, where the
 // brightness rises fastest from the black border to the white quiet zone (to a fraction
 // of a pixel by a parabola through the three samples around the peak); a straight line

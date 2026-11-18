@@ -29,7 +29,7 @@ const factor = (cutoff, dt) => 1 / (1 + 1 / (2 * Math.PI * cutoff * dt));
 // CHI 2012) on the position and the orientation. Its cutoff frequency grows with the
 // speed: a still watch's jitter is smoothed away (a cutoff of `minCutoff` Hz), a turn
 // of the wrist comes through nearly without lag (`beta` more Hz per degree, or
-// millimeter, a second). docs/decisions/003-pose.md#stability.
+// millimeter, a second). docs/dev/decisions/003-pose.md#stability.
 export class PoseSmoother {
   // holdMs: how long the pose stays after the marker is lost, and after which a new
   // detection starts afresh. flipTolerance: the other solution is taken while its

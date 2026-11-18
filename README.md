@@ -13,7 +13,7 @@ with a flick of the wrist.
    and tap **Start the camera**.
 3. Point the camera at the watch. Its buttons switch to the next model.
 
-The [user guide](docs/user-guide.md) has the gestures, the tips for a steady model and what to do
+The [user guide](docs/user/guide.md) has the gestures, the tips for a steady model and what to do
 when something doesn't work. No watch at hand? The viewer's **Markers** page shows them on any
 screen.
 
@@ -25,7 +25,7 @@ screen.
   castle, a house, a bonsai through the seasons, a volcano, a lighthouse, a rain cloud) and fun
   (dice, a marble maze, fireworks, a snow globe, a snowman, a campfire, an aquarium, a jellyfish,
   butterflies, a lava lamp, a treasure chest, a robot, a penguin, a toy train, a birthday cake).
-  [The full list](docs/content.md#the-models).
+  [The full list](docs/user/models.md).
 - **Move your wrist:** flick, shake or twist it, and the model reacts. Buttons do the same.
 - **Any size:** pinch, scroll or `+` and `−`; full screen with `F`.
 - **Private:** the camera's image is processed in the browser and never leaves the device. No
@@ -35,33 +35,17 @@ screen.
 
 The watch shows an ArUco marker. The viewer, a static web page, finds it in the camera image
 (js-aruco2), works out where the watch is and how it's turned, and draws the model for that
-marker's ID on top of it (three.js). There is no connection between the two: the marker ID is the
-only data channel.
+marker's ID on top of it (three.js). The marker ID is all the viewer needs.
 
-Status: **device tests on the D2 Mach 1** ([device tests](docs/device-tests.md)): the viewer
-tracks the watch's marker well; the guided test (`?test`) measures range, angles, the display's
-session and every model. Next: more models for the remaining marker IDs, and an
-[encrypted channel](docs/decisions/004-control-channel.md) to steer the watch from the viewer
-(proposed).
+Pair the watch with the viewer (through the camera, encrypted end to end) and the viewer can steer
+it too: the next model, the automatic cycle, a buzz to find it.
 
-## The project
+## Documentation
 
-| Part      | Where                | What                                                                                                                                                                                                                                                                                                            |
-|-----------|----------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Watch app | [`watch/`](watch/)   | Connect IQ device app (Monkey C), first target the D2 Mach 1                                                                                                                                                                                                                                                    |
-| Viewer    | [`viewer/`](viewer/) | Static web app with js-aruco2, three.js and MediaPipe, served by nginx                                                                                                                                                                                                                                          |
-| Android   | [`app/`](app/)       | The viewer as an Android app (Capacitor), its APK on each release: [Android](docs/android.md)                                                                                                                                                                                                                   |
-| Tools     | [`tools/`](tools/)   | The marker table and icon generators, the watch's build and simulator, smoke test                                                                                                                                                                                                                               |
-| Docs      | [`docs/`](docs/)     | [User guide](docs/user-guide.md), [architecture](docs/architecture.md), [decisions](docs/decisions/), [content](docs/content.md), [interaction](docs/interaction.md), [watch](docs/watch.md), [CI](docs/ci.md), [deployment](docs/deployment.md), [publishing](docs/publishing.md), [review](docs/ux-review.md) |
-
-## Development
-
-```sh
-npm ci --prefix viewer                        # the viewer's pinned libraries and lint tools
-npm run --prefix viewer lint
-node tools/generate-dictionary.mjs            # rewrite the watch's marker table
-docker build -t wristmark-viewer:test viewer && tools/smoke-test.sh wristmark-viewer:test
-```
+- **Using it:** the [user guide](docs/user/guide.md) and [the models](docs/user/models.md).
+- **Developing it:** [`docs/dev/`](docs/dev/README.md): the architecture, the repository's layout,
+  the watch app, the viewer's content and interaction, Android, CI, deployment, publishing,
+  device tests and decisions.
 
 ## License
 

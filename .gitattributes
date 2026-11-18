@@ -1,5 +1,5 @@
 # Binary files are kept in Git LFS: the repository holds a pointer, Forgejo's LFS store the
-# file (docs/ci.md#binary-files). CI's checkouts fetch them (lfs: true).
+# file (docs/dev/ci.md#binary-files). CI's checkouts fetch them (lfs: true).
 *.png filter=lfs diff=lfs merge=lfs -text
 *.webp filter=lfs diff=lfs merge=lfs -text
 *.jpg filter=lfs diff=lfs merge=lfs -text
@@ -14,9 +14,9 @@
 *.task filter=lfs diff=lfs merge=lfs -text
 *.wasm filter=lfs diff=lfs merge=lfs -text
 # Except the viewer's own files: the app panel builds its image from a plain clone,
-# which isn't known to fetch LFS (docs/ci.md#binary-files), so they stay in Git.
+# which isn't known to fetch LFS (docs/dev/ci.md#binary-files), so they stay in Git.
 viewer/public/** !filter !diff !merge
-# And the Android project's: F-Droid's build servers clone without LFS (docs/android.md#f-droid).
+# And the Android project's: F-Droid's build servers clone without LFS (docs/dev/android.md#f-droid).
 app/android/** !filter !diff !merge
 viewer/public/** !text -filter -merge -diff
 app/android/** !text -filter -merge -diff

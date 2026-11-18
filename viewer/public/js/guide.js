@@ -1,4 +1,4 @@
-// The guided device test (?test): docs/device-tests.md step by step, under the
+// The guided device test (?test): docs/dev/device-tests.md step by step, under the
 // camera's image. Each step says what to do, aloud too, while both hands hold the
 // phone and the watch; the viewer's frames give the numbers (guide-metrics.js); the
 // person adds what only they can judge. The results stay in this browser
@@ -519,7 +519,7 @@ export function startGuide({ root, content, markerSize, captureSeconds = 10, cou
     const copied = h("span", { role: "status" });
     return [
       h("h2", {}, "Report"),
-      h("p", {}, "Copy it into a message, or into docs/device-tests.md."),
+      h("p", {}, "Copy it into a message, or into docs/dev/device-tests.md."),
       h("p", { class: "actions" },
         h("button", { type: "button", onclick: async () => {
           try {

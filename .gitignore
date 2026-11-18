@@ -1,5 +1,5 @@
 node_modules/
-# Connect IQ build output and keys: never committed (docs/ci.md).
+# Connect IQ build output and keys: never committed (docs/dev/ci.md).
 watch/bin/
 *.prg
 *.iq

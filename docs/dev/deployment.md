@@ -1,8 +1,7 @@
 # Deployment and releases
 
-Status: **decided on 2026-11-15, built, not yet run** (milestone 5). The release workflow
-(`.forgejo/workflows/release.yml`) and the image's health check are in the repository; the app
-host's side waits for HomeLab #126 and the app in the panel ([steps](#what-is-left-to-do)).
+Status: **running** since release 0.2.0 (2026-11-17): the release workflow
+(`.forgejo/workflows/release.yml`) deploys the viewer to the app host.
 
 ## The viewer on the app host
 
@@ -148,21 +147,3 @@ The owner decided on 2026-11-15:
 | Sleeping            | The viewer sleeps when unused (`HOMELAB_SLEEP`)                                                               |
 | Tagging (11-16)     | The release bot, from `.cz.toml`                                                                              |
 | The name (11-16)    | WristMarkCompanion in the store, `wristmarkcompanion` the repository; the address stays `wristmark`           |
-
-## What is left to do
-
-1. Merge and deploy HomeLab #126 (its description has the commands): the repository gets the
-   deploy key and `APPS_TOKEN`.
-2. Create the app in the panel, once, as the apps guide's "Register the app" says: *Private Git
-   Repository (with Deploy Key)*, key `forgejo`, `git@git.ciepiela.org:dawid/wristmarkcompanion.git`,
-   branch `main`; build pack Dockerfile, base directory `/viewer`, port 8080; name
-   `wristmarkcompanion` (CI finds the app by the repository's name), domain
-   `https://wristmark.apps.ciepiela.org`; automatic deployment off;
-   variable `HOMELAB_SLEEP=on`.
-3. Make the developer key and add `CONNECTIQ_DEVELOPER_KEY`
-   ([publishing](publishing.md#2-the-developer-key)).
-4. The first release: the release bot tags it (below), or you push `v0.1.0` yourself. The
-   release workflow fails loudly at the first step that's missing: the changelog section, the
-   secret, or the app in the panel. **Do steps 1 to 3 before `.cz.toml` reaches `main`**, or
-   the bot's next weekly run tags a release that fails; then run the workflow again by hand
-   with that tag once they're done.

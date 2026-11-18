@@ -1,6 +1,6 @@
 # A release, on a version tag (vX.Y.Z): the watch's store package, the Android app's
 # APK, the viewer's files and the release notes from CHANGELOG.md on a Forgejo release,
-# and the viewer deployed to the app host (docs/deployment.md). Nothing else is uploaded.
+# and the viewer deployed to the app host (docs/dev/deployment.md). Nothing else is uploaded.
 name: release
 'on':
   push:
@@ -25,7 +25,7 @@ env:
 
 jobs:
   release:
-    # The SDK is mounted only in the runner container ci (docs/ci.md), which also
+    # The SDK is mounted only in the runner container ci (docs/dev/ci.md), which also
     # has Docker for the viewer's files.
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -74,17 +74,17 @@ jobs:
       - name: Install the viewer's packages
         run: npm ci --prefix viewer --ignore-scripts --no-audit --no-fund
 
-      # The developer key, base64 of its DER file (docs/publishing.md): written for
+      # The developer key, base64 of its DER file (docs/dev/publishing.md): written for
       # this step only and deleted, also when the build fails. The viewer's address is
       # the repository variable WRISTMARK_ORIGIN, or the default where it is unset
-      # (docs/watch.md#the-viewers-address).
+      # (docs/dev/watch.md#the-viewers-address).
       - name: Build the store package
         env:
           CONNECTIQ_DEVELOPER_KEY: ${{ secrets.CONNECTIQ_DEVELOPER_KEY }}
           WRISTMARK_ORIGIN: ${{ vars.WRISTMARK_ORIGIN }}
         run: |
           if [ -z "$CONNECTIQ_DEVELOPER_KEY" ]; then
-            echo "::error::The Actions secret CONNECTIQ_DEVELOPER_KEY is missing (docs/publishing.md)"
+            echo "::error::The Actions secret CONNECTIQ_DEVELOPER_KEY is missing (docs/dev/publishing.md)"
             exit 1
           fi
           key=$(mktemp)
@@ -93,9 +93,9 @@ jobs:
           CONNECTIQ_KEY=$key tools/build-watch.sh --package "$CONNECTIQ_SDK" "$RUNNER_TEMP/watch"
           cp "$RUNNER_TEMP/watch/wristmark.iq" "$RUNNER_TEMP/release/wristmark-$TAG.iq"
 
-      # The Android app (docs/android.md): the release APK, signed with the key in the
+      # The Android app (docs/dev/android.md): the release APK, signed with the key in the
       # secrets (written for this step only), its certificate checked against the one
-      # docs/android.md#signing names, so that a wrong key never goes out.
+      # docs/dev/android.md#signing names, so that a wrong key never goes out.
       - name: Build the Android app
         env:
           ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
@@ -104,7 +104,7 @@ jobs:
           CERTIFICATE_SHA256: b3295ca076aaa3baa9e1f1a56a7e696b85777e2a15e22765014a4b7aa0ea243b
         run: |
           if [ -z "$ANDROID_KEYSTORE" ] || [ -z "$ANDROID_KEYSTORE_PASSWORD" ]; then
-            echo "::error::The Actions secrets ANDROID_KEYSTORE and ANDROID_KEYSTORE_PASSWORD are missing (docs/android.md#signing)"
+            echo "::error::The Actions secrets ANDROID_KEYSTORE and ANDROID_KEYSTORE_PASSWORD are missing (docs/dev/android.md#signing)"
             exit 1
           fi
           keystore=$(mktemp)

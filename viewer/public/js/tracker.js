@@ -9,7 +9,7 @@ import { refineCorners } from "./refine.js";
 
 // The focal length in pixels of an image `width` pixels wide whose camera sees
 // `fovDegrees` across. Browsers don't expose the real intrinsics, so the viewer
-// assumes a typical phone main camera (docs/decisions/003-pose.md).
+// assumes a typical phone main camera (docs/dev/decisions/003-pose.md).
 export function focalLength(width, fovDegrees) {
   return width / 2 / Math.tan((fovDegrees * Math.PI) / 360);
 }

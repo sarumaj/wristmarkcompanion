@@ -1,6 +1,6 @@
 import Toybox.Lang;
 
-//! The optical handshake's frames (docs/decisions/004-control-channel.md#pairing-the-optical-handshake),
+//! The optical handshake's frames (docs/dev/decisions/004-control-channel.md#pairing-the-optical-handshake),
 //! as viewer/public/js/pairing.js reads them: 156 bits, most significant first: the
 //! version (4 bits), S (128), a CRC-16/CCITT-FALSE over the version's byte and S (16),
 //! and 8 zero bits; frame k carries bits 12k to 12k+11 as three markers of 4 bits each

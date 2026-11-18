@@ -1,7 +1,7 @@
 # 004: Control channel: the viewer steers the watch, end-to-end encrypted
 
-Status: **proposed** (2026-11-16), with the owner's [decisions](#decisions). Nothing is built;
-the [spike](#plan) decides the open numbers.
+Status: **built** (2026-11-17, release 0.2.0), with the owner's [decisions](#decisions);
+proposed on 2026-11-16.
 
 ## Goal
 

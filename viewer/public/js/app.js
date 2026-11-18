@@ -26,11 +26,11 @@ const MARKER_SIZE = Number(params.get("size")) || 20;
 // arm's length: the marker is under 2 cm. ?scale= sets it.
 const MODEL_SCALE = Number(params.get("scale")) || 2.5;
 // The watch's round display, in marker sides: the D2 Mach 1's is 416 pixels across, its
-// marker 234 (docs/watch.md). Where a model shows, the display is drawn black over the
+// marker 234 (docs/dev/watch.md). Where a model shows, the display is drawn black over the
 // camera's image, so the model stands on a dark watch face, not on the marker. ?screen=0
 // leaves the marker visible.
 const SCREEN_RATIO = params.has("screen") ? Number(params.get("screen")) : 416 / 234;
-// The camera's horizontal field of view, assumed (docs/decisions/003-pose.md).
+// The camera's horizontal field of view, assumed (docs/dev/decisions/003-pose.md).
 const FOV_DEGREES = Number(params.get("fov")) || 65;
 // Frames are scaled to a width for detection: 640 pixels to start with, enough for the
 // marker's cells at arm's length and fast on a mid-range phone. Where detection is
@@ -44,7 +44,7 @@ const DETECT_SLOW_MS = 18;
 // Once the watch is found, the next frame is looked at first around where it was: a
 // region this many of the marker's sides beyond it on each side, cropped from the
 // camera's full resolution (at most REGION_MAX pixels across), so the marker has all the
-// camera's pixels at a fraction of the whole frame's cost (docs/decisions/003-pose.md#stability).
+// camera's pixels at a fraction of the whole frame's cost (docs/dev/decisions/003-pose.md#stability).
 // Where it isn't found there, the whole frame is searched as before. ?region=0 turns it off.
 const REGION_MARGIN = 0.9;
 const REGION_MAX = 480;
@@ -65,7 +65,7 @@ const actions = document.getElementById("actions");
 const help = document.getElementById("help");
 // After this long without the watch in view, the status gives tips.
 const TIPS_AFTER_MS = 6000;
-// The guided device test (?test, docs/device-tests.md), fed every processed frame.
+// The guided device test (?test, docs/dev/device-tests.md), fed every processed frame.
 // ?capture= and ?countdown= shorten its measurements (seconds), for the tests.
 let guide = null;
 
@@ -685,7 +685,7 @@ function followHands(view, entry, now, tracked) {
       continue;
     }
     if (event.type === "wave" || event.type === "swipe") lastHandGesture = { ...event, t: now };
-    // A wave is the models' shake, for when the wrist can't (docs/interaction.md).
+    // A wave is the models' shake, for when the wrist can't (docs/dev/interaction.md).
     if (event.type === "wave") {
       const handled = view.model?.gesture?.({ name: "shake", t: now, by: "hand" }) === true;
       if (handled || !debugPanel.hidden) acknowledge("Wave");

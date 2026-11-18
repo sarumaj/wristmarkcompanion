@@ -1,4 +1,4 @@
-// The guided device test's measurements (docs/device-tests.md), from the frames of a
+// The guided device test's measurements (docs/dev/device-tests.md), from the frames of a
 // capture: plain numbers in, plain numbers out, so that they run in Node's tests too.
 //
 // A frame: {t (ms), found, detectMs, distance (mm, the smoothed pose's, or null),

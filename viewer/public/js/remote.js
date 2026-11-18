@@ -1,4 +1,4 @@
-// The viewer's end of the control channel (docs/decisions/004-control-channel.md): pairing
+// The viewer's end of the control channel (docs/dev/decisions/004-control-channel.md): pairing
 // with the watch through the camera (js/pairing.js), the session it gives (js/channel.js),
 // kept in IndexedDB, and the relay: the channel created with the tokens' hashes, commands
 // sent toward the watch, the watch's events read from an event stream with fetch (only

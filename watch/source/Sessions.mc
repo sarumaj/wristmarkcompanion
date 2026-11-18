@@ -2,7 +2,7 @@ import Toybox.Application;
 import Toybox.Lang;
 import Toybox.Time;
 
-//! The viewers this watch is paired with (docs/decisions/004-control-channel.md#sessions):
+//! The viewers this watch is paired with (docs/dev/decisions/004-control-channel.md#sessions):
 //! at most four; a session ends 7 days after its last use or 30 days after its pairing.
 //! Application.Storage keeps each one's S (base64), the viewer's name, when it was paired
 //! and last used; the keys are derived again at start. Written at pairing, when one is

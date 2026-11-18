@@ -1,8 +1,7 @@
 # Interaction with the models
 
-Status: **a first version is built** (2026-11-16): the wrist's gestures and pinching to resize.
-Their thresholds are first guesses; the device tests' pose data will tune them (how steady the
-pose is, and how much CPU detection leaves on a mid-range phone).
+Status: **built** (2026-11-17): the wrist's gestures, touch, pinching to resize and the other
+hand. Their thresholds are first guesses; the device tests will tune them.
 
 ## Built: the wrist's gestures
 

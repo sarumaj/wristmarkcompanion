@@ -1,7 +1,7 @@
 // The debug overlay's numbers, over the last second of frames: frames per second,
 // the share of frames the marker was found in (the detection rate), and how long
 // detection took; and a chart of the last ten seconds of both rates. These are what
-// the range tests (docs/device-tests.md) record.
+// the range tests (docs/dev/device-tests.md) record.
 
 const WINDOW_MS = 1000;
 // The overlay is redrawn at most this often, so that it can be read.

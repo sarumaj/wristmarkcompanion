@@ -1,5 +1,5 @@
 // Package main is the relay of the control channel between the viewer and the watch
-// (docs/decisions/004-control-channel.md): it passes end-to-end encrypted envelopes it
+// (docs/dev/decisions/004-control-channel.md): it passes end-to-end encrypted envelopes it
 // cannot read, one queue each way per channel, the watch's side by long-poll and the
 // viewer's by an event stream. Everything is in memory; nothing is logged.
 package main
@@ -20,7 +20,7 @@ import (
 	"time"
 )
 
-// Limits (docs/decisions/004-control-channel.md#the-relays-api).
+// Limits (docs/dev/decisions/004-control-channel.md#the-relays-api).
 const (
 	maxBody         = 2048
 	maxQueued       = 64

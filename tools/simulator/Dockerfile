@@ -1,5 +1,5 @@
 # The Connect IQ simulator's runtime, for tools/simulate.sh. The SDK itself is
-# mounted, never copied into the image (its license, docs/ci.md). Ubuntu 22.04:
+# mounted, never copied into the image (its license, docs/dev/ci.md). Ubuntu 22.04:
 # the simulator links WebKitGTK 4.0, which 24.04 no longer ships.
 FROM docker.io/library/ubuntu:22.04
 RUN apt-get update \
