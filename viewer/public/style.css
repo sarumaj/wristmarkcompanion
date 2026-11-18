@@ -965,6 +965,9 @@ button.quiet {
 a.chip {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-shrink: 0;
   border: 1px solid var(--border);
   background: var(--surface-2);
   color: var(--text);
