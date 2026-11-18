@@ -99,7 +99,7 @@ The models with a tap of their own:
 | House           | The lights switch, the other way from what the hour has them         |
 | Snowman         | It tips its hat                                                      |
 | Puzzle cube     | It hurries: three times as fast until it is solved                   |
-| Black hole      | It gets a star, which spirals in, stretched, and flares              |
+| Black hole      | It gets a star, pulled into a stream as it spirals in, and flares    |
 | Treasure chest  | It closes, or opens                                                  |
 | Rain cloud      | Lightning, twice                                                     |
 
