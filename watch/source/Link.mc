@@ -96,7 +96,7 @@ class Link {
     function send(session as Dictionary?, message as Dictionary, keys as Array<String>) as Void {
         var targets = session != null ? [session] : sessions.list;
         var plain = Json.write(message, keys);
-        var op = message["op"];
+        var op = message["op"] as Object?;
         for (var i = 0; i < targets.size(); i++) {
             var target = targets[i] as Dictionary;
             // A message either way is a use (docs/dev/decisions/004-control-channel.md#sessions),
@@ -105,7 +105,7 @@ class Link {
             if ("state".equals(op)) {
                 // Not the head while it is in flight.
                 for (var k = _outbox.size() - 1; k >= (_busy && !_polling ? 1 : 0); k--) {
-                    if (_outbox[k][0] == target && "state".equals(_outbox[k][2])) {
+                    if (_outbox[k][0] == target && "state".equals(_outbox[k][2] as Object?)) {
                         _outbox.remove(_outbox[k]);
                     }
                 }

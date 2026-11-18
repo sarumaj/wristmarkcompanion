@@ -59,7 +59,7 @@ class ViewersMenuDelegate extends WatchUi.Menu2InputDelegate {
         } else if (id instanceof String) {
             var list = _link.sessions.list;
             for (var i = 0; i < list.size(); i++) {
-                if (id.equals(list[i]["s"])) {
+                if (id.equals(list[i]["s"] as Object?)) {
                     _link.end(list[i]);
                     return;
                 }
