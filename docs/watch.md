@@ -51,6 +51,38 @@ flowchart TB
 - **The ID** is drawn below the quiet zone in `FONT_XTINY` (30 px on this device), outside the
   area the detector reads.
 
+### The Viewers screen
+
+After the last marker, the Viewers screen shows the QR code of the viewer's address, for a
+phone's camera, with "Start: pair" below it (and "Viewer" above it on a round display).
+
+- **The code:** in `watch/source/ViewerAddress.mc`, made by the `qrcode` package (a dev
+  dependency of the viewer) for the [viewer's address](#the-viewers-address) in upper case:
+  `HTTPS://WRISTMARK.APPS.CIEPIELA.ORG/` in QR's alphanumeric mode is version 2, 25 modules a
+  side, level M (15% may be lost). A URL's scheme and host are the same in either case.
+- **Size:** the layout of the marker (`MarkerView.layout`) with 25 cells and two modules of
+  white around them: the standard asks for four, phones read two, and the modules get bigger.
+  On 416 px, 10 px modules: 250 px of code. Drawn as one rectangle per run of dark modules.
+
+### The viewer's address
+
+The watch app is built for one viewer address, an origin such as
+`https://wristmark.apps.ciepiela.org`: the control channel's relay is at its `/relay/v1`, and
+the Viewers screen's QR code opens it. Both are in `watch/source/ViewerAddress.mc`, which
+`tools/generate-viewer-address.mjs` writes.
+
+| Where                                | The address                                                                                                     |
+|--------------------------------------|-----------------------------------------------------------------------------------------------------------------|
+| The committed file, CI's builds      | The default, `https://wristmark.apps.ciepiela.org`; CI's `checks` job fails when the file is stale              |
+| `tools/build-watch.sh`               | `WRISTMARK_ORIGIN` where it is set: the build writes the file for it and puts the committed one back afterwards |
+| The release (`release.yml`)          | The repository variable `WRISTMARK_ORIGIN` (Settings → Actions → Variables), or the default where it is unset   |
+| The Android app (`build-app-web.sh`) | The same `WRISTMARK_ORIGIN`, for its relay (`js/app.js`, `RELAY`)                                               |
+
+The origin is `https://`, a host in lower case and perhaps a port, no path. Moving the viewer
+to another domain means a new release of the watch app and the Android app: the watches out
+there keep the address they were built with. The web viewer needs nothing; it uses its own
+origin.
+
 ### Physical size
 
 | Device    | Display       | Pixels    | Marker (6 cells) | Marker in mm  |

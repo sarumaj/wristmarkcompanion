@@ -24,6 +24,13 @@
 # file CONNECTIQ_KEY names: the same key for every release, or the store refuses
 # the update (Garmin's Getting Started: "If you lose your original signing key
 # you will not be able to update your app").
+#
+#   WRISTMARK_ORIGIN=https://wristmark.example.org tools/build-watch.sh 9.3.0
+#
+# The viewer's address the app is built for: its relay and the Viewers screen's QR code
+# (docs/watch.md#the-viewers-address). Unset or empty, the committed default; set, the
+# build writes watch/source/ViewerAddress.mc for it (tools/generate-viewer-address.mjs,
+# the viewer's node_modules needed) and puts the committed file back afterwards.
 set -euo pipefail
 
 package=false
@@ -64,7 +71,16 @@ if (( ${#devices[@]} == 0 )); then
 fi
 
 keys=$(mktemp -d)
-trap 'rm -rf "$keys"' EXIT
+address=watch/source/ViewerAddress.mc
+cleanup() {
+  if [[ -f "$keys/ViewerAddress.mc" ]]; then cp "$keys/ViewerAddress.mc" "$address"; fi
+  rm -rf "$keys"
+}
+trap cleanup EXIT
+if [[ -n "${WRISTMARK_ORIGIN:-}" ]]; then
+  cp "$address" "$keys/ViewerAddress.mc"
+  node tools/generate-viewer-address.mjs
+fi
 
 # A writable directory at $2 with links to everything in $1.
 shadow() {

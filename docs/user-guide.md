@@ -10,7 +10,8 @@ wrist. The viewer's **Help** button (or the `?` key) has the short version of th
   ([device tests](device-tests.md#the-watch-app)) until it is in the store.
 - **A phone or a laptop with a camera** and a current browser: Chrome, Safari, Firefox or Edge.
 - **The viewer's address,** <https://wristmark.apps.ciepiela.org>, and an internet connection to
-  load it once. No account, nothing to install.
+  load it once. No account, nothing to install. The watch shows it as a QR code too: go past
+  the last marker to the **Viewers** screen and point the phone's camera at it.
 
 ## Step by step
 
@@ -122,8 +123,8 @@ Where it's offered (the **Watch** button at the top), the viewer can control the
 next or previous marker, the automatic cycle, and a buzz to find it.
 
 1. On the watch, go past the last marker (down button, or up from the first) to the **Viewers**
-   screen and press start or tap it; or hold a finger on the display. Choose **Pair a viewer**.
-   It shows a pairing code: four small markers that change three times a second.
+   screen (the QR code) and press start or tap it; or hold a finger on the display. Choose
+   **Pair a viewer**. It shows a pairing code: four small markers that change three times a second.
 2. In the viewer, open **Watch**, tap **Pair with the watch**, and hold the watch 15 to 25 cm
    from the camera until the count reaches 13 of 13.
 3. The watch buzzes, shows its marker again, and the viewer says "Connected".

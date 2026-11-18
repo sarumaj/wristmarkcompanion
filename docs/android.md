@@ -20,8 +20,9 @@ iPhones use the viewer in Safari.
 
 - **Its pages' origin is `https://localhost`** (Capacitor's), so the control channel's relay
   is called at the viewer's public address, `https://wristmark.apps.ciepiela.org/relay/v1`
-  (`js/app.js`, `RELAY`), and the relay allows that origin (CORS, `relay/relay.go`,
-  `appOrigin`). Every request still needs its channel's token.
+  (`js/app.js`, `RELAY`; another with `WRISTMARK_ORIGIN`,
+  [the viewer's address](watch.md#the-viewers-address)), and the relay allows that origin
+  (CORS, `relay/relay.go`, `appOrigin`). Every request still needs its channel's token.
 - **Offline:** the app needs the network only for the relay.
 - **The camera:** the manifest asks for `CAMERA`; the WebView asks the person when the page
   wants the camera, as a browser does.
