@@ -178,7 +178,7 @@ test("the models that react to a tap take it, and the action buttons reach them"
     volcano: "Erupting",
     ufo: "Beam",
     train: "Whistle",
-    cake: "Make a wish",
+    gumballMachine: "Cherry",
     jellyfish: "Swim",
     butterflies: "Scattered",
     carousel: "Faster",
@@ -561,7 +561,7 @@ test("the models that react to the wrist's gestures take them, and keep animatin
   });
   assert.deepEqual(reacting, {
     robot: ["flick"],
-    snowglobe: ["flick", "shake"],
+    tornado: ["flick", "shake"],
     orrery: ["twist"],
     fireworks: ["flick", "shake"],
     dice: ["flick", "shake"],

@@ -34,7 +34,7 @@ Which models react:
 | Model          | Gesture        | Reaction                                             |
 |----------------|----------------|------------------------------------------------------|
 | Dice           | flick or shake | Thrown at once                                       |
-| Snow globe     | shake or flick | The snow swirls up and settles again                 |
+| Tornado        | shake or flick | Spins faster and wider, and calms again              |
 | Robot          | flick          | Waves                                                |
 | Fireworks      | flick or shake | The rocket waiting longest goes up at once           |
 | Campfire       | shake          | Taller flames and a burst of embers                  |
@@ -76,47 +76,47 @@ The other hand's way in, on a phone its thumb, on a laptop a mouse (`js/touch.js
 - **A tap on the model** (three.js's raycaster on the shown meshes) makes it hop, and does what
   it does. A model reacts through an optional `touch(hit)`, `hit` being the mesh and the point
   tapped, which returns the chip's text, or `{text, tick: false}` to tell something. A model
-  without its own `touch` but with one gesture action (the dice, the snow globe, the robot, the
+  without its own `touch` but with one gesture action (the dice, the tornado, the robot, the
   fireworks, the campfire) does that action. An action button (`touch: true` in `MODEL_GUIDES`)
   does each model's tap, for the keyboard and for whoever can't tap.
 - **Two fingers** stay the pinch: a second finger ends a drag, and no tap follows.
 
 The models with a tap of their own:
 
-| Model           | Tap                                                                  |
-|-----------------|----------------------------------------------------------------------|
-| Orrery          | A planet says its name and its distance from the sun on the date     |
-| Aquarium        | The fish dart off, four times as fast, for two seconds               |
-| Balloon         | The burner fires, between burns                                      |
-| Rocket          | The countdown starts at T-3, while the pad waits                     |
-| Maze            | The ball goes back to the start                                      |
-| Penguin         | It hops, flapping                                                    |
-| Windmill        | A gust: the sails speed up for three seconds                         |
-| Sailboat        | It comes about and sails the other way round                         |
-| Ferris wheel    | The rim's lights chase for six seconds, by day too                   |
-| Bonsai          | Shaken: petals, leaves or snow come down, as the season has them     |
-| Atom            | The electrons speed up and glow brighter for three seconds           |
-| DNA             | It unzips in the middle and closes again                             |
-| Newton's cradle | One more ball is lifted (one to three), and it starts again          |
-| Metronome       | The next tempo: 60, 80, 96, 120, 144 beats a minute                  |
-| Volcano         | It erupts, between eruptions                                         |
-| UFO             | The beam comes on, between abductions                                |
-| Toy train       | The whistle: a burst of steam, faster for four seconds               |
-| Birthday cake   | The candles go out, smoke rises; they light again after five seconds |
-| Jellyfish       | It pulses hard and swims up                                          |
-| Butterflies     | They scatter, higher and faster, for three seconds                   |
-| Carousel        | Faster for five seconds                                              |
-| Race track      | The red car gets a boost for two seconds                             |
-| Satellite       | A ping: its light flashes, a ring spreads                            |
-| Sundial         | It says the time it reads, or that it's night                        |
-| Lava lamp       | The next colors: sunset, ocean, lime                                 |
-| Castle          | The drawbridge goes up, or down                                      |
-| House           | The lights switch, the other way from what the hour has them         |
-| Snowman         | It tips its hat                                                      |
-| Puzzle cube     | It hurries: three times as fast until it is solved                   |
-| Black hole      | It gets a star, pulled into a stream as it spirals in, and flares    |
-| Treasure chest  | It closes, or opens                                                  |
-| Rain cloud      | Lightning, twice                                                     |
+| Model           | Tap                                                                |
+|-----------------|--------------------------------------------------------------------|
+| Orrery          | A planet says its name and its distance from the sun on the date   |
+| Aquarium        | The fish dart off, four times as fast, for two seconds             |
+| Balloon         | The burner fires, between burns                                    |
+| Rocket          | The countdown starts at T-3, while the pad waits                   |
+| Maze            | The ball goes back to the start                                    |
+| Penguin         | It hops, flapping                                                  |
+| Windmill        | A gust: the sails speed up for three seconds                       |
+| Sailboat        | It comes about and sails the other way round                       |
+| Ferris wheel    | The rim's lights chase for six seconds, by day too                 |
+| Bonsai          | Shaken: petals, leaves or snow come down, as the season has them   |
+| Atom            | The electrons speed up and glow brighter for three seconds         |
+| DNA             | It unzips in the middle and closes again                           |
+| Newton's cradle | One more ball is lifted (one to three), and it starts again        |
+| Metronome       | The next tempo: 60, 80, 96, 120, 144 beats a minute                |
+| Volcano         | It erupts, between eruptions                                       |
+| UFO             | The beam comes on, between abductions                              |
+| Toy train       | The whistle: a burst of steam, faster for four seconds             |
+| Gumball machine | The knob turns, a gumball rolls into the tray and tells its flavor |
+| Jellyfish       | It pulses hard and swims up                                        |
+| Butterflies     | They scatter, higher and faster, for three seconds                 |
+| Carousel        | Faster for five seconds                                            |
+| Race track      | The red car gets a boost for two seconds                           |
+| Satellite       | A ping: its light flashes, a ring spreads                          |
+| Sundial         | It says the time it reads, or that it's night                      |
+| Lava lamp       | The next colors: sunset, ocean, lime                               |
+| Castle          | The drawbridge goes up, or down                                    |
+| House           | The lights switch, the other way from what the hour has them       |
+| Snowman         | It tips its hat                                                    |
+| Puzzle cube     | It hurries: three times as fast until it is solved                 |
+| Black hole      | It gets a star, pulled into a stream as it spirals in, and flares  |
+| Treasure chest  | It closes, or opens                                                |
+| Rain cloud      | Lightning, twice                                                   |
 
 ## Further ideas
 

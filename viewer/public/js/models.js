@@ -8,18 +8,18 @@ import * as THREE from "../vendor/three/three.module.js";
 import { standing } from "./standing.js";
 import { earth, moon, orrery, satellite, worldClock } from "./sky-models.js";
 import { hourglass, movement, sundial } from "./clock-models.js";
-import { dice, fireworks, robot, snowglobe } from "./fun-models.js";
+import { dice, fireworks, robot } from "./fun-models.js";
 import { aquarium, campfire, lighthouse } from "./nature-models.js";
 import { balloon, helicopter, landing, rocket } from "./aviation-models.js";
 import { attitude, maze, penguin } from "./pose-models.js";
 import { bonsai, ferrisWheel, sailboat, windmill } from "./scene-models.js";
 import { atom, dna, metronome, newtonsCradle } from "./science-models.js";
-import { cake, train, ufo, volcano } from "./play-models.js";
+import { gumballMachine, train, ufo, volcano } from "./play-models.js";
 import { butterflies, jellyfish } from "./life-models.js";
 import { carousel, lavaLamp, raceTrack } from "./fair-models.js";
 import { castle, snowman } from "./home-models.js";
 import { house } from "./house-models.js";
-import { raincloud } from "./weather-models.js";
+import { raincloud, tornado } from "./weather-models.js";
 import { treasureChest } from "./island-models.js";
 import { blackHole, puzzleCube } from "./wonder-models.js";
 
@@ -27,7 +27,7 @@ const MODELS = {
   moon,
   earth,
   robot,
-  snowglobe,
+  tornado,
   orrery,
   landing,
   fireworks,
@@ -55,7 +55,7 @@ const MODELS = {
   volcano,
   ufo,
   train,
-  cake,
+  gumballMachine,
   jellyfish,
   butterflies,
   carousel,
@@ -159,7 +159,7 @@ export const MODEL_NAMES = Object.keys(MODELS);
 // the watch is held (js/seen.js).
 export const MODEL_GUIDES = {
   dice: { hint: "Tap it, flick or shake your wrist to roll", actions: [{ label: "Roll", gesture: "flick" }] },
-  snowglobe: { hint: "Tap it or shake your wrist to stir the snow", actions: [{ label: "Shake", gesture: "shake" }] },
+  tornado: { hint: "Tap it or shake your wrist to whip it up", actions: [{ label: "Whip up", gesture: "shake" }] },
   robot: { hint: "Tap it or flick your wrist and it waves", actions: [{ label: "Wave", gesture: "flick" }] },
   fireworks: { hint: "Tap it or flick your wrist to launch a rocket", actions: [{ label: "Launch", gesture: "flick" }] },
   campfire: { hint: "Tap it or shake your wrist to stir the fire", actions: [{ label: "Stir", gesture: "shake" }] },
@@ -180,7 +180,7 @@ export const MODEL_GUIDES = {
   volcano: { hint: "Tap it and it erupts", actions: [{ label: "Erupt", touch: true }] },
   ufo: { hint: "Tap it to beam the cow up", actions: [{ label: "Beam", touch: true }] },
   train: { hint: "Tap it to blow the whistle", actions: [{ label: "Whistle", touch: true }] },
-  cake: { hint: "Tap it to blow out the candles", actions: [{ label: "Blow out", touch: true }] },
+  gumballMachine: { hint: "Tap it for a gumball", actions: [{ label: "Gumball", touch: true }] },
   jellyfish: { hint: "Tap it and it swims up", actions: [{ label: "Swim", touch: true }] },
   butterflies: { hint: "Tap them and they scatter", actions: [{ label: "Scatter", touch: true }] },
   carousel: { hint: "Tap it to go faster", actions: [{ label: "Faster", touch: true }] },

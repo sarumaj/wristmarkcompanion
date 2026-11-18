@@ -1,4 +1,4 @@
-// Playful models, from three.js's shapes: a robot mascot and a snow globe. Their
+// Playful models, from three.js's shapes: a robot mascot, fireworks and dice. Their
 // animations are loops of the time alone; reacting to the wrist's movements comes
 // with the interaction (docs/dev/interaction.md).
 import * as THREE from "../vendor/three/three.module.js";
@@ -84,81 +84,6 @@ export function robot(size) {
       right.rotation.z = waving * (2.6 + 0.35 * Math.sin(t * 12));
       left.rotation.z = -0.08 - 0.05 * Math.sin(t * 2.2);
       light.material.emissiveIntensity = 0.6 + 0.6 * Math.abs(Math.sin(t * 3));
-    },
-  };
-}
-
-// A snow globe on the watch: a fir tree in a glass dome, the snow drifting down
-// and around, endlessly.
-export function snowglobe(size) {
-  const radius = size * 0.45;
-  const base = new THREE.Group();
-  base.add(
-    part(new THREE.CylinderGeometry(radius * 0.95, radius * 1.05, size * 0.18, 48),
-      new THREE.MeshStandardMaterial({ color: 0x7a3e1d, roughness: 0.7 }), 0, size * 0.09, 0),
-    part(new THREE.CylinderGeometry(radius * 0.9, radius * 0.9, size * 0.02, 48),
-      new THREE.MeshStandardMaterial({ color: 0xf4f7fb, roughness: 0.9 }), 0, size * 0.19, 0),
-  );
-  const center = size * 0.18 + radius * 0.82;
-  const needles = new THREE.MeshStandardMaterial({ color: 0x1f6f43, roughness: 0.8, flatShading: true });
-  const tree = new THREE.Group();
-  tree.add(part(new THREE.CylinderGeometry(size * 0.025, size * 0.03, size * 0.08, 8),
-    new THREE.MeshStandardMaterial({ color: 0x5b3a1e }), 0, size * 0.04, 0));
-  [0.32, 0.25, 0.17].forEach((width, i) => {
-    tree.add(part(new THREE.ConeGeometry(size * width * 0.5, size * 0.2, 10), needles, 0, size * (0.15 + i * 0.11), 0));
-  });
-  tree.add(part(new THREE.OctahedronGeometry(size * 0.03),
-    new THREE.MeshStandardMaterial({ color: 0xffd200, emissive: 0xffaa00, emissiveIntensity: 0.8 }), 0, size * 0.47, 0));
-  tree.position.y = size * 0.2;
-  const glass = part(new THREE.SphereGeometry(radius, 48, 24, 0, Math.PI * 2, 0, Math.PI * 0.82),
-    new THREE.MeshStandardMaterial({ color: 0xdff4ff, transparent: true, opacity: 0.18, roughness: 0.05, metalness: 0.1, depthWrite: false }),
-    0, center, 0);
-
-  // The flakes: each has a column (angle, radius), a speed and a start, so its place
-  // is a function of the time; they fall from the dome's top to the ground and start
-  // again, drifting round the tree.
-  const count = 160;
-  const flakes = Array.from({ length: count }, (_, i) => ({
-    angle: (i * 2.399963) % (Math.PI * 2),
-    radius: radius * 0.75 * Math.sqrt(((i * 0.618034) % 1) * 0.9 + 0.1),
-    speed: 0.08 + ((i * 0.3819) % 1) * 0.08,
-    start: (i * 0.7548) % 1,
-  }));
-  const positions = new Float32Array(count * 3);
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-  const top = center + radius * 0.75;
-  const ground = size * 0.2;
-  geometry.boundingBox = new THREE.Box3(new THREE.Vector3(-radius, ground, -radius), new THREE.Vector3(radius, top, radius));
-  geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, center, 0), radius);
-  const snow = new THREE.Points(geometry, new THREE.PointsMaterial({ color: 0xffffff, size: size * 0.035, map: dot(), transparent: true, depthWrite: false }));
-
-  const { root } = standing(base, tree, snow, glass);
-  // A shake (or a flick) stirs the snow up; it settles over a few seconds.
-  let stirredAt = -Infinity;
-  let clock = 0;
-  return {
-    object: root,
-    gesture: (event) => {
-      if (event.name !== "shake" && event.name !== "flick") return false;
-      stirredAt = clock;
-      return true;
-    },
-    animate: (t) => {
-      clock = t;
-      const stir = Math.exp(-(t - stirredAt) / 1.5);
-      flakes.forEach((flake, i) => {
-        const fall = (flake.start + t * flake.speed) % 1;
-        // Narrower toward the dome's top, where the glass curves in; stirred, up again.
-        const settled = top - fall * (top - ground);
-        const height = Math.min(top, settled + stir * (top - ground) * 0.7 * Math.abs(Math.sin(t * 2.3 + i)));
-        const room = Math.sqrt(Math.max(0, 1 - ((height - center) / radius) ** 2));
-        const angle = flake.angle + t * 0.3 + Math.sin(t + i) * 0.2 + stir * 3 * Math.sin(t * 1.7 + i * 0.5);
-        positions[i * 3] = Math.cos(angle) * flake.radius * room;
-        positions[i * 3 + 1] = height;
-        positions[i * 3 + 2] = Math.sin(angle) * flake.radius * room;
-      });
-      geometry.attributes.position.needsUpdate = true;
     },
   };
 }

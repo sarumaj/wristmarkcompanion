@@ -187,7 +187,7 @@ now, the planets as they stand today, a world clock, a watch movement showing th
 hourglass, an attitude indicator that follows your wrist, a landing, a helicopter, a hot-air
 balloon, a rocket launch, a windmill, a sailboat, a Ferris wheel lit at night, a bonsai in today's
 season, a volcano, an atom, DNA, a Newton's cradle, a metronome, dice, a marble maze you tilt,
-fireworks, a snow globe, a campfire, an aquarium, a lighthouse, a UFO, a toy train, a birthday cake,
+fireworks, a tornado, a campfire, an aquarium, a lighthouse, a UFO, a toy train, a gumball machine,
 a carousel, a race track, a satellite, a sundial, a jellyfish, butterflies, a lava lamp, a castle, a
 house lit at night, a snowman, a puzzle cube that solves itself, a black hole, a treasure chest, a
 rain cloud with a rainbow, a robot and a penguin.

@@ -23,8 +23,8 @@ screen.
   solves itself), flight (an attitude indicator, a landing, a helicopter, a balloon, a rocket
   launch, a UFO), places (a windmill, a sailboat, a Ferris wheel, a carousel, a race track, a
   castle, a house, a bonsai through the seasons, a volcano, a lighthouse, a rain cloud) and fun
-  (dice, a marble maze, fireworks, a snow globe, a snowman, a campfire, an aquarium, a jellyfish,
-  butterflies, a lava lamp, a treasure chest, a robot, a penguin, a toy train, a birthday cake).
+  (dice, a marble maze, fireworks, a tornado, a snowman, a campfire, an aquarium, a jellyfish,
+  butterflies, a lava lamp, a treasure chest, a robot, a penguin, a toy train, a gumball machine).
   [The full list](docs/user/models.md).
 - **Move your wrist:** flick, shake or twist it, and the model reacts. Buttons do the same.
 - **Any size:** pinch, scroll or `+` and `−`; full screen with `F`.
