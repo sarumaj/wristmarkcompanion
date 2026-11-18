@@ -117,6 +117,8 @@ The models with a tap of their own:
 | Black hole      | It gets a star, pulled into a stream as it spirals in, and flares  |
 | T. rex          | It rears its head and roars, jaws wide, its tiny arms waving       |
 | Glimmer         | It hops and spins, its crystal flaring and throwing sparkles       |
+| Bee hive        | The swarm pours out and circles the hive for five seconds          |
+| Skate park      | A kickflip on the next air: the board flips under the feet         |
 | Treasure chest  | It closes, or opens                                                |
 | Rain cloud      | Lightning, twice                                                   |
 

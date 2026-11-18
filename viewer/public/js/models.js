@@ -5,7 +5,6 @@
 // {object, animate(seconds)}. `options.now` gives the date the moon, the globe and
 // the orrery show (default: the clock).
 import * as THREE from "../vendor/three/three.module.js";
-import { standing } from "./standing.js";
 import { earth, moon, orrery, satellite, worldClock } from "./sky-models.js";
 import { hourglass, movement, sundial } from "./clock-models.js";
 import { dice, fireworks, robot } from "./fun-models.js";
@@ -21,6 +20,7 @@ import { castle, snowman } from "./home-models.js";
 import { house } from "./house-models.js";
 import { raincloud, tornado } from "./weather-models.js";
 import { critter, tRex } from "./creature-models.js";
+import { beehive, skatePark } from "./park-models.js";
 import { treasureChest } from "./island-models.js";
 import { blackHole, puzzleCube } from "./wonder-models.js";
 
@@ -73,54 +73,8 @@ const MODELS = {
   raincloud,
   tRex,
   critter,
-
-  // A planet with a ring and a moon around it.
-  planet(size) {
-    const body = new THREE.Mesh(
-      new THREE.SphereGeometry(size * 0.4, 32, 16),
-      new THREE.MeshStandardMaterial({ color: 0x3a86ff, roughness: 0.8 }),
-    );
-    const ring = new THREE.Mesh(
-      new THREE.RingGeometry(size * 0.55, size * 0.75, 64),
-      new THREE.MeshStandardMaterial({ color: 0xffbe0b, side: THREE.DoubleSide, roughness: 0.9 }),
-    );
-    ring.rotation.x = Math.PI / 2 - 0.4;
-    const moon = new THREE.Mesh(
-      new THREE.SphereGeometry(size * 0.08, 16, 8),
-      new THREE.MeshStandardMaterial({ color: 0xdddddd }),
-    );
-    const orbit = new THREE.Group();
-    orbit.add(moon);
-    moon.position.x = size * 1.0;
-    const planet = new THREE.Group();
-    planet.add(body, ring, orbit);
-    planet.position.y = size * 0.9;
-    const { root } = standing(planet);
-    return {
-      object: root,
-      animate: (t) => {
-        body.rotation.y = t * 0.3;
-        orbit.rotation.y = t * 1.2;
-      },
-    };
-  },
-
-  // A flat-shaded crystal, floating up and down.
-  crystal(size) {
-    const crystal = new THREE.Mesh(
-      new THREE.OctahedronGeometry(size * 0.45),
-      new THREE.MeshStandardMaterial({ color: 0x2ec4b6, flatShading: true, metalness: 0.1, roughness: 0.2 }),
-    );
-    crystal.scale.y = 1.6;
-    const { root } = standing(crystal);
-    return {
-      object: root,
-      animate: (t) => {
-        crystal.position.y = size * (1.0 + 0.15 * Math.sin(t * 1.5));
-        crystal.rotation.y = t * 0.7;
-      },
-    };
-  },
+  beehive,
+  skatePark,
 };
 
 export const MODEL_NAMES = Object.keys(MODELS);
@@ -169,6 +123,8 @@ export const MODEL_GUIDES = {
   blackHole: { hint: "Tap it to feed it a star", actions: [{ label: "Feed a star", touch: true }] },
   tRex: { hint: "Tap it and it roars", actions: [{ label: "Roar", touch: true }] },
   critter: { hint: "Tap Glimmer to make it sparkle", actions: [{ label: "Sparkle", touch: true }] },
+  beehive: { hint: "Tap the hive and the bees swarm out", actions: [{ label: "Swarm", touch: true }] },
+  skatePark: { hint: "Tap it for a kickflip on the next air", actions: [{ label: "Kickflip", touch: true }] },
   treasureChest: {
     hint: "Tap it to open or close it; shake your wrist to rattle it",
     actions: [{ label: "Open or close", touch: true }, { label: "Rattle", gesture: "shake" }],

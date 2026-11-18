@@ -23,7 +23,7 @@ const DATE = "2026-11-16T14:00:00Z";
 // The moment (seconds into the loop) and, where it matters, the date and the view: where
 // a model is busiest or reads best. Models not listed are shown at 2 seconds.
 const MOMENTS = {
-  crystal: { t: 3.1 },
+  skatePark: { t: 0.8 },
   landing: { t: 9 },
   fireworks: { t: 2.6 },
   helicopter: { t: 9 },

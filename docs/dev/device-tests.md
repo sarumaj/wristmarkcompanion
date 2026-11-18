@@ -160,8 +160,8 @@ where it's day now?
 | 3   | Tornado              |                    |         |       |
 | 4   | Tyrannosaurus rex    |                    |         |       |
 | 5   | Glimmer              |                    |         |       |
-| 6   | Planet               |                    |         |       |
-| 7   | Crystal              |                    |         |       |
+| 6   | Bee hive             |                    |         |       |
+| 7   | Skate park           |                    |         |       |
 | 8   | The planets today    |                    |         |       |
 | 9   | Landing              |                    |         |       |
 | 10  | Fireworks            |                    |         |       |
