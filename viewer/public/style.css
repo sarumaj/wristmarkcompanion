@@ -1081,7 +1081,11 @@ body[data-state="error"] .stage-controls {
   left: 50%;
   bottom: 60px;
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 8px;
+  width: max-content;
+  max-width: calc(100vw - 24px);
   transform: translateX(-50%);
 }
 
@@ -1098,6 +1102,196 @@ body:not([data-state="tracking"]) .model-actions {
   white-space: nowrap;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+}
+
+/* The picture of a move on an action button (js/coach.js), and the button showing them again. */
+.model-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.model-actions .move {
+  width: 22px;
+  height: 22px;
+  flex: none;
+}
+
+.model-actions .how {
+  width: 40px;
+  padding: 0;
+  justify-content: center;
+  font-weight: 700;
+}
+
+/* How to play with the model: a card above its actions, one move after the other. */
+.coach {
+  position: absolute;
+  left: 50%;
+  bottom: 116px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: max-content;
+  max-width: min(calc(100vw - 32px), 24em);
+  padding: 10px 16px 10px 10px;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 20px;
+  background: rgb(10 12 18 / 72%);
+  color: #fff;
+  transform: translateX(-50%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: pop 0.25s ease-out;
+  pointer-events: none;
+}
+
+body:not([data-state="tracking"]) .coach {
+  display: none;
+}
+
+.coach .move {
+  width: 64px;
+  height: 64px;
+  flex: none;
+}
+
+.coach-caption {
+  margin: 0;
+  font: 600 15px/1.3 var(--font);
+}
+
+/* The pictures: a watch (its case, display and marker) or a finger, in the page's colors. */
+.move-strap {
+  fill: #5b6270;
+}
+
+.move-case {
+  fill: #2b2f36;
+  stroke: #cfd5df;
+  stroke-width: 2;
+}
+
+.move-face {
+  fill: #0b0d12;
+}
+
+.move-marker {
+  fill: #fff;
+}
+
+.move-dot {
+  fill: var(--accent-2);
+}
+
+.move-ripple {
+  fill: none;
+  stroke: var(--accent-2);
+  stroke-width: 2.5;
+  opacity: 0;
+}
+
+.move-finger {
+  fill: #f1d3bf;
+  stroke: #8a6a58;
+  stroke-width: 1.5;
+}
+
+.move-still .move-ripple {
+  opacity: 0.7;
+}
+
+.move-lines,
+.move-arrow {
+  fill: none;
+  stroke: var(--accent-2);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.move-watch,
+.move-hand,
+.move-ripple {
+  transform-box: view-box;
+  transform-origin: 32px 32px;
+}
+
+.move-tap:not(.move-still) .move-hand {
+  animation: move-press 1.3s ease-in-out infinite;
+}
+
+.move-tap:not(.move-still) .move-ripple {
+  animation: move-ripple 1.3s ease-out infinite;
+}
+
+.move-flick:not(.move-still) .move-watch {
+  animation: move-flick 1.3s ease-in-out infinite;
+}
+
+.move-shake:not(.move-still) .move-watch {
+  animation: move-shake 1.3s ease-in-out infinite;
+}
+
+.move-twist:not(.move-still) .move-watch {
+  animation: move-twist 1.6s ease-in-out infinite;
+}
+
+.move-tilt:not(.move-still) .move-watch {
+  transform-origin: 32px 58px;
+  animation: move-tilt 2.6s ease-in-out infinite;
+}
+
+.move-still.move-twist .move-watch {
+  transform: rotate(-20deg);
+}
+
+.move-still.move-tilt .move-watch {
+  transform: rotate(-14deg);
+}
+
+.move-still.move-flick .move-watch {
+  transform: scaleX(0.6);
+}
+
+@keyframes move-press {
+  0%, 100% { transform: translate(6px, 6px); }
+  40%, 55% { transform: translate(0, 0); }
+}
+
+@keyframes move-ripple {
+  0%, 40% { opacity: 0; transform: scale(0.4); }
+  50% { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.2); }
+}
+
+/* The face turned away quickly and back (narrowed, as seen edge-on), then a pause: a flick,
+   not a swing. */
+@keyframes move-flick {
+  0%, 30%, 100% { transform: scaleX(1); }
+  42% { transform: scaleX(0.25); }
+  56% { transform: scaleX(1); }
+}
+
+@keyframes move-shake {
+  0%, 60%, 100% { transform: translateX(0); }
+  10%, 30%, 50% { transform: translateX(-9px); }
+  20%, 40% { transform: translateX(9px); }
+}
+
+@keyframes move-twist {
+  0%, 100% { transform: rotate(0); }
+  35%, 60% { transform: rotate(45deg); }
+}
+
+@keyframes move-tilt {
+  0%, 100% { transform: rotate(-16deg); }
+  50% { transform: rotate(16deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .move * {
+    animation: none !important;
+  }
 }
 
 /* Tips while the watch isn't found: the status wraps. */
@@ -1190,6 +1384,23 @@ body.with-tips .status {
 
 .help-gestures dt {
   font-weight: 700;
+}
+
+.help-gestures dt[data-move] {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.help-gestures .move {
+  width: 36px;
+  height: 36px;
+  flex: none;
+}
+
+/* The help is on a light surface in the light theme: the watch's case drawn darker there. */
+.help .move-case {
+  stroke: var(--muted);
 }
 
 .help-gestures dd {

@@ -125,6 +125,10 @@
       <div id="hand-cursor" class="hand-cursor" aria-hidden="true" hidden></div>
       <p id="zoom" class="zoom-chip" hidden></p>
       <p id="gesture" class="gesture-chip" aria-live="polite" hidden></p>
+      <div id="coach" class="coach" hidden>
+        <div class="coach-picture"></div>
+        <p class="coach-caption" aria-live="polite"></p>
+      </div>
       <div id="actions" class="model-actions" role="group" aria-label="Model actions" hidden></div>
       <p id="status" class="status" role="status">Point the camera at the watch's display.</p>
     </div>
@@ -175,15 +179,17 @@
 
     <h3>Move your wrist</h3>
     <dl class="help-gestures">
-      <div><dt>Flick</dt><dd>a quick turn: roll the dice, launch fireworks, make the robot wave</dd></div>
-      <div><dt>Shake</dt><dd>back and forth: stir the snow globe or the campfire, rattle the treasure chest, wring out the rain cloud</dd></div>
-      <div><dt>Twist</dt><dd>turn about the watch's axis: move the planets a month</dd></div>
+      <div><dt data-move="flick">Flick</dt><dd>a quick turn: roll the dice, launch fireworks, make the robot wave</dd></div>
+      <div><dt data-move="shake">Shake</dt><dd>back and forth: stir the snow globe or the campfire, rattle the treasure chest, wring out the rain cloud</dd></div>
+      <div><dt data-move="twist">Twist</dt><dd>turn about the watch's axis: move the planets a month</dd></div>
     </dl>
-    <p>The buttons under a model do the same, for when your hands are busy.</p>
+    <p>The buttons under a model do the same, for when your hands are busy. The first time a
+      model is seen, a picture shows its moves; <strong>?</strong> next to its buttons shows them
+      again.</p>
 
     <h3>Touch the model</h3>
     <dl class="help-gestures">
-      <div><dt>Tap</dt><dd>it reacts: roll the dice, name a planet, startle the fish, fire the balloon's burner</dd></div>
+      <div><dt data-move="tap">Tap</dt><dd>it reacts: roll the dice, name a planet, startle the fish, fire the balloon's burner</dd></div>
       <div><dt>Drag</dt><dd>around the watch: turn the model; the arrow keys do it too</dd></div>
     </dl>
 

@@ -16,6 +16,7 @@ import { drawMarks } from "./marks.js";
 import { sensing, startMotion } from "./seen.js";
 import { Remote } from "./remote.js";
 import { FRAMES } from "./pairing.js";
+import { Coach, moveIcon, movesOf } from "./coach.js";
 
 const params = new URLSearchParams(location.search);
 // The marker's black square, in millimeters: about the D2 Mach 1's (the watch's
@@ -191,15 +192,22 @@ async function useSensors(button) {
   }
 }
 
-// The buttons that do what the model's gestures do (MODEL_GUIDES).
+// How to play with the model shown: its moves, pictured (js/coach.js); the help's list of
+// moves has the same pictures.
+const coach = new Coach(document.getElementById("coach"));
+for (const slot of document.querySelectorAll("[data-move]")) slot.prepend(moveIcon(slot.dataset.move));
+
+// The buttons that do what the model's gestures do (MODEL_GUIDES), each with the picture of
+// its move, and "?" to show the moves again.
 function showActions(view, entry) {
   const guide = entry ? MODEL_GUIDES[entry.model] : null;
   const offered = (guide?.actions ?? []).filter(({ sensor }) => !sensor || (MAY_SENSE && !sensing()));
+  const moves = movesOf(guide);
   actions.replaceChildren(
     ...offered.map(({ label, gesture, direction = 1, touch, sensor }) => {
       const button = document.createElement("button");
       button.type = "button";
-      button.textContent = label;
+      button.append(moveIcon(touch ? "tap" : sensor ? "tilt" : gesture, { still: true }), label);
       button.addEventListener("click", () => {
         if (sensor) {
           useSensors(button);
@@ -212,7 +220,18 @@ function showActions(view, entry) {
       return button;
     }),
   );
+  if (moves.length) {
+    const how = document.createElement("button");
+    how.type = "button";
+    how.className = "how";
+    how.textContent = "?";
+    how.setAttribute("aria-label", "Show how");
+    how.addEventListener("click", () => coach.play(moves));
+    actions.append(how);
+  }
   actions.hidden = actions.childElementCount === 0;
+  if (entry) coach.offer(entry.model, moves);
+  else coach.stop();
 }
 
 // A chip on the stage for a moment: the model took a gesture or an action (with a

@@ -41,8 +41,11 @@ Some models react when you move the watch:
 | **Shake:** a quick back and forth              | The dice roll, the snow globe swirls, the campfire flares up, the treasure chest rattles, the rain cloud pours |
 | **Twist:** turn the watch about its own center | The planets move a month, forward or back                                                                      |
 
-The line at the bottom says what the model shown does, and a tag at the top confirms a move it
-took. **The buttons under the model do the same**, for when your hands are busy.
+The first time a model that takes moves appears, a card above its buttons shows each move as a
+small moving picture, with a line saying what to do. **?** next to the buttons shows it again,
+and each button carries the picture of its move. The line at the bottom says what the model
+shown does, and a tag at the top confirms a move it took. **The buttons under the model do the
+same**, for when your hands are busy.
 
 ## Touch the model
 
