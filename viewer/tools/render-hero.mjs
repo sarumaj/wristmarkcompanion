@@ -2,8 +2,10 @@
 // docs/dev/store-assets/hero.png, 1440 × 720 pixels, and from it the Android app's feature
 // graphic for F-Droid and Google Play (docs/dev/google-play.md),
 // fastlane/metadata/android/en-US/images/featureGraphic.jpg (JPEG: Play takes no alpha),
-// 1024 × 500: scaled to 1024 × 512, 6 pixels cut off at the top and the bottom. On the left the app's name, its
-// line and what it does; on the right a forearm wearing a round smartwatch (no particular
+// 1024 × 500: scaled to 1024 × 512, 6 pixels cut off at the top and the bottom; and the viewer's
+// social card for shared links and the README, viewer/public/social.jpg, 1200 × 630: scaled to
+// 1260 × 630, 30 pixels cut off at each side (JPEG, small: it stays in Git, docs/dev/ci.md).
+// On the left the app's name, its line and what it does; on the right a forearm wearing a round smartwatch (no particular
 // one: no device's or maker's branding) with a model standing on its display, framed as the
 // camera sees it. The text is English: the stores want an image per language where there's
 // text.
@@ -22,6 +24,7 @@ import { serve } from "../test/server.mjs";
 const ROOT = fileURLToPath(new URL("../..", import.meta.url));
 const OUT = `${ROOT}docs/dev/store-assets/hero.png`;
 const FEATURE = `${ROOT}fastlane/metadata/android/en-US/images/featureGraphic.jpg`;
+const SOCIAL = `${ROOT}viewer/public/social.jpg`;
 const WIDTH = 1440;
 const HEIGHT = 720;
 // The model on the watch, at a moment of its loop that shows it well, at night (its lights).
@@ -258,7 +261,13 @@ try {
       feature.height = 500;
       const scale = 1024 / width;
       feature.getContext("2d").drawImage(out, 0, -(height * scale - 500) / 2, 1024, height * scale);
-      return [out.toDataURL("image/png"), feature.toDataURL("image/jpeg", 0.92)];
+      // The social card: 1200 × 630, the hero scaled to its height, its sides cut.
+      const social = document.createElement("canvas");
+      social.width = 1200;
+      social.height = 630;
+      const socialScale = 630 / height;
+      social.getContext("2d").drawImage(out, -(width * socialScale - 1200) / 2, 0, width * socialScale, 630);
+      return [out.toDataURL("image/png"), feature.toDataURL("image/jpeg", 0.92), social.toDataURL("image/jpeg", 0.86)];
     },
     { model: MODEL, width: WIDTH, height: HEIGHT, text: TEXT, font },
   );
@@ -266,7 +275,8 @@ try {
   await mkdir(`${ROOT}fastlane/metadata/android/en-US/images`, { recursive: true });
   await writeFile(OUT, Buffer.from(data[0].split(",")[1], "base64"));
   await writeFile(FEATURE, Buffer.from(data[1].split(",")[1], "base64"));
-  console.log("wrote docs/dev/store-assets/hero.png and the feature graphic");
+  await writeFile(SOCIAL, Buffer.from(data[2].split(",")[1], "base64"));
+  console.log("wrote docs/dev/store-assets/hero.png, the feature graphic and the social card");
 } finally {
   await browser.close();
   await server.close();

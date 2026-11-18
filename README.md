@@ -4,7 +4,7 @@
 alive on your wrist: tonight's moon, the planets as they stand today, a campfire, dice you roll
 with a flick of the wrist.
 
-![WristMarkCompanion: a phone showing two dice standing on a watch](viewer/public/social.png)
+![WristMarkCompanion: your watch, in 3D. A Ferris wheel standing on a watch on a wrist](viewer/public/social.jpg)
 
 ## Use it
 
