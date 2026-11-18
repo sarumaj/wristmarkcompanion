@@ -51,7 +51,7 @@ flowchart LR
 - [Watch app](watch.md): layout, controls, the display, devices, the viewer's address.
 - [Content](content.md): the marker-to-model mapping, how the models are made, the debug overlay.
 - [Interaction](interaction.md): the wrist's gestures, touch, the other hand.
-- [Android](android.md): the app, its signing, F-Droid.
+- [Android](android.md): the app, its signing, F-Droid; [Google Play](google-play.md).
 - [CI](ci.md), [deployment](deployment.md), [publishing to the Connect IQ Store](publishing.md)
   and its [assets](store-assets/).
 - [Device tests](device-tests.md): the protocol and [the results](device-tests/).

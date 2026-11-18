@@ -616,6 +616,10 @@ try {
 // times a second, which leaves the marker's detection most of the time.
 const HAND_INTERVAL_MS = 50;
 const handsButton = document.getElementById("hands");
+// A build without MediaPipe's prebuilt files (F-Droid's: tools/build-app-web.sh with
+// WRISTMARK_HANDS=off) says so in a meta tag: no hand button, H and ?hands do nothing.
+const handsAvailable = document.querySelector('meta[name="wristmark-hands"]')?.content !== "off";
+handsButton.hidden = !handsAvailable;
 const handCursor = document.getElementById("hand-cursor");
 const handInteraction = new HandInteraction();
 let handTracker = null;
@@ -626,6 +630,7 @@ let handsSeen = 0;
 // The free hand's last swipe or wave, for the debug view.
 let lastHandGesture = null;
 async function setHands(on) {
+  if (!handsAvailable) return;
   handsWanted = on;
   handsButton.setAttribute("aria-pressed", String(on));
   if (!on) {

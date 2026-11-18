@@ -1,5 +1,5 @@
 # A release, on a version tag (vX.Y.Z): the watch's store package, the Android app's
-# APK, the viewer's files and the release notes from CHANGELOG.md on a Forgejo release,
+# APK and App Bundle (for Google Play), the viewer's files and the release notes from CHANGELOG.md on a Forgejo release,
 # and the viewer deployed to the app host (docs/dev/deployment.md). Nothing else is uploaded.
 name: release
 'on':
@@ -93,9 +93,10 @@ jobs:
           CONNECTIQ_KEY=$key tools/build-watch.sh --package "$CONNECTIQ_SDK" "$RUNNER_TEMP/watch"
           cp "$RUNNER_TEMP/watch/wristmark.iq" "$RUNNER_TEMP/release/wristmark-$TAG.iq"
 
-      # The Android app (docs/dev/android.md): the release APK, signed with the key in the
-      # secrets (written for this step only), its certificate checked against the one
-      # docs/dev/android.md#signing names, so that a wrong key never goes out.
+      # The Android app (docs/dev/android.md): the release APK and App Bundle, signed with
+      # the key in the secrets (written for this step only), their certificate checked
+      # against the one docs/dev/android.md#signing names, so that a wrong key never goes
+      # out. The bundle is uploaded to Google Play by hand (docs/dev/google-play.md).
       - name: Build the Android app
         env:
           ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
@@ -121,6 +122,14 @@ jobs:
             exit 1
           fi
           cp "$apk" "$RUNNER_TEMP/release/wristmark-$TAG.apk"
+          # The bundle is signed as a JAR: keytool prints its certificate's fingerprint.
+          aab="$RUNNER_TEMP/apk/app-release.aab"
+          bundle_signer=$(keytool -printcert -jarfile "$aab" | sed -n 's/^[[:space:]]*SHA256: //p' | head -1 | tr -d ':' | tr 'A-F' 'a-f')
+          if [ "$bundle_signer" != "$CERTIFICATE_SHA256" ]; then
+            echo "::error::The App Bundle is signed by $bundle_signer, not the release key $CERTIFICATE_SHA256"
+            exit 1
+          fi
+          cp "$aab" "$RUNNER_TEMP/release/wristmark-$TAG.aab"
 
       # The files the image serves, libraries included, as one archive.
       - name: Pack the viewer

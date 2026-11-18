@@ -6,15 +6,15 @@ app does the same way: the camera, the models, the hand tracking, pairing with t
 is no iOS app: iOS builds need macOS and an Apple developer account (decided 2026-11-17);
 iPhones use the viewer in Safari.
 
-| Part                   | Where                                                                |
-|------------------------|----------------------------------------------------------------------|
-| Capacitor's project    | `app/` (`capacitor.config.json`, `package.json`), `app/android/`     |
-| The viewer's files     | `app/www`, made by `tools/build-app-web.sh` (not in Git)             |
-| Launcher icons, splash | From the viewer's icons by `tools/generate-app-icons.sh` (libvips)   |
-| The SDK                | `tools/install-android-sdk.sh`: Google's tools, pinned and checked   |
-| The build              | `tools/build-android.sh debug\|release`                              |
-| CI                     | The `android` job: the debug APK of every pull request, not kept     |
-| Release                | `release.yml`: the signed APK on the release, `wristmark-vX.Y.Z.apk` |
+| Part                   | Where                                                                                                                          |
+|------------------------|--------------------------------------------------------------------------------------------------------------------------------|
+| Capacitor's project    | `app/` (`capacitor.config.json`, `package.json`), `app/android/`                                                               |
+| The viewer's files     | `app/www`, made by `tools/build-app-web.sh` (not in Git)                                                                       |
+| Launcher icons, splash | From the viewer's icons by `tools/generate-app-icons.sh` (libvips)                                                             |
+| The SDK                | `tools/install-android-sdk.sh`: Google's tools, pinned and checked                                                             |
+| The build              | `tools/build-android.sh debug\|release`                                                                                        |
+| CI                     | The `android` job: the debug APK and App Bundle of every pull request, not kept                                                |
+| Release                | `release.yml`: the signed APK and App Bundle on the release, `wristmark-vX.Y.Z.apk` and `.aab` ([Google Play](google-play.md)) |
 
 ## How it differs from the web viewer
 
@@ -60,7 +60,9 @@ release key never changes. Losing it means everyone uninstalls and installs agai
 | The certificate SHA-256 | `b3295ca076aaa3baa9e1f1a56a7e696b85777e2a15e22765014a4b7aa0ea243b`         |
 
 The release workflow writes the keystore to a temporary file for its step only and checks that
-the APK's certificate is the one above, so an APK signed otherwise never goes out. The keystore
+the APK's and the App Bundle's certificate is the one above, so nothing signed otherwise goes
+out. Google Play re-signs what it installs: [give it this key](google-play.md#app-signing), or
+Play's and these APKs can't update each other. The keystore
 and its password are never in Git.
 
 ## Install
@@ -70,64 +72,62 @@ Updates install over it as long as they come from the same key (above).
 
 ## F-Droid {#f-droid}
 
-F-Droid builds the apps it publishes from their source on its own servers. With a
-[reproducible build](https://f-droid.org/docs/Reproducible_Builds/) it publishes the developer's
-own signed APK instead, so updates from either source install over each other. What publishing
-here needs, in order:
+F-Droid builds the apps it publishes from their source on its own servers, signs them with its
+own key, and refuses prebuilt binaries. What is ready here, and what is left:
 
-1. **The source in public.** The repository is private; F-Droid builds from a public Git
-   repository (this Forgejo with the repository made public, or a public mirror, e.g. on
-   Codeberg).
-2. **No prebuilt binaries in the build.** F-Droid's scanner refuses what isn't built from source:
-   - **MediaPipe** (hand tracking, Apache-2.0) comes from npm as WebAssembly and its model as a
-     file from Google's storage. Both are prebuilt. Either the F-Droid build leaves the hand
-     tracking out (the button hidden when its files are missing), or they are built from
-     MediaPipe's source, which needs Bazel and Emscripten: a large job.
-   - **`gradle-wrapper.jar`** is allowed: F-Droid uses its own Gradle.
-   - **Capacitor, three.js, js-aruco2** are MIT, from source on npm: accepted. npm itself is
-     allowed in a build recipe.
-3. **No dependency metadata blob** in the APK: `dependenciesInfo` is off in
-   `app/android/app/build.gradle` already.
-4. **Store texts and images in the repository**, where F-Droid reads them: Fastlane's layout,
-   `fastlane/metadata/android/en-US/` (`title.txt`, `short_description.txt`,
-   `full_description.txt`, `images/icon.png`, `images/phoneScreenshots/`).
-5. **The recipe**, `metadata/org.ciepiela.wristmark.yml` in a merge request to
-   [fdroiddata](https://gitlab.com/fdroid/fdroiddata), roughly:
+| Need                      | State                                                                                                                                                                                                                     |
+|---------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| A build from source only  | **Ready:** `WRISTMARK_HANDS=off` leaves MediaPipe (prebuilt WebAssembly and model) out of `app/www`, and the viewer hides the hand button (a test checks it). Capacitor, three.js and js-aruco2 are MIT, plain JavaScript |
+| No dependency metadata    | **Ready:** `dependenciesInfo` is off in `app/android/app/build.gradle`                                                                                                                                                    |
+| Texts and images          | **Ready:** `fastlane/metadata/android/en-US/`, shared with [Google Play](google-play.md#5-the-store-listing), outside Git LFS (F-Droid clones without it). Screenshots: yours to add in `images/phoneScreenshots/`        |
+| Changelogs (optional)     | `changelogs/<versionCode>.txt`, at most 500 characters: a few lines from `CHANGELOG.md` per release                                                                                                                       |
+| **The source in public**  | **Open:** the repository is private; F-Droid builds only from a public one (this Forgejo with the repository public, or a mirror, e.g. on Codeberg)                                                                       |
+| The recipe and its review | **Open:** below, as a merge request to [fdroiddata](https://gitlab.com/fdroid/fdroiddata); the maintainers' review takes weeks                                                                                            |
 
-   ```yaml
-   Categories: [Multimedia]
-   License: GPL-3.0-or-later
-   SourceCode: https://git.ciepiela.org/dawid/wristmarkcompanion
-   IssueTracker: https://git.ciepiela.org/dawid/wristmarkcompanion/issues
-   RepoType: git
-   Repo: https://git.ciepiela.org/dawid/wristmarkcompanion.git
-   Binaries: https://git.ciepiela.org/dawid/wristmarkcompanion/releases/download/v%v/wristmark-v%v.apk
-   AllowedAPKSigningKeys: b3295ca076aaa3baa9e1f1a56a7e696b85777e2a15e22765014a4b7aa0ea243b
-   Builds:
-     - versionName: 0.2.0
-       versionCode: 200
-       commit: v0.2.0
-       subdir: app/android/app
-       sudo:
-         - apt-get update
-         - apt-get install -y nodejs npm
-       prebuild:
-         - npm ci --prefix ../../../viewer --ignore-scripts
-         - cd ../.. && npm ci --ignore-scripts && ../tools/build-app-web.sh && npx cap sync android
-       gradle: [yes]
-   AutoUpdateMode: Version
-   UpdateCheckMode: Tags ^v[0-9.]+$
-   ```
+**Signatures:** F-Droid's APK has F-Droid's key and no hand tracking, so it can't update over
+ours or Play's, nor they over it; people pick one source. (Publishing our own APK through
+F-Droid needs a reproducible build, which the hand tracking in ours rules out.)
 
-   `Binaries` with `AllowedAPKSigningKeys` asks F-Droid to compare its build with our APK and
-   publish ours when they match bit for bit; that needs the same Node.js, JDK and build tools on
-   both sides. Without them F-Droid signs with its own key.
-6. **Review:** F-Droid's maintainers check the recipe and the app; it takes weeks. The relay is
-   free software in the same repository, so the app's network use needs no anti-feature.
+**The recipe**, `metadata/org.ciepiela.wristmark.yml` (the URLs once public). Capacitor's CLI
+needs Node.js 22 or later, newer than the build server's Debian has, so the recipe fetches
+Node.js and checks it:
 
-**Quicker: an F-Droid repository of our own.** `fdroidserver` (`fdroid update`) makes a
-repository index from our signed APKs; served from any static host, people add its address in
-the F-Droid client once and get updates there. No review, no rebuild, and MediaPipe stays.
+```yaml
+Categories: [Multimedia]
+License: GPL-3.0-only
+SourceCode: https://git.ciepiela.org/dawid/wristmarkcompanion
+IssueTracker: https://git.ciepiela.org/dawid/wristmarkcompanion/issues
+RepoType: git
+Repo: https://git.ciepiela.org/dawid/wristmarkcompanion.git
+Builds:
+  - versionName: 0.3.0
+    versionCode: 300
+    commit: v0.3.0
+    subdir: app/android/app
+    sudo:
+      - curl -fsSLo /tmp/node.tar.xz https://nodejs.org/dist/v24.22.2/node-v24.22.2-linux-x64.tar.xz
+      - echo "48cc0e21e048790e54c0cf5749c2725005313d652651c40b7a21feb9697aaf75  /tmp/node.tar.xz" | sha256sum -c -
+      - tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1
+    # One shell, the lines joined with &&, from the subdir: hence the first cd.
+    prebuild:
+      - cd ../../..
+      - npm ci --prefix viewer --ignore-scripts --omit=dev
+      - rm -rf viewer/node_modules/@mediapipe
+      - npm ci --prefix app --ignore-scripts
+      - WRISTMARK_HANDS=off tools/build-app-web.sh
+      - cd app && npx cap sync android
+    scandelete:
+      - viewer/node_modules
+      - app/node_modules
+    gradle: [yes]
+AutoUpdateMode: Version
+UpdateCheckMode: Tags ^v[0-9.]+$
+CurrentVersion: 0.3.0
+CurrentVersionCode: 300
+```
+
+The version is the first release with the no-hands build. The relay is free software in the
+same repository, so the app's network use needs no anti-feature.
 
 **Files here and LFS:** F-Droid's servers clone without Git LFS, so nothing the build reads may
-be in LFS: `app/android/` is excluded in `.gitattributes`.
+be in LFS: `app/android/` and `fastlane/` are excluded in `.gitattributes`.
