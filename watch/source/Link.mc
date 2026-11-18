@@ -14,8 +14,6 @@ import Toybox.Timer;
 typedef RelayResponse as Null or ByteArray or Dictionary or String or PersistedContent.Iterator;
 
 class Link {
-    //! The relay, on the viewer's origin.
-    const RELAY = "https://wristmark.apps.ciepiela.org/relay/v1";
     //! The long-poll's wait to start with, in seconds; halved after each timeout of the
     //! phone's proxy, whose limit Garmin doesn't document (the spike measures it).
     const WAIT = 25;
@@ -144,7 +142,7 @@ class Link {
             headers["Authorization"] = "Bearer " + token;
         }
         _busy = true;
-        Communications.makeWebRequest(RELAY + path, body as Dictionary<Object, Object>, {
+        Communications.makeWebRequest(ViewerAddress.RELAY + path, body as Dictionary<Object, Object>, {
             :method => verb,
             :headers => headers,
             :responseType => Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON,

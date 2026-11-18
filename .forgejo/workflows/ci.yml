@@ -58,9 +58,9 @@ jobs:
       - name: Check the watch's launcher icon
         run: node tools/generate-icon.mjs --check
 
-      # The Viewers screen's QR code is the viewer's address, from Link.RELAY.
+      # The watch's viewer address and its QR code, as committed: the default origin.
       - name: Check the watch's QR code of the viewer
-        run: node tools/generate-viewer-qr.mjs --check
+        run: node tools/generate-viewer-address.mjs --check
 
       - name: Check the watch's manifest and devices' jungle
         run: node tools/generate-devices.mjs --check

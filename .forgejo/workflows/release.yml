@@ -64,11 +64,24 @@ jobs:
           distribution: temurin
           java-version: '21'
 
+      # The viewer's packages: the QR code of WRISTMARK_ORIGIN for the watch, and the
+      # Android app's web files.
+      - name: Set up Node.js
+        uses: https://github.com/actions/setup-node@v5
+        with:
+          node-version: '24'
+
+      - name: Install the viewer's packages
+        run: npm ci --prefix viewer --ignore-scripts --no-audit --no-fund
+
       # The developer key, base64 of its DER file (docs/publishing.md): written for
-      # this step only and deleted, also when the build fails.
+      # this step only and deleted, also when the build fails. The viewer's address is
+      # the repository variable WRISTMARK_ORIGIN, or the default where it is unset
+      # (docs/watch.md#the-viewers-address).
       - name: Build the store package
         env:
           CONNECTIQ_DEVELOPER_KEY: ${{ secrets.CONNECTIQ_DEVELOPER_KEY }}
+          WRISTMARK_ORIGIN: ${{ vars.WRISTMARK_ORIGIN }}
         run: |
           if [ -z "$CONNECTIQ_DEVELOPER_KEY" ]; then
             echo "::error::The Actions secret CONNECTIQ_DEVELOPER_KEY is missing (docs/publishing.md)"
@@ -83,15 +96,11 @@ jobs:
       # The Android app (docs/android.md): the release APK, signed with the key in the
       # secrets (written for this step only), its certificate checked against the one
       # docs/android.md#signing names, so that a wrong key never goes out.
-      - name: Set up Node.js
-        uses: https://github.com/actions/setup-node@v5
-        with:
-          node-version: '24'
-
       - name: Build the Android app
         env:
           ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          WRISTMARK_ORIGIN: ${{ vars.WRISTMARK_ORIGIN }}
           CERTIFICATE_SHA256: b3295ca076aaa3baa9e1f1a56a7e696b85777e2a15e22765014a4b7aa0ea243b
         run: |
           if [ -z "$ANDROID_KEYSTORE" ] || [ -z "$ANDROID_KEYSTORE_PASSWORD" ]; then
@@ -103,7 +112,6 @@ jobs:
           printf '%s' "$ANDROID_KEYSTORE" | base64 -d > "$keystore"
           export ANDROID_HOME="$RUNNER_TEMP/android-sdk"
           tools/install-android-sdk.sh "$ANDROID_HOME"
-          npm ci --prefix viewer --ignore-scripts --no-audit --no-fund
           APP_VERSION="${TAG#v}" ANDROID_KEYSTORE_FILE="$keystore" tools/build-android.sh release "$RUNNER_TEMP/apk"
           apk="$RUNNER_TEMP/apk/app-release.apk"
           signer=$("$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs "$apk" \

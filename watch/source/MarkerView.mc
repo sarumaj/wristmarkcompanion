@@ -123,13 +123,13 @@ class MarkerView extends WatchUi.View {
         return [cell, height / 2, (below + height / 2 + radius) / 2] as Array<Number>;
     }
 
-    //! The Viewers screen: the QR code of the viewer's address (ViewerQr), for a phone's
+    //! The Viewers screen: the QR code of the viewer's address (ViewerAddress), for a phone's
     //! camera, and how to pair (start or a tap: the viewers' menu).
     private function drawViewers(dc as Graphics.Dc) as Void {
         var width = dc.getWidth();
         var height = dc.getHeight();
         var font = Graphics.FONT_XTINY;
-        var size = ViewerQr.SIZE;
+        var size = ViewerAddress.QR_SIZE;
         // Two modules of white around it: the readers' quiet zone, smaller than the
         // standard's four, as phones read it (and more modules for the code).
         var quiet = 2;
@@ -146,7 +146,7 @@ class MarkerView extends WatchUi.View {
         // The dark modules, a rectangle per run of them in a row.
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_WHITE);
         for (var row = 0; row < size; row++) {
-            var bits = ViewerQr.ROWS[row];
+            var bits = ViewerAddress.QR_ROWS[row];
             var col = 0;
             while (col < size) {
                 if (((bits >> (size - 1 - col)) & 1) == 0) {
