@@ -155,6 +155,83 @@ test("pairing through the camera, then steering the watch, and connected again a
   }
 });
 
+// A session kept from an earlier visit, as remote.js keeps it, with the vectors' secret.
+async function keepSession(page) {
+  await page.evaluate(async (hex) => {
+    const { deriveSession } = await import("/js/channel.js");
+    const derived = await deriveSession(Uint8Array.from(hex.match(/../g), (pair) => parseInt(pair, 16)));
+    const now = Date.now();
+    const db = await new Promise((resolve, reject) => {
+      const request = indexedDB.open("wristmark", 1);
+      request.onupgradeneeded = () => request.result.createObjectStore("sessions", { keyPath: "id" });
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    await new Promise((resolve, reject) => {
+      const transaction = db.transaction("sessions", "readwrite");
+      transaction.objectStore("sessions").put({ id: derived.id, tokens: derived.tokens, hashes: derived.hashes, keys: derived.keys, pairedAt: now, usedAt: now, lastEvent: 0 });
+      transaction.oncomplete = resolve;
+      transaction.onerror = () => reject(transaction.error);
+    });
+    db.close();
+  }, vectors.secret);
+}
+
+test("a kept pairing the watch doesn't answer can be forgotten, which ends it at the relay", async () => {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  await page.clock.install();
+  const calls = [];
+  await page.route("**/relay/v1/**", async (route) => {
+    const request = route.request();
+    const url = new URL(request.url());
+    calls.push(`${request.method()} ${url.pathname.replace(/^.*\/relay\/v1/, "")}`);
+    if (url.pathname.endsWith("/healthz")) return route.fulfill({ json: { status: "ok" } });
+    if (request.method() === "PUT") return route.fulfill({ status: 204 });
+    if (request.method() === "POST") return route.fulfill({ status: 202, json: { q: 1 } });
+    if (request.method() === "DELETE") return route.fulfill({ status: 204 });
+    // The watch never answers.
+    return route.fulfill({ status: 200, headers: { "Content-Type": "text/event-stream" }, body: ": quiet\n\n" });
+  });
+  await page.goto(`${server.url}/index.html`);
+  await keepSession(page);
+  await page.reload();
+  await page.waitForFunction(() => document.body.dataset.remote === "waiting");
+  await page.getByRole("button", { name: "Watch", exact: true }).click();
+  // Waiting at first, without a way out that would cut a slow watch short.
+  assert.equal(await page.getByRole("button", { name: "Forget this pairing" }).isVisible(), false);
+  await page.clock.fastForward(21000);
+  await page.locator("#remote-text", { hasText: "hasn't answered" }).waitFor();
+  assert.equal(await page.getByRole("button", { name: "Pair again" }).isVisible(), true);
+  await page.getByRole("button", { name: "Forget this pairing" }).click();
+  await page.waitForFunction(() => document.body.dataset.remote === "idle");
+  assert.equal(await page.getByRole("button", { name: "Pair with the watch" }).isVisible(), true);
+  // The watch is told (bye), the channel deleted, and nothing kept: a reload stays idle.
+  assert.deepEqual(calls.filter((call) => /^(POST|DELETE)/.test(call)).map((call) => call.replace(/channels\/[^/]+/, "channels/ID")), ["POST /channels/ID/to-watch", "POST /channels/ID/to-watch", "DELETE /channels/ID"]);
+  await page.reload();
+  await page.waitForLoadState("networkidle");
+  assert.equal(await page.evaluate(() => document.body.dataset.remote), "idle");
+  await context.close();
+});
+
+test("a pairing the watch ended (the relay's 410) is forgotten, and the viewer says so", async () => {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  await page.route("**/relay/v1/**", async (route) => {
+    if (route.request().url().endsWith("/healthz")) return route.fulfill({ json: { status: "ok" } });
+    return route.fulfill({ status: 410, json: { detail: "the other side ended this pairing" } });
+  });
+  await page.goto(`${server.url}/index.html`);
+  await keepSession(page);
+  await page.reload();
+  await page.locator("#remote-text", { hasText: "The watch ended this pairing" }).waitFor({ state: "attached" });
+  assert.equal(await page.evaluate(() => document.body.dataset.remote), "idle");
+  await page.reload();
+  await page.waitForLoadState("networkidle");
+  assert.equal(await page.locator("#remote-text").textContent().then((text) => text.includes("ended")), false);
+  await context.close();
+});
+
 test("without a relay, the Watch button isn't offered", async () => {
   const context = await browser.newContext();
   const page = await context.newPage();

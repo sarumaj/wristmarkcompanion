@@ -855,12 +855,15 @@ const remoteText = document.getElementById("remote-text");
 const remoteProgress = document.getElementById("remote-progress");
 const remoteButtons = document.getElementById("remote-buttons");
 const remotePair = document.getElementById("remote-pair");
+const remoteForget = document.getElementById("remote-forget");
 const remoteBadge = document.getElementById("remote-badge");
 const REMOTE_TEXTS = {
   idle: "Steer the watch from here, end-to-end encrypted. On the watch, step past the last marker to Viewers and press start (or hold a finger on the display), choose Pair a viewer, start the camera here and hold the watch 15 to 25 cm from it.",
   pairing: "Reading the watch's pairing code: hold its display toward the camera, 15 to 25 cm away.",
   connecting: "Connecting…",
   waiting: "Waiting for the watch: keep the app open on it.",
+  reconnecting: "The connection to the watch dropped: trying again…",
+  unanswered: "The watch hasn't answered. Open the app on it and keep your phone near it. If its menu no longer lists this viewer under Forget, the watch has forgotten it: forget it here too and pair again.",
 };
 let wasConnected = false;
 function showRemote(r) {
@@ -873,15 +876,23 @@ function showRemote(r) {
       ? `The watch shows marker ${r.watch.id}${r.watch.cycle ? ", cycling" : ""}; its battery is at ${r.watch.battery} %.`
       : r.state === "failed"
         ? r.error
-        : REMOTE_TEXTS[r.state];
+        : r.state === "waiting" && r.unanswered
+          ? REMOTE_TEXTS.unanswered
+          : r.state === "idle" && r.notice
+            ? `${r.notice} ${REMOTE_TEXTS.idle}`
+            : REMOTE_TEXTS[r.state];
   remoteProgress.hidden = r.state !== "pairing";
   remoteProgress.value = r.frames;
   remoteButtons.hidden = !connected;
   remoteBadge.hidden = !connected;
   watchBar.hidden = !connected;
   for (const cycle of document.querySelectorAll('[data-op="cycle"]')) cycle.setAttribute("aria-pressed", String(Boolean(r.watch?.cycle)));
-  remotePair.hidden = connected || r.state === "connecting" || r.state === "waiting";
-  remotePair.textContent = r.state === "pairing" ? "Cancel" : r.state === "failed" ? "Try again" : "Pair with the watch";
+  // Unanswered for a while, or failed, with a session kept: it can be forgotten, or replaced
+  // by pairing again.
+  const stuck = Boolean(r.session) && ((r.state === "waiting" && r.unanswered) || r.state === "failed");
+  remotePair.hidden = connected || r.state === "connecting" || r.state === "reconnecting" || (r.state === "waiting" && !stuck);
+  remotePair.textContent = r.state === "pairing" ? "Cancel" : r.state === "failed" ? "Try again" : stuck ? "Pair again" : "Pair with the watch";
+  remoteForget.hidden = !stuck;
   document.body.dataset.remote = r.state;
   remoteToggle.classList.toggle("is-on", connected);
 }
@@ -907,6 +918,8 @@ document.getElementById("remote-close").addEventListener("click", () => {
 });
 remotePair.addEventListener("click", () => {
   if (remote.state === "pairing") remote.cancel();
+  // The relay couldn't be reached: connect again with the session kept.
+  else if (remote.state === "failed" && remote.session) remote.connect(remote.session, { greet: true });
   else {
     remote.startPairing();
     if (document.body.dataset.state === "idle") run().catch(fail);
@@ -922,6 +935,7 @@ function steer(event) {
   if (op === "disconnect") remote.disconnect();
 }
 remoteButtons.addEventListener("click", steer);
+remoteForget.addEventListener("click", () => remote.disconnect());
 watchBar.addEventListener("click", steer);
 // Offered only where the relay runs: its health says "ok". Until it is deployed beside
 // the viewer, nginx answers the same path with "off" (nginx.conf), and the Watch button

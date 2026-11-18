@@ -16,6 +16,9 @@ services:
   relay:
     build: relay
     restart: unless-stopped
+    # The relay bounds its own memory (1,000 channels, 32 MB queued); this bound keeps a
+    # flaw in that from reaching the other apps on the host.
+    mem_limit: 128m
     read_only: true
     cap_drop: [ALL]
     security_opt: ["no-new-privileges:true"]

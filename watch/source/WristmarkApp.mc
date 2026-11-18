@@ -15,6 +15,7 @@ class WristmarkApp extends Application.AppBase {
         _view = new MarkerView();
         link = new Link(self);
         _view.onChange = method(:changed);
+        _view.onTick = link.method(:tick);
     }
 
     function onStart(state as Dictionary?) as Void {
@@ -72,9 +73,13 @@ class WristmarkApp extends Application.AppBase {
         }
     }
 
+    //! A buzz; a tone where the device can't vibrate (the Edge bike computers), so that a
+    //! pairing and the viewer's "find the watch" are noticed there too.
     function buzz(ms as Number) as Void {
         if (Attention has :vibrate) {
             Attention.vibrate([new Attention.VibeProfile(75, ms)]);
+        } else if (Attention has :playTone) {
+            Attention.playTone(Attention.TONE_LOUD_BEEP);
         }
     }
 }

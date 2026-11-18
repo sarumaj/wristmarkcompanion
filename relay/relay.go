@@ -5,6 +5,7 @@
 package main
 
 import (
+	"bytes"
 	"crypto/sha256"
 	"crypto/subtle"
 	"encoding/hex"
@@ -22,14 +23,27 @@ import (
 
 // Limits (docs/dev/decisions/004-control-channel.md#the-relays-api).
 const (
-	maxBody         = 2048
-	maxQueued       = 64
-	maxRate         = 10 // messages a second per channel, both ways together
-	maxWait         = 25 * time.Second
-	maxPollIDs      = 4
-	idleAfter       = 15 * time.Minute
-	keepAliveEvery  = 15 * time.Second
-	defaultChannels = 10000
+	maxBody   = 2048
+	maxQueued = 64
+	maxRate   = 10 // messages a second per channel, both ways together
+	maxWait   = 25 * time.Second
+	// The watch's four sessions and the one being paired.
+	maxPollIDs = 5
+	// The most messages in one answer to the watch's poll, all channels together: a watch
+	// takes a small response only, and pages through the rest with `after`.
+	maxPollAnswer  = 8
+	idleAfter      = 15 * time.Minute
+	keepAliveEvery = 15 * time.Second
+	// The family needs dozens of channels; the bound keeps a flood of PUTs, and the queues
+	// it could fill, from taking the host's memory.
+	defaultChannels = 1000
+	// The most bytes queued in all channels together.
+	defaultQueuedBytes = 32 << 20
+	// A deleted channel's tombstone lasts as long as an unused session does on either side
+	// (7 days), so that the other side learns the pairing ended whenever it comes back
+	// within it, instead of creating the channel again.
+	goneFor     = 7 * 24 * time.Hour
+	defaultGone = 100000
 )
 
 // A channel's ID: 16 random bytes in unpadded base64url. A token hash: SHA-256 in hex.
@@ -45,20 +59,30 @@ type message struct {
 	E json.RawMessage `json:"e"`
 }
 
-// queue is one direction of a channel: its messages, the last place given out, and the
-// waiters to wake when a message comes.
+// queue is one direction of a channel: its messages, the last place given out, the
+// waiters to wake when a message comes, and its bytes, also counted in the relay's total.
 type queue struct {
 	messages []message
 	last     int64
 	waiters  map[chan struct{}]struct{}
+	bytes    int
+	total    *int
 }
 
-func (q *queue) push(envelope json.RawMessage) (int64, bool) {
+// push queues an envelope. A full queue refuses it, or, as a ring (`ring`), forgets its
+// oldest message to make room: the watch's events toward a viewer that isn't reading
+// (a closed tab) must not block the watch; the viewer needs only the latest state.
+func (q *queue) push(envelope json.RawMessage, ring bool) (int64, bool) {
 	if len(q.messages) >= maxQueued {
-		return 0, false
+		if !ring {
+			return 0, false
+		}
+		q.account(-len(q.messages[0].E))
+		q.messages = q.messages[1:]
 	}
 	q.last++
 	q.messages = append(q.messages, message{Q: q.last, E: envelope})
+	q.account(len(envelope))
 	for waiter := range q.waiters {
 		close(waiter)
 		delete(q.waiters, waiter)
@@ -66,11 +90,28 @@ func (q *queue) push(envelope json.RawMessage) (int64, bool) {
 	return q.last, true
 }
 
-// after is the messages past place `q`.
-func (q *queue) after(place int64) []message {
+func (q *queue) account(delta int) {
+	q.bytes += delta
+	if q.total != nil {
+		*q.total += delta
+	}
+}
+
+// place is a receiver's last place, or 0 when it is past the queue's end: a queue created
+// again (a restart, or 15 idle minutes) numbers from 1 again, and a stale place must not
+// hide its first messages.
+func (q *queue) place(last int64) int64 {
+	if last > q.last {
+		return 0
+	}
+	return last
+}
+
+// after is at most `limit` messages past place `q`.
+func (q *queue) after(place int64, limit int) []message {
 	var out []message
 	for _, m := range q.messages {
-		if m.Q > place {
+		if m.Q > place && len(out) < limit {
 			out = append(out, m)
 		}
 	}
@@ -83,6 +124,8 @@ func (q *queue) drop(place int64) {
 	for _, m := range q.messages {
 		if m.Q > place {
 			kept = append(kept, m)
+		} else {
+			q.account(-len(m.E))
 		}
 	}
 	q.messages = kept
@@ -117,12 +160,21 @@ func (c *channel) allow(now time.Time) bool {
 	return true
 }
 
+// tombstone is what is left of a deleted channel: its token hashes, to tell the side that
+// presents one that the pairing ended (410 Gone), until `until`.
+type tombstone struct {
+	watch, viewer [32]byte
+	until         time.Time
+}
+
 // Relay is the HTTP handler and its state.
 type Relay struct {
 	mu       sync.Mutex
 	channels map[string]*channel
-	// The most channels at once: a bound on memory.
-	limit int
+	gone     map[string]tombstone
+	// The most channels and tombstones at once, and the most bytes queued: bounds on memory.
+	limit, goneLimit, queuedLimit int
+	queued                        int
 	// The clock, replaced in the tests.
 	now func() time.Time
 	mux *http.ServeMux
@@ -130,7 +182,11 @@ type Relay struct {
 
 // New returns a relay serving /relay/v1/.
 func New() *Relay {
-	r := &Relay{channels: map[string]*channel{}, limit: defaultChannels, now: time.Now, mux: http.NewServeMux()}
+	r := &Relay{
+		channels: map[string]*channel{}, gone: map[string]tombstone{},
+		limit: defaultChannels, goneLimit: defaultGone, queuedLimit: defaultQueuedBytes,
+		now: time.Now, mux: http.NewServeMux(),
+	}
 	r.mux.HandleFunc("GET /relay/v1/healthz", func(w http.ResponseWriter, _ *http.Request) {
 		reply(w, http.StatusOK, map[string]string{"status": "ok"})
 	})
@@ -166,21 +222,37 @@ func (r *Relay) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 }
 
 // Sweep forgets the channels idle for idleAfter, and wakes nobody: their waiters are
-// gone with their requests. Run it every minute.
+// gone with their requests; and the tombstones past their time. Run it every minute.
 func (r *Relay) Sweep() {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	now := r.now()
 	for id, c := range r.channels {
 		if now.Sub(c.used) > idleAfter && len(c.toWatch.waiters) == 0 && len(c.toViewer.waiters) == 0 {
+			r.queued -= c.toWatch.bytes + c.toViewer.bytes
 			delete(r.channels, id)
+		}
+	}
+	for id, t := range r.gone {
+		if now.After(t.until) {
+			delete(r.gone, id)
 		}
 	}
 }
 
-// problem writes an RFC 9457 problem.
+// ended tells whether the channel `id` was deleted and `token` is one of its tokens: the
+// other side ended the pairing. Under the lock.
+func (r *Relay) ended(id, token string) bool {
+	t, found := r.gone[id]
+	return found && r.now().Before(t.until) && (matches(token, t.watch) || matches(token, t.viewer))
+}
+
+const endedDetail = "the other side ended this pairing"
+
+// problem writes an RFC 9457 problem, as application/json: the watch's makeWebRequest,
+// asked for JSON, may refuse another media type and hide the status behind its own error.
 func problem(w http.ResponseWriter, status int, detail string) {
-	w.Header().Set("Content-Type", "application/problem+json")
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	_ = json.NewEncoder(w).Encode(map[string]any{
 		"type": "about:blank", "title": http.StatusText(status), "status": status, "detail": detail,
@@ -244,8 +316,13 @@ func (r *Relay) find(w http.ResponseWriter, req *http.Request, token string) (*c
 	r.mu.Lock()
 	c := r.channels[id]
 	if c == nil {
+		ended := r.ended(id, token)
 		r.mu.Unlock()
-		problem(w, http.StatusNotFound, "no such channel: create it again")
+		if ended {
+			problem(w, http.StatusGone, endedDetail)
+		} else {
+			problem(w, http.StatusNotFound, "no such channel: create it again")
+		}
 		return nil, nobody
 	}
 	side := nobody
@@ -282,13 +359,17 @@ func (r *Relay) create(w http.ResponseWriter, req *http.Request) {
 	_, _ = hex.Decode(viewer[:], []byte(body.Viewer))
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	if t, found := r.gone[id]; found && t.watch == watch && t.viewer == viewer && r.now().Before(t.until) {
+		problem(w, http.StatusGone, endedDetail)
+		return
+	}
 	if c := r.channels[id]; c != nil {
 		if c.watch != watch || c.viewer != viewer {
 			problem(w, http.StatusConflict, "the channel exists with other tokens")
 			return
 		}
 		c.used = r.now()
-		w.WriteHeader(http.StatusNoContent)
+		reply(w, http.StatusOK, struct{}{})
 		return
 	}
 	if len(r.channels) >= r.limit {
@@ -296,8 +377,13 @@ func (r *Relay) create(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	now := r.now()
-	r.channels[id] = &channel{watch: watch, viewer: viewer, used: now, tokens: maxRate, refills: now}
-	w.WriteHeader(http.StatusCreated)
+	c := &channel{watch: watch, viewer: viewer, used: now, tokens: maxRate, refills: now}
+	c.toWatch.total = &r.queued
+	c.toViewer.total = &r.queued
+	r.channels[id] = c
+	// A JSON body with every answer: the watch's makeWebRequest, asked for JSON, may take an
+	// empty one for an error.
+	reply(w, http.StatusCreated, struct{}{})
 }
 
 func (r *Relay) remove(w http.ResponseWriter, req *http.Request) {
@@ -313,12 +399,52 @@ func (r *Relay) remove(w http.ResponseWriter, req *http.Request) {
 		}
 		q.waiters = nil
 	}
+	r.queued -= c.toWatch.bytes + c.toViewer.bytes
 	delete(r.channels, req.PathValue("id"))
-	w.WriteHeader(http.StatusNoContent)
+	if len(r.gone) < r.goneLimit {
+		r.gone[req.PathValue("id")] = tombstone{watch: c.watch, viewer: c.viewer, until: r.now().Add(goneFor)}
+	}
+	reply(w, http.StatusOK, struct{}{})
+}
+
+// envelope checks a body's shape as an envelope (docs/dev/decisions/004-control-channel.md#messages),
+// so that a receiver is never handed one it can't even parse, and returns it compact: one
+// line, as an event stream's data line must be.
+func envelope(body []byte) (json.RawMessage, bool) {
+	var e struct {
+		V, S, TS     *int64
+		R, IV, C, Tg *string
+	}
+	var tag struct {
+		T *string `json:"t"`
+	}
+	if json.Unmarshal(body, &e) != nil || json.Unmarshal(body, &tag) != nil {
+		return nil, false
+	}
+	e.Tg = tag.T
+	if e.V == nil || e.S == nil || e.TS == nil || *e.S < 1 || *e.TS < 0 || *e.TS > 0xFFFFFFFF ||
+		e.R == nil || e.IV == nil || e.C == nil || e.Tg == nil {
+		return nil, false
+	}
+	var compact bytes.Buffer
+	if json.Compact(&compact, body) != nil {
+		return nil, false
+	}
+	return compact.Bytes(), true
 }
 
 // send queues an envelope from `from` into the channel's queue toward the other side.
 func (r *Relay) send(w http.ResponseWriter, req *http.Request, from int) {
+	// The body first, without the lock: a slow sender holds up no one else.
+	var raw json.RawMessage
+	if !read(w, req, &raw) {
+		return
+	}
+	sealed, ok := envelope(raw)
+	if !ok {
+		problem(w, http.StatusBadRequest, "not an envelope")
+		return
+	}
 	c, side := r.find(w, req, bearer(req))
 	if c == nil {
 		return
@@ -328,12 +454,8 @@ func (r *Relay) send(w http.ResponseWriter, req *http.Request, from int) {
 		problem(w, http.StatusForbidden, "this side does not send this way")
 		return
 	}
-	var envelope json.RawMessage
-	if !read(w, req, &envelope) {
-		return
-	}
-	if len(envelope) == 0 || envelope[0] != '{' {
-		problem(w, http.StatusBadRequest, "an envelope is a JSON object")
+	if r.queued+len(sealed) > r.queuedLimit {
+		problem(w, http.StatusServiceUnavailable, "the relay is full: try again later")
 		return
 	}
 	if !c.allow(r.now()) {
@@ -344,7 +466,9 @@ func (r *Relay) send(w http.ResponseWriter, req *http.Request, from int) {
 	if from == viewerSide {
 		q = &c.toWatch
 	}
-	place, ok := q.push(envelope)
+	// Toward the watch, a full queue is the viewer's to hear about (it shows the error);
+	// toward the viewer, a ring, which never blocks the watch.
+	place, ok := q.push(sealed, from == watchSide)
 	if !ok {
 		problem(w, http.StatusTooManyRequests, fmt.Sprintf("%d messages wait already", maxQueued))
 		return
@@ -379,30 +503,41 @@ func (r *Relay) poll(w http.ResponseWriter, req *http.Request) {
 		r.mu.Lock()
 		messages := map[string][]message{}
 		unknown := []string{}
+		gone := []string{}
 		waiters := []chan struct{}{}
+		room := maxPollAnswer
 		for _, asked := range body.Channels {
 			c := r.channels[asked.ID]
 			if c == nil {
-				unknown = append(unknown, asked.ID)
+				if r.ended(asked.ID, asked.Token) {
+					gone = append(gone, asked.ID)
+				} else {
+					unknown = append(unknown, asked.ID)
+				}
 				continue
 			}
 			if !matches(asked.Token, c.watch) {
-				r.mu.Unlock()
-				problem(w, http.StatusUnauthorized, "not the watch's token of a channel")
-				return
+				// Not this watch's channel (another's, with other tokens): gone for it, without
+				// failing the poll for its other channels.
+				gone = append(gone, asked.ID)
+				continue
 			}
 			c.used = r.now()
-			c.toWatch.drop(asked.After)
-			if pending := c.toWatch.after(asked.After); len(pending) > 0 {
+			place := c.toWatch.place(asked.After)
+			c.toWatch.drop(place)
+			if pending := c.toWatch.after(place, room); len(pending) > 0 {
 				messages[asked.ID] = pending
-			} else {
+				room -= len(pending)
+			} else if room > 0 {
 				waiters = append(waiters, c.toWatch.wait())
 			}
 		}
-		if len(messages) > 0 || len(unknown) == len(body.Channels) {
+		// Answered at once with anything to say: messages, or channels to create again or
+		// to forget.
+		if len(messages) > 0 || len(gone) > 0 || len(unknown) > 0 {
 			r.forget(body.Channels, waiters)
 			r.mu.Unlock()
-			reply(w, http.StatusOK, map[string]any{"messages": messages, "unknown": unknown})
+			reply(w, http.StatusOK, map[string]any{"messages": messages, "unknown": unknown, "gone": gone})
 			return
 		}
 		r.mu.Unlock()
@@ -432,7 +567,7 @@ func (r *Relay) poll(w http.ResponseWriter, req *http.Request) {
 			r.mu.Lock()
 			r.forget(body.Channels, waiters)
 			r.mu.Unlock()
-			reply(w, http.StatusOK, map[string]any{"messages": map[string][]message{}, "unknown": unknown})
+			reply(w, http.StatusOK, map[string]any{"messages": map[string][]message{}, "unknown": unknown, "gone": gone})
 			return
 		case <-req.Context().Done():
 			close(stop)
@@ -476,6 +611,7 @@ func (r *Relay) stream(w http.ResponseWriter, req *http.Request) {
 	if last := req.Header.Get("Last-Event-ID"); last != "" {
 		place, _ = strconv.ParseInt(last, 10, 64)
 	}
+	place = c.toViewer.place(place)
 	c.toViewer.drop(place)
 	r.mu.Unlock()
 	control := http.NewResponseController(w)
@@ -492,7 +628,7 @@ func (r *Relay) stream(w http.ResponseWriter, req *http.Request) {
 			r.mu.Unlock()
 			return
 		}
-		pending := c.toViewer.after(place)
+		pending := c.toViewer.after(place, maxQueued)
 		var waiter chan struct{}
 		if len(pending) == 0 {
 			waiter = c.toViewer.wait()

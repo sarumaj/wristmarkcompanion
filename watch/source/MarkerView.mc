@@ -44,6 +44,9 @@ class MarkerView extends WatchUi.View {
     //! Called after the marker or the cycle changed, by a button or a viewer: the app
     //! tells the paired viewers (WristmarkApp.changed).
     var onChange as Method? = null;
+    //! Called with each tick of the keep-on timer, every KEEP_ON_MS while the view shows:
+    //! the link's retries ride on it (Link.tick), sparing a timer.
+    var onTick as Method? = null;
 
     function initialize() {
         View.initialize();
@@ -77,7 +80,7 @@ class MarkerView extends WatchUi.View {
 
     //! Also after the menu or the pairing screen closes: the cycle goes on where it was.
     function onShow() as Void {
-        _keepOnTimer.start(method(:keepOn), KEEP_ON_MS, true);
+        _keepOnTimer.start(method(:tick), KEEP_ON_MS, true);
         if (_cycling) {
             startCycle();
         }
@@ -264,8 +267,22 @@ class MarkerView extends WatchUi.View {
     private function changed() as Void {
         wake();
         WatchUi.requestUpdate();
-        if (onChange != null) {
-            onChange.invoke();
+        tell();
+    }
+
+    //! The listener told; a local first, since the type checker narrows no member.
+    private function tell() as Void {
+        var listener = onChange;
+        if (listener != null) {
+            listener.invoke();
+        }
+    }
+
+    function tick() as Void {
+        keepOn();
+        var listener = onTick;
+        if (listener != null) {
+            listener.invoke();
         }
     }
 
@@ -275,9 +292,7 @@ class MarkerView extends WatchUi.View {
         _index = (_index + 1) % (count + 1) % count;
         _id = MarkerContent.IDS[_index];
         WatchUi.requestUpdate();
-        if (onChange != null) {
-            onChange.invoke();
-        }
+        tell();
     }
 
     //! The user acted: hold the display on again, also after the system refused.

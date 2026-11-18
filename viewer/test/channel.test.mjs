@@ -63,3 +63,15 @@ test("random IVs: the same message twice is two different envelopes", async () =
   assert.notEqual(a.c, b.c);
   assert.notEqual(a.iv, b.iv);
 });
+
+test("an envelope seen already is refused also with its run spelled otherwise in base64", async () => {
+  const { direction, ts, envelope } = vectors.envelopes.find((v) => v.direction === "toViewer");
+  const seen = new Map();
+  await open(keysOf(direction), direction, envelope, { now: ts, seen });
+  const last = envelope.r.at(-2);
+  // Without padding, behind a space, and with other unused low bits in the last character.
+  const other = String.fromCharCode(last.charCodeAt(0) + 1);
+  for (const r of [envelope.r.replace(/=+$/, ""), ` ${envelope.r}`, `${envelope.r.slice(0, -2)}${other}=`]) {
+    await assert.rejects(open(keysOf(direction), direction, { ...envelope, r }, { now: ts, seen }), /replayed/, r);
+  }
+});

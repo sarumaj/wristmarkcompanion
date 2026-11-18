@@ -125,7 +125,9 @@ export async function open(keys, direction, envelope, { now, seen }) {
   }
   if (!same(await tag(keys.mac, authenticated(direction, r, s, ts, iv, c)), t)) throw new Error("the tag doesn't verify");
   if (Math.abs(ts - now) > SKEW) throw new Error("the clock is too far off");
-  const run = envelope.r;
+  // The run as its canonical base64, from its bytes: another spelling of the same bytes
+  // (no padding, other unused bits) must not count as a new run.
+  const run = toBase64(r);
   if (s <= (seen.get(run) ?? 0)) throw new Error("replayed or out of order");
   const plain = await subtle.decrypt({ name: "AES-CBC", iv }, keys.enc, c);
   seen.set(run, s);
