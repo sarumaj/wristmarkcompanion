@@ -9,6 +9,13 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## 0.3.1 - 2026-11-18
+
+### Fixed
+
+- **viewer:** the markers and privacy pages' "Open the viewer" an icon on a narrow phone
+- **ci:** the release's health check at the viewer's origin, and the changelog's long lines
+
 ## 0.3.0 - 2026-11-18
 
 ### Added
