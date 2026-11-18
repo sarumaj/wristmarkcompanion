@@ -17,6 +17,7 @@ import { sensing, startMotion } from "./seen.js";
 import { Remote } from "./remote.js";
 import { FRAMES } from "./pairing.js";
 import { Coach, moveIcon, movesOf } from "./coach.js";
+import { HandOccluder, handOver, placeHand } from "./occlusion.js";
 
 const params = new URLSearchParams(location.search);
 // The marker's black square, in millimeters: about the D2 Mach 1's (the watch's
@@ -170,7 +171,10 @@ function scene() {
   anchor.add(screen);
   anchor.visible = false;
   world.add(anchor);
-  return { renderer, camera, world, anchor, gizmo, screen };
+  // The hands in front of the model hide it (js/occlusion.js), while hand tracking is on.
+  const occluder = new HandOccluder();
+  world.add(occluder.object);
+  return { renderer, camera, world, anchor, gizmo, screen, occluder };
 }
 
 // The phone's motion sensors, offered where there may be some: a touch screen with the
@@ -394,12 +398,15 @@ async function run() {
   let marker = null;
   let pose = null;
   let smoothed = null;
+  let handHides = false;
   let detectMs = 0;
   let image = null;
   // The whole frame's search time (ms, smoothed), which the width adapts to; and where
   // the marker was in the last frame (the frame's pixels), for the region's search.
   let searchMs = 0;
   let lastCorners = null;
+  // Where the marker was last seen, kept while it is lost: whether a hand hides it.
+  let heldCorners = null;
   let regionFound = false;
   // The region last looked in (the frame's pixels), for the debug view.
   let region = null;
@@ -483,6 +490,7 @@ async function run() {
       marker = remote.state === "pairing" ? null : (found.find((m) => m.id === shownId) ?? found[0] ?? null);
       pose = marker ? tracker.pose(marker, width, height) : null;
       lastCorners = pose ? marker.corners : null;
+      if (pose) heldCorners = { corners: marker.corners, width, height };
       detectMs = performance.now() - detectStart;
       stats.frame(now, detectMs, Boolean(pose));
 
@@ -494,7 +502,15 @@ async function run() {
         turntable.reset();
         entry = show(view, content, shownId);
       }
-      smoothed = pose ? smoother.update(pose, now) : smoother.lost(now);
+      // Lost under a hand (hand tracking sees one over where it was): the model stays where
+      // it was, up to HAND_HOLD_MS; lost otherwise, it fades out over FADE_HOLD_MS.
+      handHides =
+        !pose &&
+        handTracker !== null &&
+        handsWanted &&
+        now - handsAt <= 3 * HAND_INTERVAL_MS &&
+        handOver(handInteraction.seen.map((hand) => hand.landmarks), heldCorners?.corners, heldCorners?.width, heldCorners?.height);
+      smoothed = pose ? smoother.update(pose, now) : smoother.lost(now, handHides ? HAND_HOLD_MS : FADE_HOLD_MS);
       const recognized = gestures.update(
         pose && smoothed
           ? { t: now, tracked: true, position: smoothed.position.toArray(), quaternion: smoothed.quaternion.toArray() }
@@ -525,6 +541,13 @@ async function run() {
     } else {
       view.anchor.visible = false;
     }
+    // Fading while lost without a hand to explain it, after the smoother's own short hold.
+    const fade = !smoothed || pose || handHides ? 1 : 1 - (now - smoother.lastSeen - smoother.holdMs) / (FADE_HOLD_MS - smoother.holdMs);
+    overlay.style.opacity = fade >= 1 ? "" : String(Math.max(0, fade));
+    if (smoothed && !pose) document.body.dataset.held = handHides ? "hand" : "fading";
+    else delete document.body.dataset.held;
+    view.occluder.show(!debugPanel.hidden);
+    if (!(handTracker && handsWanted)) view.occluder.object.visible = false;
     const distance = smoothed ? Math.round(-smoothed.position.z) : null;
     if (guide && fresh) {
       guide.frame(guideFrame(now, detectMs, pose && marker, smoothed, image));
@@ -634,6 +657,12 @@ try {
 // H, or ?hands. Its library and model load on first use; the hands are looked for 20
 // times a second, which leaves the marker's detection most of the time.
 const HAND_INTERVAL_MS = 50;
+// How long the model stays when the marker is lost: under a hand (hand tracking sees it over
+// the marker's place), or else while it fades out.
+const HAND_HOLD_MS = 4000;
+const FADE_HOLD_MS = 1000;
+// ?occlusion=0: the hands don't hide the model (to compare).
+const OCCLUSION = params.get("occlusion") !== "0";
 const handsButton = document.getElementById("hands");
 // A build without MediaPipe's prebuilt files (F-Droid's: tools/build-app-web.sh with
 // WRISTMARK_HANDS=off) says so in a meta tag: no hand button, H and ?hands do nothing.
@@ -696,9 +725,11 @@ function followHands(view, entry, now, tracked) {
     watch = { x, y, radius: Math.hypot((edge.x + 1) / 2 - x, (1 - edge.y) / 2 - y) };
   }
   const started = performance.now();
-  const hands = handTracker.detect(video, now);
+  const { image: hands, world } = handTracker.detect(video, now);
   handsMs = 0.8 * handsMs + 0.2 * (performance.now() - started);
   handsSeen = hands.length;
+  const placed = OCCLUSION ? world.map((points, i) => placeHand(hands[i], points, { width: video.videoWidth, height: video.videoHeight, fovDegrees: FOV_DEGREES })) : [];
+  view.occluder.update(placed.filter(Boolean));
   const over = (x, y) => {
     const at = client(x, y);
     return modelAt(view, at.x, at.y) !== null;

@@ -81,8 +81,14 @@ for a few seconds. Then, with your free hand in front of the camera:
 - **Swipe** your open hand across the picture: with the watch connected (below), its next or
   previous model; otherwise the model spins.
 
-A ring shows where your fingertip is. It works best in good light, with the hand fully in the
-picture. It is new: tell us how it works for you.
+A ring shows where your fingertip is. **Your hand hides the model** where it is in front of it,
+as a real object would. When your hand covers the watch's marker, the model stays where it was
+for up to four seconds instead of disappearing, and moves to the watch again when the marker
+shows. It works best in good light, with the hand fully in the picture. It is new: tell us how
+it works for you.
+
+Without hand tracking, a model whose marker can't be seen fades out over a second, and comes
+back smoothly when the marker does.
 
 ## Size, full screen and keys
 
