@@ -184,11 +184,13 @@ jobs:
 
       # Coolify's API, as the homelab's apps guide shows (Deploy from CI): the app
       # named like the repository, pinned to the tag's commit, then the health check
-      # at its public address.
+      # at its public address: the viewer's origin (docs/dev/watch.md#the-viewers-address),
+      # not the panel's fqdn, which a Compose app leaves empty (its domains are per service).
       - name: Deploy the viewer
         env:
           APPS_URL: https://apps.ciepiela.org
           APPS_TOKEN: ${{ secrets.APPS_TOKEN }}
+          WRISTMARK_ORIGIN: ${{ vars.WRISTMARK_ORIGIN }}
         run: |
           set -euo pipefail
           app=${GITHUB_REPOSITORY#*/}
@@ -227,7 +229,7 @@ jobs:
             echo "::error::The deployment did not finish within 15 minutes ($status)"
             exit 1
           fi
-          address=$(api "$APPS_URL/api/v1/applications/$uuid" | jq -r '(.fqdn // "") | split(",")[0]')
+          address=${WRISTMARK_ORIGIN:-https://wristmark.apps.ciepiela.org}
           # The app may be asleep: the first request wakes it (a few seconds).
           curl -fsS --retry 6 --retry-delay 10 --retry-all-errors -o /dev/null "$address/healthz"
           echo "Deployed: $address"

@@ -4,6 +4,9 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+<!-- The release bot writes each commit's subject as one line: their length isn't checked. -->
+<!-- markdownlint-disable MD013 -->
+
 ## [Unreleased]
 
 ## 0.3.0 - 2026-11-18
