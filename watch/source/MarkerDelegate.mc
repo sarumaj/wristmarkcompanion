@@ -89,9 +89,9 @@ class MarkerDelegate extends WatchUi.BehaviorDelegate {
         }
     }
 
-    //! The menu button or a long press: the viewers (pair, forget).
+    //! The menu button or a long press: the automatic cycle and the viewers (pair, forget).
     function onMenu() as Boolean {
-        ViewersMenu.show((Application.getApp() as WristmarkApp).link);
+        ViewersMenu.show((Application.getApp() as WristmarkApp).link, _view);
         return true;
     }
 }

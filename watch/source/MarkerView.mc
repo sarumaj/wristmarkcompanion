@@ -1,3 +1,4 @@
+import Toybox.Application;
 import Toybox.Attention;
 import Toybox.Graphics;
 import Toybox.Lang;
@@ -12,7 +13,8 @@ import Toybox.WatchUi;
 //! its corners a cell inside the circle; on a rectangular one the shorter side; where a
 //! small second display sits at the top (Instinct's subscreen), below it, the ID in it.
 //! Only the markers the viewer has a model for are shown (MarkerContent); after the
-//! last, the Viewers screen (drawViewers).
+//! last, the Viewers screen (drawViewers). The marker shown and whether it cycles are kept
+//! when the app closes (Application.Storage) and taken up again when it opens.
 class MarkerView extends WatchUi.View {
     //! How long each marker shows in the automatic cycle.
     private const CYCLE_MS = 5000;
@@ -20,6 +22,8 @@ class MarkerView extends WatchUi.View {
     //! timeout unless an app asks again; on AMOLED (burn-in protection) it refuses
     //! after about a minute held on (Attention.backlight, docs/dev/watch.md).
     private const KEEP_ON_MS = 5000;
+    //! Where the marker and the cycle are kept between runs: {"id", "cycle"}.
+    private const KEPT = "shown";
 
     //! Where in MarkerContent.IDS the shown marker is; its size (one past the last) is
     //! the Viewers screen, between the last marker and the first: the QR code of the
@@ -45,13 +49,43 @@ class MarkerView extends WatchUi.View {
         View.initialize();
         _cycleTimer = new Timer.Timer();
         _keepOnTimer = new Timer.Timer();
+        restore();
     }
 
+    //! The marker and the cycle of the last run, if that marker still has a model.
+    private function restore() as Void {
+        var kept = Application.Storage.getValue(KEPT);
+        if (!(kept instanceof Dictionary)) {
+            return;
+        }
+        var id = kept["id"];
+        if (id instanceof Number) {
+            var index = MarkerContent.IDS.indexOf(id);
+            if (index >= 0) {
+                _index = index;
+                _id = id;
+            }
+        }
+        var cycle = kept["cycle"];
+        _cycling = cycle instanceof Boolean && cycle;
+    }
+
+    //! Keeps the marker and the cycle for the next run (the app's onStop).
+    function save() as Void {
+        Application.Storage.setValue(KEPT, { "id" => _id, "cycle" => _cycling } as Dictionary<String, Application.Storage.ValueType>);
+    }
+
+    //! Also after the menu or the pairing screen closes: the cycle goes on where it was.
     function onShow() as Void {
         _keepOnTimer.start(method(:keepOn), KEEP_ON_MS, true);
+        if (_cycling) {
+            startCycle();
+        }
         wake();
     }
 
+    //! A view over this one (the menu, the pairing screen) or the app closing: the timers
+    //! stop, `_cycling` stays, for onShow.
     function onHide() as Void {
         _keepOnTimer.stop();
         _cycleTimer.stop();
@@ -205,11 +239,17 @@ class MarkerView extends WatchUi.View {
     function setCycle(on as Boolean) as Void {
         _cycling = on;
         if (_cycling) {
-            _cycleTimer.start(method(:cycle), CYCLE_MS, true);
+            startCycle();
         } else {
             _cycleTimer.stop();
         }
         changed();
+    }
+
+    //! The cycle's timer from now, stopped first: it may be running already.
+    private function startCycle() as Void {
+        _cycleTimer.stop();
+        _cycleTimer.start(method(:cycle), CYCLE_MS, true);
     }
 
     //! What the viewers are told: the marker shown and whether it cycles.
