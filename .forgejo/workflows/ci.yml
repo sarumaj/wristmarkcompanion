@@ -58,6 +58,9 @@ jobs:
       - name: Check the watch's launcher icon
         run: node tools/generate-icon.mjs --check
 
+      - name: Check the watch's manifest and devices' jungle
+        run: node tools/generate-devices.mjs --check
+
   # The marker page and the viewer in Chromium (viewer/test): every marker detected,
   # the pose's distance, and the viewer fed a marker through a fake camera. The
   # image's Playwright must be the version in viewer/package-lock.json (Renovate
@@ -157,7 +160,8 @@ jobs:
   # version installed there (runbook connectiq-update); Renovate doesn't update it.
   watch:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # Every device of the manifest compiles: a hundred or more (docs/watch.md#devices).
+    timeout-minutes: 30
     env:
       CONNECTIQ_SDK: 9.3.0
       CONNECTIQ_HOME: /opt/connectiq
@@ -174,6 +178,11 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+
+      # The devices the app is built for, against the device files installed: a device
+      # Garmin added (connectiq-update) or one that changed shows here.
+      - name: Check the watch's device list
+        run: node tools/generate-devices.mjs --check --sdk "$CONNECTIQ_HOME/Devices"
 
       - name: Build the watch app
         run: tools/build-watch.sh "$CONNECTIQ_SDK" "$RUNNER_TEMP/watch"

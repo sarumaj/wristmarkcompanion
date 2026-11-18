@@ -1,5 +1,6 @@
 import Toybox.Graphics;
 import Toybox.Lang;
+import Toybox.WatchUi;
 
 //! Draws markers of MarkerDictionary: the single marker of MarkerView and the four of a
 //! pairing frame (PairingView).
@@ -20,5 +21,17 @@ module MarkerDraw {
                 }
             }
         }
+    }
+
+    //! The small second display at the top, as [x, y, width, height], where the device
+    //! has one (the Instinct's subscreen), else null: the views keep their markers below it.
+    function subscreen() as Array<Number>? {
+        if (WatchUi has :getSubscreen) {
+            var box = WatchUi.getSubscreen();
+            if (box != null) {
+                return [box.x, box.y, box.width, box.height] as Array<Number>;
+            }
+        }
+        return null;
     }
 }
