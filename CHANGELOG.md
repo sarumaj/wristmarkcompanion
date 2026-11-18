@@ -6,6 +6,28 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## 0.3.0 - 2026-11-18
+
+### Added
+
+- **viewer:** the treasure chest, the rain cloud and the house rebuilt with more detail and life
+- **android:** an App Bundle for Google Play, and the listing for Play and F-Droid
+- the viewer's address set at build time (WRISTMARK_ORIGIN)
+- **watch:** the Viewers screen shows the QR code of the viewer's address
+- **watch:** a Viewers screen and a long touch open the pairing menu (#45)
+- **watch:** the 129 devices whose Connect IQ can run the app, with their launcher icons
+- **watch:** bike computers and handhelds too: every device with device apps
+- **watch:** every wearable that can run it, not only the D2 Mach 1
+- **app:** the viewer as an Android app, its signed APK on each release
+- **viewer:** a steady pose for the wrist's gestures, the other hand's wave and swipe, and the debug view drawing what the tracking sees
+
+### Fixed
+
+- **android:** the app's license GPL-3.0-only, as the viewer's and the recipe's
+- **watch:** devices.json without the extra blank line the log's copy had
+- **watch:** wearables by their IDs, the API level also from deviceGroup: the SDK's deviceGroup is the API level, not a category
+- **ci:** git-lfs in the checks job's image; the e2e job checks out without LFS
+
 ## 0.2.0 - 2026-11-17
 
 ### Added
