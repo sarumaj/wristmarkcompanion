@@ -46,6 +46,9 @@ class Link {
     private var _running as Boolean = false;
     //! When (System.getTimer) to try again after a failure; null when no try waits.
     private var _retryAt as Number? = null;
+    //! What the link does, or the last thing that went wrong, for the pairing screen: a
+    //! pairing that never completes says there where it stops.
+    var status as String = "";
 
     function initialize(listener as WristmarkApp) {
         sessions = new Sessions();
@@ -154,6 +157,7 @@ class Link {
         if (_create.size() > 0) {
             var session = _create[0];
             var keys = session[:keys] as Dictionary;
+            status = "Creating the channel";
             request(Communications.HTTP_REQUEST_METHOD_PUT, "/channels/" + (keys[:id] as String), {
                 "watch" => ChannelCrypto.tokenHash(keys[:watchToken] as String),
                 "viewer" => ChannelCrypto.tokenHash(keys[:viewerToken] as String),
@@ -193,6 +197,9 @@ class Link {
         }
         request(Communications.HTTP_REQUEST_METHOD_POST, "/poll", { "wait" => _wait, "channels" => channels }, null, method(:onPoll));
         _polling = true;
+        if (status.length() == 0 || status.find("Creating") == 0) {
+            status = "Waiting for the phone";
+        }
     }
 
     private function request(verb as Communications.HttpRequestMethod, path as String, body as Dictionary, token as String?,
@@ -230,6 +237,7 @@ class Link {
             return;
         }
         if (settled(code)) {
+            status = "Channel created (" + code + ")";
             // 409: the relay has the channel with other tokens; the poll lists it as gone.
             // 410: the viewer ended the pairing; forgotten here too.
             var session = _create[0];
@@ -239,6 +247,7 @@ class Link {
             }
             next();
         } else {
+            status = problem("Relay not reached", code);
             failed();
         }
     }
@@ -263,6 +272,7 @@ class Link {
             }
             next();
         } else {
+            status = problem("Sending failed", code);
             failed();
         }
     }
@@ -275,11 +285,13 @@ class Link {
         _polling = false;
         _busy = false;
         if (code == Communications.NETWORK_REQUEST_TIMED_OUT) {
+            status = "Poll timed out, waiting " + (_wait / 2 > WAIT_MIN ? _wait / 2 : WAIT_MIN) + " s";
             _wait = _wait / 2 > WAIT_MIN ? _wait / 2 : WAIT_MIN;
             next();
             return;
         }
         if (code != 200 || !(data instanceof Dictionary)) {
+            status = problem("Poll failed", code);
             if (_outbox.size() > 0 || _create.size() > 0) {
                 next();
             } else {
@@ -322,11 +334,17 @@ class Link {
                 if (!(envelope instanceof Dictionary)) {
                     continue;
                 }
-                var opened = null;
+                var opened = null as String or Symbol or Null;
                 try {
                     opened = ChannelCrypto.open(keys, envelope, now, session[:seen] as Dictionary);
                 } catch (e) {
                     // Malformed (base64 the system refuses, a number out of range): dropped.
+                    opened = :error;
+                    var text = e.getErrorMessage();
+                    status = "Message broke: " + (text != null ? text : "error");
+                }
+                if (opened instanceof Symbol && opened != :error) {
+                    status = "Message refused: " + refusal(opened as Symbol);
                 }
                 if (opened instanceof String) {
                     var message = Json.read(opened);
@@ -337,6 +355,29 @@ class Link {
             }
         }
         next();
+    }
+
+    //! A failed request for the pairing screen: what, and the code (an HTTP status, or a
+    //! negative one of Communications, e.g. -104 for no phone connection).
+    private function problem(what as String, code as Number) as String {
+        if (code == Communications.BLE_CONNECTION_UNAVAILABLE) {
+            return what + ": no phone (" + code + ")";
+        }
+        return what + " (" + code + ")";
+    }
+
+    //! Why ChannelCrypto.open refused a message, in words.
+    private function refusal(reason as Symbol) as String {
+        if (reason == :tag) {
+            return "wrong key";
+        } else if (reason == :clock) {
+            return "clocks apart";
+        } else if (reason == :replay) {
+            return "replayed";
+        } else if (reason == :version) {
+            return "other version";
+        }
+        return "malformed";
     }
 
     //! The viewer ended the session (the relay's tombstone): forgotten here, its queued
@@ -360,6 +401,7 @@ class Link {
     private function received(session as Dictionary, message as Dictionary) as Void {
         var op = message["op"] as Object?;
         if (session == pairing) {
+            status = "Got " + (op != null ? op.toString() : "a message");
             if ("hello".equals(op)) {
                 pairing = null;
                 var name = message["name"];

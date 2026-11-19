@@ -16,6 +16,11 @@ services:
   relay:
     build: relay
     restart: unless-stopped
+    # RELAY_LOG=1 in the app panel's environment: a line per request (route, status, time;
+    # no IDs, addresses or bodies) for troubleshooting, as the privacy page says. Off
+    # otherwise.
+    environment:
+      RELAY_LOG: ${RELAY_LOG:-0}
     # The relay bounds its own memory (1,000 channels, 32 MB queued); this bound keeps a
     # flaw in that from reaching the other apps on the host.
     mem_limit: 128m

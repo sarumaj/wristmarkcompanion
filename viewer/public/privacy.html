@@ -82,7 +82,9 @@
       while the app is open, to this address's relay, to receive the viewer's commands and to
       tell it which marker it shows. The messages are encrypted on the watch and in your browser
       with keys only those two have: the relay passes them on without being able to read them,
-      keeps them in memory only until they are delivered, and logs nothing. When either side ends
+      keeps them in memory only until they are delivered, and logs nothing. Only while its
+      operator troubleshoots it does it log which kinds of request came and how it answered
+      them, without any ID, address, token or message. When either side ends
       a pairing, the relay keeps the pairing's random ID and the fingerprints (hashes) of its two
       access tokens, without any address or message, for 7 days in memory, to tell the other
       side. The watch keeps a paired viewer's keys until you forget it in its menu, 7 days
@@ -141,7 +143,9 @@
         des Viewers zu empfangen und ihm zu sagen, welchen Marker sie zeigt. Die Nachrichten werden
         auf der Uhr und in deinem Browser mit Schlüsseln verschlüsselt, die nur diese beiden haben:
         Das Relay reicht sie weiter, ohne sie lesen zu können, hält sie nur bis zur Zustellung im
-        Speicher und protokolliert nichts. Beendet eine Seite die Kopplung, behält das Relay deren
+        Speicher und protokolliert nichts. Nur während sein Betreiber einen Fehler sucht,
+        protokolliert es, welche Arten von Anfragen kamen und wie es sie beantwortet hat, ohne
+        ID, Adresse, Token oder Nachricht. Beendet eine Seite die Kopplung, behält das Relay deren
         zufällige ID und die Fingerabdrücke (Hashes) ihrer beiden Zugangstokens, ohne Adresse oder
         Nachricht, 7 Tage im Speicher, um es der anderen Seite zu sagen. Die Uhr behält die
         Schlüssel eines gekoppelten Viewers, bis du ihn in ihrem Menü vergisst, 7 Tage ohne Nutzung

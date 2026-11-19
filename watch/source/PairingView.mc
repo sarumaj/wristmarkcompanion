@@ -87,6 +87,13 @@ class PairingView extends WatchUi.View {
         var labelX = subscreen != null ? subscreen[0] + subscreen[2] / 2 : width / 2;
         var labelY = subscreen != null ? subscreen[1] + subscreen[3] / 2 : (top + side + height / 2 + radius) / 2;
         dc.drawText(labelX, labelY, Graphics.FONT_XTINY, "Pairing", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        // Where the link stands, or what went wrong (Link.status), under the label: a
+        // pairing that never completes says why.
+        if (_link.status.length() > 0) {
+            dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(labelX, labelY + dc.getFontHeight(Graphics.FONT_XTINY), Graphics.FONT_XTINY, _link.status,
+                Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        }
     }
 }
 

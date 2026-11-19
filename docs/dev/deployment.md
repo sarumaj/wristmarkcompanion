@@ -60,6 +60,28 @@ The relay keeps everything in memory: a restart or a new deployment drops the qu
 viewer and the watch create their channels again (`PUT`). If the app sleeps (`HOMELAB_SLEEP`),
 the relay sleeps with it; a watch's long-poll wakes it like any request.
 
+#### The relay's request log {#relay-log}
+
+The relay logs nothing about requests unless `RELAY_LOG=1` is set in the app panel's
+environment (`compose.yaml` passes it on; redeploy after changing it). It then writes a line
+per request to its container's log: the route with `{id}` for the channel, the status, the
+time it took and, for a long-poll, how many messages its answer carried. No IDs, addresses,
+tokens or bodies, as the privacy page says. Turn it off again after troubleshooting.
+
+A pairing that works looks like this, the viewer's requests and the watch's interleaved:
+
+| Line                                         | Who    | Means                                      |
+|----------------------------------------------|--------|--------------------------------------------|
+| `PUT /relay/v1/channels/{id} 201`            | both   | the channel created (or again)             |
+| `GET /relay/v1/channels/{id}/to-viewer 200`  | viewer | its event stream (logged when it ends)     |
+| `POST /relay/v1/channels/{id}/to-watch 202`  | viewer | the hello queued                           |
+| `POST /relay/v1/poll 200 ... messages=1`     | watch  | the hello delivered to the watch           |
+| `POST /relay/v1/channels/{id}/to-viewer 202` | watch  | the watch's state, which confirms the pair |
+
+No `poll` line: the watch's requests don't reach the relay (its phone, Garmin Connect).
+`messages=1` but no `to-viewer` from the watch: the watch got the hello and couldn't open it
+(its pairing screen says why).
+
 ### Health check
 
 The image has a `HEALTHCHECK` on `/healthz` (busybox `wget`, already in the image, as the smoke
