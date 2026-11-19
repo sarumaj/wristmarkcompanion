@@ -1,5 +1,7 @@
 import Toybox.Cryptography;
 import Toybox.Lang;
+import Toybox.Time;
+import Toybox.Time.Gregorian;
 import Toybox.WatchUi;
 
 //! The menu (the menu button, or a long press): start or stop the automatic cycle (also a
@@ -11,7 +13,13 @@ module ViewersMenu {
         menu.addItem(new WatchUi.MenuItem("Pair a viewer", null, :pair, null));
         var list = link.sessions.list;
         for (var i = 0; i < list.size(); i++) {
-            menu.addItem(new WatchUi.MenuItem("Forget " + (list[i]["name"] as String), null, i, null));
+            // The last use tells two viewers of the same name apart (a pairing again from a
+            // browser that lost the first).
+            var used = Gregorian.info(new Time.Moment(list[i]["used"] as Number), Time.FORMAT_MEDIUM);
+            // Its S as the item's ID: the list may change while the menu is open (a viewer's
+            // bye, a pairing confirmed), so an index could name another session.
+            menu.addItem(new WatchUi.MenuItem("Forget " + (list[i]["name"] as String),
+                "Used " + used.day.format("%d") + " " + (used.month as String), list[i]["s"] as String, null));
         }
         if (list.size() > 1) {
             menu.addItem(new WatchUi.MenuItem("Forget all", null, :forgetAll, null));
@@ -44,12 +52,18 @@ class ViewersMenuDelegate extends WatchUi.Menu2InputDelegate {
             _link.pair(secret);
             WatchUi.pushView(new PairingView(_link, secret), new PairingDelegate(_link), WatchUi.SLIDE_UP);
         } else if (id == :forgetAll) {
-            _link.send(null, { "op" => "bye" }, ["op"]);
-            _link.sessions.forgetAll();
-        } else if (id instanceof Number) {
-            var session = _link.sessions.list[id];
-            _link.send(session, { "op" => "bye" }, ["op"]);
-            _link.sessions.forget(session);
+            var list = _link.sessions.list.slice(0, null);
+            for (var i = 0; i < list.size(); i++) {
+                _link.end(list[i]);
+            }
+        } else if (id instanceof String) {
+            var list = _link.sessions.list;
+            for (var i = 0; i < list.size(); i++) {
+                if (id.equals(list[i]["s"] as Object?)) {
+                    _link.end(list[i]);
+                    return;
+                }
+            }
         }
     }
 }

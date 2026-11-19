@@ -119,7 +119,8 @@ module ChannelCrypto {
         var s = envelope["s"];
         var ts = envelope["ts"];
         var fields = [envelope["r"], envelope["iv"], envelope["c"], envelope["t"]];
-        if (!(s instanceof Number) || !(ts instanceof Number) || s < 1) {
+        // A negative ts would reach encodeNumber as UINT32 in `tag`.
+        if (!(s instanceof Number) || !(ts instanceof Number) || s < 1 || ts < 0) {
             return :malformed;
         }
         for (var i = 0; i < fields.size(); i++) {
@@ -141,7 +142,9 @@ module ChannelCrypto {
         if (off > SKEW || off < -SKEW) {
             return :clock;
         }
-        var run = fields[0] as String;
+        // The run as its canonical base64, from its bytes: another spelling of the same
+        // bytes (no padding, other unused bits) must not count as a new run.
+        var run = Bytes.toBase64(r);
         var last = seen[run];
         if (last != null && (s as Number) <= (last as Number)) {
             return :replay;

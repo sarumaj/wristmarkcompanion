@@ -146,7 +146,8 @@ only ever encrypts with its own key.
 - **Order and replays:** `r` is the sender's run, random each time the app or page starts, and
   `s` counts up from 1 within it; `ts` is the sender's clock in Unix seconds. A receiver drops an
   envelope whose tag doesn't verify (in constant time, before decrypting), whose `ts` is more than
-  2 minutes off its own clock, or whose `s` isn't above the last it accepted in that run.
+  2 minutes off its own clock, or whose `s` isn't above the last it accepted in that run (the run
+  known by its bytes: another base64 spelling of the same `r` is the same run).
   Counters needn't survive a restart: a new run starts at 1, and the clock check keeps an old
   run's envelopes from being replayed later.
 - **Plaintext** is compact JSON, a command or an event, under 200 bytes:
@@ -194,34 +195,60 @@ Base path `/relay/v1`, on the viewer's origin. Every response is JSON with `Cach
 no-store`; errors are RFC 9457 problem details (`application/problem+json`). The bearer tokens
 are checked against the hashes the channel was created with.
 
-| Method and path                 | Who    | Request                                                | Response                                                                                                                                                                  |
-|---------------------------------|--------|--------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `PUT /channels/{id}`            | either | `{"watch": sha256, "viewer": sha256}`                  | 201 created, 204 the same hashes again, 409 other hashes                                                                                                                  |
-| `POST /channels/{id}/to-watch`  | viewer | an envelope                                            | 202 `{"q": 42}`, its place in the queue; 429 when 64 wait                                                                                                                 |
-| `POST /poll`                    | watch  | `{"wait": 25, "channels": [{"id", "token", "after"}]}` | 200 `{"messages": {"<id>": [...]}}` as soon as any channel has one, else empty after `wait` (at most 25 s); a channel the relay lost (a restart) is listed in `"unknown"` |
-| `POST /channels/{id}/to-viewer` | watch  | an envelope                                            | 202                                                                                                                                                                       |
-| `GET /channels/{id}/to-viewer`  | viewer | `Accept: text/event-stream`, `Last-Event-ID`           | An event stream: one `data:` line per envelope, its place `q` as the event's ID; a comment every 15 s keeps proxies from closing it                                       |
-| `DELETE /channels/{id}`         | either |                                                        | 204; the channel and its queues are gone                                                                                                                                  |
-| `GET /healthz`                  | anyone |                                                        | 200                                                                                                                                                                       |
+| Method and path                 | Who    | Request                                                | Response                                                                                                                                                                           |
+|---------------------------------|--------|--------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `PUT /channels/{id}`            | either | `{"watch": sha256, "viewer": sha256}`                  | 201 created, 200 the same hashes again, 409 other hashes, 410 [ended](#ending-a-pairing)                                                                                           |
+| `POST /channels/{id}/to-watch`  | viewer | an envelope                                            | 202 `{"q": 42}`, its place in the queue; 429 when 64 wait                                                                                                                          |
+| `POST /poll`                    | watch  | `{"wait": 25, "channels": [{"id", "token", "after"}]}` | 200 `{"messages": {"<id>": [...]}, "unknown": [...], "gone": [...]}` as soon as there is anything to say, else empty after `wait` (at most 25 s); at most 8 messages in one answer |
+| `POST /channels/{id}/to-viewer` | watch  | an envelope                                            | 202; the queue is a ring of 64, the oldest dropped                                                                                                                                 |
+| `GET /channels/{id}/to-viewer`  | viewer | `Accept: text/event-stream`, `Last-Event-ID`           | An event stream: one `data:` line per envelope, its place `q` as the event's ID; a comment every 15 s keeps proxies from closing it                                                |
+| `DELETE /channels/{id}`         | either |                                                        | 200; the channel and its queues are gone, its [tombstone](#ending-a-pairing) stays                                                                                                 |
+| `GET /healthz`                  | anyone |                                                        | 200                                                                                                                                                                                |
 
 - **Places in a queue:** the relay numbers each queue's messages, `q` from 1. The long-poll
   answers each as `{"q": 7, "e": <envelope>}`; the watch's `after` is the last `q` it has, which
   acknowledges it, and the viewer resumes the stream from the last `q` it read. The envelope's own
-  `s` is the sender's counter, which only the receiver checks.
+  `s` is the sender's counter, which only the receiver checks. A place past the queue's end (one
+  from before the relay restarted) counts as 0, so that a queue numbered anew hides nothing; the
+  watch keeps its places when the app closes, so that a batch it read isn't run again.
+- **Toward the viewer, a ring:** the watch's events wait for a viewer that may not be reading (a
+  closed tab), and a full queue must never block the watch; the oldest go, the latest state
+  stays.
+- **Only envelopes:** the relay checks a body's fields and their types (`v`, `r`, `s` from 1,
+  `ts` from 0, `iv`, `c`, `t`) and queues it compacted, one line, as an event stream's `data:`
+  must be. A receiver is never handed what it can't parse.
 - **One long-poll for all of the watch's sessions:** the watch may have only one request in
-  flight, so `POST /poll` waits on every channel it lists (each with its own token, at most four)
-  and answers when any has a message. It's a POST because the tokens belong in the body, not in a
-  URL that proxies might log.
-- **Always 200 with JSON for the watch,** also when a long-poll ends empty: the watch's
-  `makeWebRequest` handles JSON bodies best, and an empty 204 gains nothing.
+  flight, so `POST /poll` waits on every channel it lists (each with its own token, at most five:
+  four sessions and the one being paired) and answers when any has a message. A channel the relay
+  lost is listed in `unknown`, one ended or polled with another token in `gone`, each answered at
+  once; one bad channel never fails the poll for the others. It's a POST because the tokens
+  belong in the body, not in a URL that proxies might log.
+- **A JSON body with every answer,** as `application/json`, problems too (RFC 9457's fields,
+  without its media type), and no 204: the watch's `makeWebRequest`, asked for JSON, may take an
+  empty body or another media type for an error and hide the status behind its own.
 - **Either side re-creates a channel** with `PUT` (both know the token hashes), so a channel
   the relay forgot, after a restart or 15 idle minutes, comes back without pairing again.
 - **The viewer reads the stream with `fetch`,** not `EventSource`, because only `fetch` can send
   the `Authorization` header; it parses `text/event-stream` from the response's `ReadableStream`
   and resumes with `Last-Event-ID` after a drop.
 - **Limits:** bodies up to 2 KB, 64 queued messages per direction, 10 messages a second per
-  channel, channels gone after 15 minutes without a request. All in memory: a restart loses the
-  queues, and the next `PUT` brings the channel back.
+  channel, 1,000 channels and 32 MB queued in all, channels gone after 15 minutes without a
+  request. All in memory: a restart loses the queues, and the next `PUT` brings the channel back.
+
+## Ending a pairing
+
+Either side ends a pairing with a `bye` and then `DELETE`. The other side may not be listening (a
+closed tab, the watch's app closed), and the bye goes with the queue, so the relay keeps a
+**tombstone** for 7 days, as long as an unused session lives: the channel's ID and its two token
+hashes, nothing else. Whoever then presents one of those tokens hears **410 Gone**: the viewer on
+its `PUT`, its stream or a send, the watch in its poll's `gone`. Both forget the session instead
+of creating the channel again. A restart of the relay loses the tombstones; then the viewer, which
+the watch never answers, says after 20 seconds that the watch may have forgotten it, and offers to
+forget the pairing or pair again.
+
+The viewer keeps a new session only once the watch has answered its hello, and after pairing ends
+the sessions it had before, since it steers one watch at a time: pairing the same watch again
+leaves no stale entry in the watch's menu, which lists each viewer with the day of its last use.
 
 ## Sessions
 
@@ -229,7 +256,8 @@ A pairing is a session: `S` and what HKDF derives from it, kept on both sides so
 app or reloading the page doesn't mean pairing again.
 
 - **Several at once:** pairing another viewer (another phone, a laptop) adds a session; it never
-  replaces one. The watch keeps at most four; a fifth pairing drops the one used longest ago.
+  replaces one. The watch keeps at most four; a fifth pairing drops the one used longest ago (its
+  channel polled as a fifth while pairing).
 - **Expiry by age:** a session ends 7 days after its last use (a message either way) or 30 days
   after its pairing, whichever comes first; both sides check when they start and delete it. The
   watch's menu lists the sessions by the viewer's name (from its `hello`) and forgets one or all;
@@ -270,15 +298,15 @@ origin, the CSP and the panel's single domain stay as they are.
 
 ## Threat model
 
-| Who                                       | Can                                                                              | Can't                                                   | Mitigation                                                                                                     |
-|-------------------------------------------|----------------------------------------------------------------------------------|---------------------------------------------------------|----------------------------------------------------------------------------------------------------------------|
-| The relay, or someone who took it over    | See channel IDs, IP addresses, sizes and timing; drop, delay or repeat envelopes | Read or forge a message; replay one (the counter)       | End-to-end encryption and MACs; nothing kept beyond 15 minutes                                                 |
-| The phone and its Garmin Connect app      | See the watch's requests: the relay's address and ciphertext                     | Read or forge a message                                 | As above                                                                                                       |
-| Someone on the network                    | See TLS traffic                                                                  | Anything else                                           | HTTPS on every hop, then the end-to-end layer                                                                  |
-| Someone filming the watch while pairing   | Read `S`, and with it use or read that session                                   | Pair later sessions (a new `S` each time)               | Pairing only on request and for 2 minutes; the watch lists every session by name; forgetting one ends it       |
-| Anyone who guesses or learns a channel ID | Nothing: every request needs a token                                             | Post, read or delete                                    | Tokens from `S`, only their hashes on the relay; rate limits                                                   |
-| Someone with the watch in hand            | Read its stored sessions' secrets and act as the watch toward those viewers      | Pair as a viewer without the watch showing a new secret | Sessions expire (7 days unused, 30 at most); forgetting them on the watch, or `bye` from the viewer, ends them |
-| Someone with the viewer's browser         | Use the stored session to send commands                                          | Copy the keys elsewhere (non-extractable)               | The same expiry; the watch's menu forgets the session                                                          |
+| Who                                       | Can                                                                              | Can't                                                   | Mitigation                                                                                                                           |
+|-------------------------------------------|----------------------------------------------------------------------------------|---------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
+| The relay, or someone who took it over    | See channel IDs, IP addresses, sizes and timing; drop, delay or repeat envelopes | Read or forge a message; replay one (the counter)       | End-to-end encryption and MACs; the counter kept per run's bytes, not its base64 text; nothing kept beyond 15 minutes but tombstones |
+| The phone and its Garmin Connect app      | See the watch's requests: the relay's address and ciphertext                     | Read or forge a message                                 | As above                                                                                                                             |
+| Someone on the network                    | See TLS traffic                                                                  | Anything else                                           | HTTPS on every hop, then the end-to-end layer                                                                                        |
+| Someone filming the watch while pairing   | Read `S`, and with it use or read that session                                   | Pair later sessions (a new `S` each time)               | Pairing only on request and for 2 minutes; the watch lists every session by name; forgetting one ends it                             |
+| Anyone who guesses or learns a channel ID | Nothing: every request needs a token                                             | Post, read or delete                                    | Tokens from `S`, only their hashes on the relay; rate limits                                                                         |
+| Someone with the watch in hand            | Read its stored sessions' secrets and act as the watch toward those viewers      | Pair as a viewer without the watch showing a new secret | Sessions expire (7 days unused, 30 at most); forgetting them on the watch, or `bye` from the viewer, ends them                       |
+| Someone with the viewer's browser         | Use the stored session to send commands                                          | Copy the keys elsewhere (non-extractable)               | The same expiry; the watch's menu forgets the session                                                                                |
 
 ## Privacy and the store
 

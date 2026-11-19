@@ -13,6 +13,10 @@ const UNUSED_MS = 7 * 86400000;
 const AGE_MS = 30 * 86400000;
 // After a dropped stream, the next try.
 const RETRY_MS = 2000;
+// Waiting this long for the watch's answer, the viewer says the watch may have forgotten it.
+const UNANSWERED_MS = 20000;
+// What the viewer says when the watch ended the pairing (the relay's 410).
+const ENDED = "The watch ended this pairing: pair again to steer it.";
 
 // IndexedDB, as promises: the sessions with their keys as CryptoKeys, which the store
 // keeps without their bytes ever reaching the page's script.
@@ -53,8 +57,13 @@ export class Remote {
     this.base = base;
     this.onChange = onChange;
     this.onEvent = onEvent;
-    // idle, pairing, connecting, connected, failed.
+    // idle, pairing, connecting, waiting, connected, reconnecting (the stream dropped),
+    // failed.
     this.state = "idle";
+    // Waiting long enough for the watch to say it may have forgotten this viewer.
+    this.unanswered = false;
+    // Said once in idle: why the pairing is gone.
+    this.notice = "";
     this.frames = 0;
     this.error = "";
     this.watch = null;
@@ -92,11 +101,12 @@ export class Remote {
 
   startPairing() {
     this.reader.reset();
-    this.set("pairing", { frames: 0, error: "" });
+    this.set("pairing", { frames: 0, error: "", notice: "" });
   }
 
+  // Back to what was before pairing: the session kept, if any.
   cancel() {
-    if (this.state === "pairing") this.set(this.session ? "connected" : "idle");
+    if (this.state === "pairing") this.set(this.session ? (this.watch ? "connected" : "waiting") : "idle");
   }
 
   // A camera image's markers while pairing: the frames read so far; once the round
@@ -113,9 +123,11 @@ export class Remote {
     try {
       const derived = await deriveSession(secret);
       const now = Date.now();
-      const session = { id: derived.id, tokens: derived.tokens, hashes: derived.hashes, keys: derived.keys, pairedAt: now, usedAt: now, lastEvent: 0 };
+      // Pending until the watch answers the hello: kept only then (`received`), so that a
+      // pairing the watch never confirmed isn't connected to again after a reload.
+      const session = { id: derived.id, tokens: derived.tokens, hashes: derived.hashes, keys: derived.keys, pairedAt: now, usedAt: now, lastEvent: 0, pending: true };
+      this.watch = null;
       await this.connect(session, { greet: true });
-      if (this.state !== "failed") await store("readwrite", (s) => s.put(session)).catch(() => {});
     } catch (error) {
       this.set("failed", { error: error.message });
     }
@@ -130,7 +142,7 @@ export class Remote {
     });
     if (!response.ok) {
       const problem = await response.json().catch(() => ({}));
-      throw new Error(problem.detail ?? `the relay answered ${response.status}`);
+      throw Object.assign(new Error(problem.detail ?? `the relay answered ${response.status}`), { status: response.status });
     }
     return response;
   }
@@ -139,30 +151,84 @@ export class Remote {
   // hello sent: the watch confirms the pairing with it, or answers with its state.
   async connect(session, { greet }) {
     this.session = session;
-    this.set("connecting");
+    clearTimeout(this.unansweredTimer);
+    this.set("connecting", { unanswered: false });
     try {
       await this.request("PUT", `/channels/${session.id}`, { body: session.hashes });
     } catch (error) {
-      this.set("failed", { error: `The relay can't be reached: ${error.message}` });
+      if (error.status === 410) await this.forget(ENDED);
+      else this.set("failed", { error: `The relay can't be reached: ${error.message}` });
       return;
     }
     this.listen();
-    if (greet) await this.send({ op: "hello", name: viewerName() });
+    if (greet) {
+      try {
+        await this.send({ op: "hello", name: viewerName() });
+      } catch (error) {
+        // Ended (410): `send` has forgotten the session already.
+        if (this.session === session) this.set("failed", { error: `The relay can't be reached: ${error.message}` });
+        return;
+      }
+    }
+    if (this.session !== session) return;
     this.set(this.watch ? "connected" : "waiting");
+    // No answer for a while: the watch's app may be closed, or the watch may have forgotten
+    // this viewer (its menu, or a reinstall) while the relay couldn't tell.
+    this.unansweredTimer = setTimeout(() => {
+      if (this.session === session && this.state === "waiting") this.set("waiting", { unanswered: true });
+    }, UNANSWERED_MS);
   }
 
   async send(message) {
     if (!this.session) return;
-    const envelope = await seal(this.session.keys.toWatch, "toWatch", message, { r: this.run, s: ++this.sent, ts: Math.floor(Date.now() / 1000) });
-    await this.request("POST", `/channels/${this.session.id}/to-watch`, { token: this.session.tokens.viewer, body: envelope });
+    const session = this.session;
+    const envelope = await seal(session.keys.toWatch, "toWatch", message, { r: this.run, s: ++this.sent, ts: Math.floor(Date.now() / 1000) });
+    try {
+      await this.request("POST", `/channels/${session.id}/to-watch`, { token: session.tokens.viewer, body: envelope });
+    } catch (error) {
+      if (error.status === 410 && this.session === session) await this.forget(ENDED);
+      throw error;
+    }
     this.touch();
   }
 
+  // Used just now; kept in IndexedDB once the watch has confirmed it.
   touch() {
     if (!this.session) return;
     this.session.usedAt = Date.now();
     const session = this.session;
-    store("readwrite", (s) => s.put(session)).catch(() => {});
+    if (!session.pending) store("readwrite", (s) => s.put(session)).catch(() => {});
+  }
+
+  // The watch answered a new pairing: kept, and the sessions from before ended, since the
+  // viewer steers one watch at a time (a pairing again with the same watch leaves no stale
+  // entry in its menu).
+  async confirm(session) {
+    delete session.pending;
+    await store("readwrite", (s) => s.put(session)).catch(() => {});
+    let others;
+    try {
+      others = ((await store("readonly", (s) => s.getAll())) ?? []).filter((other) => other.id !== session.id);
+    } catch {
+      return;
+    }
+    for (const other of others) {
+      await this.end(other);
+      await store("readwrite", (s) => s.delete(other.id)).catch(() => {});
+    }
+  }
+
+  // Tells the watch (bye), then deletes the channel; the relay keeps its tombstone, so the
+  // watch learns it also when its app opens days later. Best effort: the watch's menu forgets
+  // a viewer too.
+  async end(session) {
+    try {
+      const envelope = await seal(session.keys.toWatch, "toWatch", { op: "bye" }, { r: this.run, s: ++this.sent, ts: Math.floor(Date.now() / 1000) });
+      await this.request("POST", `/channels/${session.id}/to-watch`, { token: session.tokens.viewer, body: envelope });
+    } catch {
+      // Gone already, or the relay unreachable: the delete may still work.
+    }
+    await this.request("DELETE", `/channels/${session.id}`, { token: session.tokens.viewer }).catch(() => {});
   }
 
   // The watch's events: read from the stream as they come; after a drop, again from the
@@ -172,6 +238,8 @@ export class Remote {
     const controller = new AbortController();
     this.stream = controller;
     const session = this.session;
+    // After a drop, the hello again: the watch answers with its state, which says it's there.
+    let dropped = false;
     const loop = async () => {
       while (!controller.signal.aborted && this.session === session) {
         try {
@@ -180,14 +248,28 @@ export class Remote {
             headers: { Accept: "text/event-stream", Authorization: `Bearer ${session.tokens.viewer}`, ...(session.lastEvent ? { "Last-Event-ID": String(session.lastEvent) } : {}) },
           });
           if (response.status === 404) {
-            // The relay forgot the channel: create it again, then read on.
+            // The relay forgot the channel: create it again, its queue numbered from 1 again,
+            // then read on.
             await this.request("PUT", `/channels/${session.id}`, { body: session.hashes });
+            session.lastEvent = 0;
             continue;
           }
+          if (response.status === 410) {
+            // The watch ended the pairing.
+            if (this.session === session) await this.forget(ENDED);
+            return;
+          }
           if (!response.ok || !response.body) throw new Error(`stream ${response.status}`);
+          if (dropped) {
+            dropped = false;
+            this.send({ op: "hello", name: viewerName() }).catch(() => {});
+          }
           await this.events(response.body, session, controller.signal);
         } catch {
           if (controller.signal.aborted) return;
+          // The relay can't be reached: the watch's state shown is no longer current.
+          dropped = true;
+          if (this.session === session && this.state === "connected") this.set("reconnecting");
         }
         await new Promise((resolve) => setTimeout(resolve, RETRY_MS));
       }
@@ -229,30 +311,40 @@ export class Remote {
       // Not from the watch, or replayed: dropped.
       return;
     }
+    if (this.session !== session) return;
+    if (session.pending) await this.confirm(session);
     this.touch();
     if (message.op === "state") {
-      this.set("connected", { watch: { id: message.id, cycle: message.cycle, battery: message.battery } });
+      clearTimeout(this.unansweredTimer);
+      const watch = { id: message.id, cycle: message.cycle, battery: message.battery };
+      // While pairing another watch, the state is noted, the pairing left on screen.
+      if (this.state === "pairing") this.watch = watch;
+      else this.set("connected", { unanswered: false, watch });
     } else if (message.op === "bye") {
-      await this.forget();
+      await this.forget(ENDED);
       return;
     }
     this.onEvent(message);
   }
 
-  // Unpaired: the watch is told (bye), the channel and the session are gone.
+  // Unpaired here: the watch is told, the channel and the session are gone. Also from
+  // waiting, for a watch that forgot this viewer.
   async disconnect() {
-    if (!this.session) return;
-    await this.send({ op: "bye" }).catch(() => {});
-    await this.request("DELETE", `/channels/${this.session.id}`, { token: this.session.tokens.viewer }).catch(() => {});
-    await this.forget();
+    const session = this.session;
+    if (!session) return;
+    this.stream?.abort();
+    await this.end(session);
+    if (this.session === session) await this.forget();
   }
 
-  async forget() {
+  // The session gone from here; `notice` says why, in idle.
+  async forget(notice = "") {
     const session = this.session;
     this.stream?.abort();
+    clearTimeout(this.unansweredTimer);
     this.session = null;
     this.watch = null;
     if (session) await store("readwrite", (s) => s.delete(session.id)).catch(() => {});
-    this.set("idle");
+    this.set("idle", { notice, unanswered: false });
   }
 }

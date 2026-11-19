@@ -35,13 +35,16 @@ class PairingView extends WatchUi.View {
     }
 
     function tick() as Void {
+        // The link's retries ride on this timer while the pairing shows (Link.tick).
+        _link.tick();
         _frame = (_frame + 1) % _frames.size();
         _shown += FRAME_MS;
         if (_shown % KEEP_ON_MS < FRAME_MS && Attention has :backlight) {
             try {
                 Attention.backlight(true);
-            } catch (e instanceof Attention.BacklightOnTooLongException) {
-                // The system's limit: the frames go on, a press brings the display back.
+            } catch (e) {
+                // The system's limit (BacklightOnTooLongException), or another refusal: the
+                // frames go on, a press brings the display back.
             }
         }
         if (_shown >= GIVE_UP_MS) {

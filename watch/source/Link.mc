@@ -2,8 +2,8 @@ import Toybox.Communications;
 import Toybox.Cryptography;
 import Toybox.Lang;
 import Toybox.PersistedContent;
+import Toybox.System;
 import Toybox.Time;
-import Toybox.Timer;
 
 //! The watch's end of the control channel (docs/dev/decisions/004-control-channel.md): one
 //! request at a time to the relay through the phone. Mostly the long-poll over every
@@ -18,8 +18,13 @@ class Link {
     //! phone's proxy, whose limit Garmin doesn't document (the spike measures it).
     const WAIT = 25;
     const WAIT_MIN = 5;
-    //! After a failure (no phone, no network), the next try.
+    //! After a failure (no phone, no network), the next try: at the first `tick` this long
+    //! after. Link has no timer of its own: a watch app may run only a few (3 on some
+    //! devices), and the marker's and the pairing screen's ticks come anyway.
     const RETRY_MS = 5000;
+    //! The most envelopes waiting to go out; past it the oldest goes. A watch out of reach
+    //! of its phone must not fill its memory with states nobody reads.
+    const OUTBOX_MAX = 12;
 
     var sessions as Sessions;
     //! The session being paired, polled with the others until the viewer's hello comes.
@@ -30,18 +35,22 @@ class Link {
     private var _run as ByteArray;
     private var _sent as Number = 0;
     private var _wait as Number = WAIT;
-    //! What waits to go out: [session, envelope]; and channels to create again.
+    //! What waits to go out: [session, envelope, op], or [session, null, null] for the
+    //! channel's delete; and channels to create again.
     private var _outbox as Array<Array> = [];
     private var _create as Array<Dictionary> = [];
+    //! A request in flight, and whether it is the long-poll: only the poll is cancelled for
+    //! something to send; a send or a create runs to its end.
     private var _busy as Boolean = false;
+    private var _polling as Boolean = false;
     private var _running as Boolean = false;
-    private var _retry as Timer.Timer;
+    //! When (System.getTimer) to try again after a failure; null when no try waits.
+    private var _retryAt as Number? = null;
 
     function initialize(listener as WristmarkApp) {
         sessions = new Sessions();
         _listener = listener;
         _run = Cryptography.randomBytes(8);
-        _retry = new Timer.Timer();
     }
 
     function start() as Void {
@@ -54,16 +63,26 @@ class Link {
 
     function stop() as Void {
         _running = false;
-        _retry.stop();
+        _retryAt = null;
+        _polling = false;
         Communications.cancelAllRequests();
         _busy = false;
         sessions.save();
     }
 
+    //! Called every few seconds (MarkerView's and PairingView's timers): the try after a
+    //! failure, once it is due.
+    function tick() as Void {
+        if (_retryAt != null && System.getTimer() - (_retryAt as Number) >= 0) {
+            _retryAt = null;
+            next();
+        }
+    }
+
     //! Pairs a new viewer: its channel is created and polled; the viewer's hello confirms it.
     function pair(secret as ByteArray) as Void {
         pairing = sessions.start(secret);
-        _create.add(pairing);
+        _create.add(pairing as Dictionary);
         interrupt();
     }
 
@@ -72,23 +91,58 @@ class Link {
     }
 
     //! Sends `message` (a flat Dictionary, written in the order of `keys`) to one session,
-    //! or to all of them when `session` is null.
+    //! or to all of them when `session` is null. A state replaces one still waiting for the
+    //! same session: only the latest counts.
     function send(session as Dictionary?, message as Dictionary, keys as Array<String>) as Void {
         var targets = session != null ? [session] : sessions.list;
         var plain = Json.write(message, keys);
+        var op = message["op"] as Object?;
         for (var i = 0; i < targets.size(); i++) {
+            var target = targets[i] as Dictionary;
+            // A message either way is a use (docs/dev/decisions/004-control-channel.md#sessions),
+            // as the viewer counts it, so that both sides expire a session alike.
+            sessions.used(target);
+            if ("state".equals(op)) {
+                // Not the head while it is in flight.
+                for (var k = _outbox.size() - 1; k >= (_busy && !_polling ? 1 : 0); k--) {
+                    if (_outbox[k][0] == target && "state".equals(_outbox[k][2] as Object?)) {
+                        _outbox.remove(_outbox[k]);
+                    }
+                }
+            }
             _sent++;
-            var envelope = ChannelCrypto.seal(targets[i][:keys] as Dictionary, plain, _run, _sent, Time.now().value(), null);
-            _outbox.add([targets[i], envelope]);
+            var envelope = ChannelCrypto.seal(target[:keys] as Dictionary, plain, _run, _sent, Time.now().value(), null);
+            queue([target, envelope, op]);
         }
         interrupt();
     }
 
-    //! Something to do before the long-poll ends by itself: cancel it.
+    //! Ends a session here and for its viewer: a bye, then the channel deleted, whose
+    //! tombstone at the relay tells the viewer also when it comes back days later.
+    function end(session as Dictionary) as Void {
+        send(session, { "op" => "bye" }, ["op"]);
+        queue([session, null, null]);
+        sessions.forget(session);
+        interrupt();
+    }
+
+    private function queue(item as Array) as Void {
+        _outbox.add(item);
+        if (_outbox.size() > OUTBOX_MAX) {
+            _outbox.remove(_outbox[_busy && !_polling ? 1 : 0]);
+        }
+    }
+
+    //! Something to do: at once when idle, or after cancelling the long-poll. The cancelled
+    //! poll's callback, if one still comes, is ignored (`_polling` is false by then).
     private function interrupt() as Void {
-        if (_busy) {
+        if (_polling) {
+            _polling = false;
+            _busy = false;
             Communications.cancelAllRequests();
-        } else {
+        }
+        if (!_busy) {
+            _retryAt = null;
             next();
         }
     }
@@ -107,8 +161,13 @@ class Link {
         } else if (_outbox.size() > 0) {
             var item = _outbox[0];
             var keys = (item[0] as Dictionary)[:keys] as Dictionary;
-            request(Communications.HTTP_REQUEST_METHOD_POST, "/channels/" + (keys[:id] as String) + "/to-viewer",
-                item[1] as Dictionary, keys[:watchToken] as String, method(:onSent));
+            if (item[1] == null) {
+                request(Communications.HTTP_REQUEST_METHOD_DELETE, "/channels/" + (keys[:id] as String), {},
+                    keys[:watchToken] as String, method(:onSent));
+            } else {
+                request(Communications.HTTP_REQUEST_METHOD_POST, "/channels/" + (keys[:id] as String) + "/to-viewer",
+                    item[1] as Dictionary, keys[:watchToken] as String, method(:onSent));
+            }
         } else {
             poll();
         }
@@ -117,7 +176,7 @@ class Link {
     private function polled() as Array<Dictionary> {
         var all = sessions.list.slice(0, null);
         if (pairing != null) {
-            all.add(pairing);
+            all.add(pairing as Dictionary);
         }
         return all;
     }
@@ -127,21 +186,23 @@ class Link {
         if (all.size() == 0) {
             return;
         }
-        var channels = [];
+        var channels = [] as Array<Dictionary>;
         for (var i = 0; i < all.size(); i++) {
             var keys = all[i][:keys] as Dictionary;
             channels.add({ "id" => keys[:id], "token" => keys[:watchToken], "after" => all[i][:after] });
         }
         request(Communications.HTTP_REQUEST_METHOD_POST, "/poll", { "wait" => _wait, "channels" => channels }, null, method(:onPoll));
+        _polling = true;
     }
 
     private function request(verb as Communications.HttpRequestMethod, path as String, body as Dictionary, token as String?,
             callback as Method(code as Number, data as RelayResponse) as Void) as Void {
-        var headers = { "Content-Type" => Communications.REQUEST_CONTENT_TYPE_JSON };
+        var headers = { "Content-Type" => Communications.REQUEST_CONTENT_TYPE_JSON } as Dictionary<String, String or Number>;
         if (token != null) {
             headers["Authorization"] = "Bearer " + token;
         }
         _busy = true;
+        _polling = false;
         Communications.makeWebRequest(ViewerAddress.RELAY + path, body as Dictionary<Object, Object>, {
             :method => verb,
             :headers => headers,
@@ -152,14 +213,30 @@ class Link {
     //! A request failed: try again a little later (not at once, which would spin while the
     //! phone is away).
     private function failed() as Void {
-        _retry.start(method(:next), RETRY_MS, false);
+        _retryAt = System.getTimer() + RETRY_MS;
+    }
+
+    //! The relay answered, and refuses the request for good (4xx): retrying gains nothing.
+    //! INVALID_HTTP_BODY_IN_NETWORK_RESPONSE: an answer whose body wasn't the JSON asked
+    //! for, so the request reached the relay.
+    private function settled(code as Number) as Boolean {
+        return (code >= 200 && code < 500) || code == Communications.INVALID_HTTP_BODY_IN_NETWORK_RESPONSE;
     }
 
     function onCreated(code as Number, data as RelayResponse) as Void {
         _busy = false;
-        if (code == 201 || code == 204 || code == 409) {
-            // 409: the relay has the channel with other tokens; nothing to do but drop it.
-            _create.remove(_create[0]);
+        if (_create.size() == 0) {
+            next();
+            return;
+        }
+        if (settled(code)) {
+            // 409: the relay has the channel with other tokens; the poll lists it as gone.
+            // 410: the viewer ended the pairing; forgotten here too.
+            var session = _create[0];
+            _create.remove(session);
+            if (code == 410) {
+                ended(session);
+            }
             next();
         } else {
             failed();
@@ -168,12 +245,21 @@ class Link {
 
     function onSent(code as Number, data as RelayResponse) as Void {
         _busy = false;
-        if (code == 202 || code == 404 || code == 401 || code == 413) {
-            // Sent, or never will be: the channel gone or refused.
+        if (_outbox.size() == 0) {
+            next();
+            return;
+        }
+        if (settled(code)) {
+            // Sent, or never will be: the channel gone, ended, full or refused.
             var item = _outbox[0];
             _outbox.remove(item);
-            if (code == 404) {
-                _create.add(item[0] as Dictionary);
+            var session = item[0] as Dictionary;
+            if (code == 404 && item[1] != null && sessions.list.indexOf(session) >= 0) {
+                _create.add(session);
+                // Sent again once the channel is back.
+                _outbox.add(item);
+            } else if (code == 410) {
+                ended(session);
             }
             next();
         } else {
@@ -182,6 +268,11 @@ class Link {
     }
 
     function onPoll(code as Number, data as RelayResponse) as Void {
+        if (!_polling) {
+            // Cancelled for something to send, which went out already.
+            return;
+        }
+        _polling = false;
         _busy = false;
         if (code == Communications.NETWORK_REQUEST_TIMED_OUT) {
             _wait = _wait / 2 > WAIT_MIN ? _wait / 2 : WAIT_MIN;
@@ -189,7 +280,6 @@ class Link {
             return;
         }
         if (code != 200 || !(data instanceof Dictionary)) {
-            // Cancelled for a message to send, or a failure.
             if (_outbox.size() > 0 || _create.size() > 0) {
                 next();
             } else {
@@ -198,6 +288,7 @@ class Link {
             return;
         }
         var unknown = data["unknown"];
+        var gone = data["gone"];
         var messages = data["messages"];
         var all = polled();
         var now = Time.now().value();
@@ -205,7 +296,13 @@ class Link {
             var session = all[i];
             var keys = session[:keys] as Dictionary;
             if (unknown instanceof Array && unknown.indexOf(keys[:id]) >= 0) {
+                // Created again, its queue numbers from 1 again.
+                session[:after] = 0;
                 _create.add(session);
+            }
+            if (gone instanceof Array && gone.indexOf(keys[:id]) >= 0) {
+                ended(session);
+                continue;
             }
             if (!(messages instanceof Dictionary)) {
                 continue;
@@ -215,9 +312,22 @@ class Link {
                 continue;
             }
             for (var m = 0; m < queued.size(); m++) {
-                var item = queued[m] as Dictionary;
+                var item = queued[m];
+                if (!(item instanceof Dictionary) || !(item["q"] instanceof Number)) {
+                    continue;
+                }
+                // Acknowledged whatever it holds: one that can't be opened never will be.
                 session[:after] = item["q"];
-                var opened = ChannelCrypto.open(keys, item["e"] as Dictionary, now, session[:seen] as Dictionary);
+                var envelope = item["e"];
+                if (!(envelope instanceof Dictionary)) {
+                    continue;
+                }
+                var opened = null;
+                try {
+                    opened = ChannelCrypto.open(keys, envelope, now, session[:seen] as Dictionary);
+                } catch (e) {
+                    // Malformed (base64 the system refuses, a number out of range): dropped.
+                }
                 if (opened instanceof String) {
                     var message = Json.read(opened);
                     if (message != null) {
@@ -227,6 +337,23 @@ class Link {
             }
         }
         next();
+    }
+
+    //! The viewer ended the session (the relay's tombstone): forgotten here, its queued
+    //! messages dropped.
+    private function ended(session as Dictionary) as Void {
+        if (session == pairing) {
+            return;
+        }
+        for (var i = _outbox.size() - 1; i >= 0; i--) {
+            if (_outbox[i][0] == session) {
+                _outbox.remove(_outbox[i]);
+            }
+        }
+        if (sessions.list.indexOf(session) >= 0) {
+            sessions.forget(session);
+            _listener.unpaired(session);
+        }
     }
 
     //! A message from a viewer that opened: pairing's hello, or a command for the app.

@@ -1583,7 +1583,14 @@ body.immersive .stage {
 }
 
 .remote-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-bottom: 0;
+}
+
+.remote-actions .danger {
+  color: #ff6b6b;
 }
 
 /* The Watch button while a watch is connected. */

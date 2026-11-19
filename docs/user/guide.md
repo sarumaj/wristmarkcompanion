@@ -149,8 +149,14 @@ control the watch: the next or previous marker, the automatic cycle, and a buzz 
    card again, with the watch's state and **Disconnect**.
 
 The pairing is kept on both sides: next time it connects by itself while the app is open. A
-watch keeps up to four viewers; forget one in its menu, or tap **Disconnect** in the viewer.
-Unused for 7 days, or after 30 days, a pairing ends. The messages are encrypted end to end.
+watch keeps up to four viewers, each listed in its menu with the day it was last used; forget one
+there, or tap **Disconnect** in the viewer, and the other side forgets it too, also when it comes
+back days later. Unused for 7 days, or after 30 days, a pairing ends. The messages are encrypted
+end to end.
+
+If the watch doesn't answer for 20 seconds, its app may be closed, or it may have forgotten the
+viewer (after a reinstall, say). Open the app on the watch; if its menu no longer lists the
+viewer, tap **Forget this pairing** in the viewer, or **Pair again** to pair afresh.
 
 ## Without a watch
 

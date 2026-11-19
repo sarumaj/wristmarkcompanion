@@ -5,7 +5,9 @@ import Toybox.Time;
 //! The viewers this watch is paired with (docs/dev/decisions/004-control-channel.md#sessions):
 //! at most four; a session ends 7 days after its last use or 30 days after its pairing.
 //! Application.Storage keeps each one's S (base64), the viewer's name, when it was paired
-//! and last used; the keys are derived again at start. Written at pairing, when one is
+//! and last used, and the relay's last place taken from its queue (so that a batch read just
+//! before the app closed isn't handed over, and run, again); the keys are derived again at
+//! start. Written at pairing, when one is
 //! forgotten and when the app closes, not per message.
 class Sessions {
     const MAX = 4;
@@ -13,7 +15,8 @@ class Sessions {
     const AGE_DAYS = 30;
     const KEY = "sessions";
 
-    //! Each: {"s", "name", "paired", "used"} as stored, and :keys, :after, :seen at run time.
+    //! Each: {"s", "name", "paired", "used", "after"} as stored, and :keys, :after, :seen at
+    //! run time.
     var list as Array<Dictionary> = [];
 
     function initialize() {
@@ -38,7 +41,8 @@ class Sessions {
     //! taken (:after) and the counters seen per run (:seen).
     function prepare(entry as Dictionary) as Dictionary {
         entry[:keys] = ChannelCrypto.derive(Bytes.fromBase64(entry["s"] as String));
-        entry[:after] = 0;
+        var after = entry["after"];
+        entry[:after] = after instanceof Number ? after : 0;
         entry[:seen] = {};
         return entry;
     }
@@ -74,16 +78,11 @@ class Sessions {
         save();
     }
 
-    function forgetAll() as Void {
-        list = [];
-        save();
-    }
-
     function save() as Void {
         var stored = [];
         for (var i = 0; i < list.size(); i++) {
             var entry = list[i];
-            stored.add({ "s" => entry["s"], "name" => entry["name"], "paired" => entry["paired"], "used" => entry["used"] });
+            stored.add({ "s" => entry["s"], "name" => entry["name"], "paired" => entry["paired"], "used" => entry["used"], "after" => entry[:after] });
         }
         Application.Storage.setValue(KEY, stored as Array<Application.Storage.ValueType>);
     }
