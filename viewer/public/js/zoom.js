@@ -1,6 +1,7 @@
 // The model's size, by hand: two fingers pinching on a phone, the mouse wheel or a
 // trackpad's pinch on a laptop, a double tap or double click back to 1. One finger
 // still scrolls the page (the stage's touch-action is pan-y).
+import { OWN } from "./touch.js";
 
 const MIN = 0.3;
 const MAX = 6;
@@ -17,6 +18,9 @@ export function zoomControl(element, onChange) {
   element.addEventListener(
     "wheel",
     (event) => {
+      // Only over a model, not over the stage's own panels (the debug view scrolls), and
+      // the page scrolls where there is nothing to zoom.
+      if (!document.body.dataset.model || event.target.closest(OWN)) return;
       event.preventDefault();
       // A trackpad's pinch arrives as a wheel event with ctrlKey and finer steps.
       set(zoom * Math.exp(-event.deltaY * (event.ctrlKey ? WHEEL * 8 : WHEEL)));
@@ -51,7 +55,10 @@ export function zoomControl(element, onChange) {
   for (const type of ["pointerup", "pointercancel", "pointerleave"]) {
     element.addEventListener(type, up);
   }
-  element.addEventListener("dblclick", () => set(1));
+  // Not a quick double press of a button on the stage.
+  element.addEventListener("dblclick", (event) => {
+    if (!event.target.closest(OWN)) set(1);
+  });
 
   return {
     get value() {

@@ -108,3 +108,8 @@ test("a flick that turns the marker out of sight is one too", () => {
   const away = run(watch((t) => (t < 0.6 ? 0 : (t - 0.6) * 500)), 1.2);
   assert.ok(away.names.includes("flick"), `recognized: ${away.names.join() || "nothing"}`);
 });
+
+test("the field of view spans the sensor's longer side, also with the phone held upright", () => {
+  assert.equal(focalLength(720, FOV, 1280), focalLength(1280, FOV, 720));
+  assert.equal(focalLength(1280, FOV), focalLength(1280, FOV, 720));
+});

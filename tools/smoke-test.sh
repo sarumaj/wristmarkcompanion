@@ -50,6 +50,9 @@ echo "$manifest" | grep -q "Content-Security-Policy" || fail "the manifest lost 
 # The hand tracking: its library, its WebAssembly as application/wasm (else browsers
 # can't compile it streaming), and its model in full.
 fetch /vendor/mediapipe/vision_bundle.mjs | grep -q "HandLandmarker" || fail "MediaPipe is not served"
+mjs=$(docker exec "$name" wget -q -S -O /dev/null http://127.0.0.1:8080/vendor/mediapipe/vision_bundle.mjs 2>&1)
+echo "$mjs" | grep -q "Content-Type: text/javascript" || fail "MediaPipe's module is not served as JavaScript"
+echo "$mjs" | grep -q "Content-Security-Policy" || fail "the module lost the security headers"
 docker exec "$name" wget -q -S -O /dev/null http://127.0.0.1:8080/vendor/mediapipe/wasm/vision_wasm_internal.wasm 2>&1 \
     | grep -q "Content-Type: application/wasm" || fail "the WebAssembly is not served as application/wasm"
 [ "$(fetch /vendor/mediapipe/hand_landmarker.task | wc -c)" -gt 7000000 ] || fail "the hand model is not served"
@@ -60,6 +63,7 @@ headers=$(docker exec "$name" wget -q -S -O /dev/null http://127.0.0.1:8080/ 2>&
 echo "$headers" | grep -q "Content-Security-Policy: .*connect-src 'self'" \
     || fail "the Content-Security-Policy does not limit connections to the origin"
 echo "$headers" | grep -q "Permissions-Policy: camera=(self)" || fail "no Permissions-Policy for the camera"
+echo "$headers" | grep -q "Cache-Control: no-cache" || fail "the page may be cached without asking again"
 
 # Without the relay (RELAY=off, the default), its health says so and pairing isn't offered.
 fetch /relay/v1/healthz | grep -q '"status":"off"' || fail "the relay's health does not say off"

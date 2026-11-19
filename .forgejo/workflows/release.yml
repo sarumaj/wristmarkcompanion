@@ -30,12 +30,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
+      # X.Y.Z exactly, Y and Z below 100: the Android version code is X·10000 + Y·100 + Z
+      # (app/android/app/build.gradle), so 0.100.0 would collide with 1.0.0, and a fourth
+      # part or a suffix would be dropped.
       - name: Check the tag
         run: |
-          case "$TAG" in
-            v[0-9]*.[0-9]*.[0-9]*) ;;
-            *) echo "::error::$TAG is not a release tag (vX.Y.Z)"; exit 1 ;;
-          esac
+          if ! printf '%s\n' "$TAG" | grep -Eq '^v[0-9]+\.[0-9]{1,2}\.[0-9]{1,2}$'; then
+            echo "::error::$TAG is not a release tag (vX.Y.Z, Y and Z below 100)"
+            exit 1
+          fi
 
       - name: Check out the tag
         uses: https://github.com/actions/checkout@v7

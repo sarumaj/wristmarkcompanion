@@ -6,7 +6,7 @@
 // Moved further than this (pixels) is a drag, not a tap; held longer is no tap either.
 const TAP_DISTANCE = 8;
 const TAP_MS = 400;
-const OWN = "button, a, input, select, .debug, .guide, .intro, .failure";
+export const OWN = "button, a, input, select, .debug, .guide, .intro, .failure";
 
 // `handlers.tap(x, y)` in the window's pixels (clientX, clientY); `handlers.drag(x, y, dx, dy)` with the
 // pointer's position and its movement since the last call; `handlers.release()` when a

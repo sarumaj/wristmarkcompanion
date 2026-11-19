@@ -27,6 +27,11 @@ iPhones use the viewer in Safari.
 - **The camera:** the manifest asks for `CAMERA`; the WebView asks the person when the page
   wants the camera, as a browser does.
 - **Updates** come with a new APK: a change of the viewer reaches the app at the next release.
+- **No backup** (`android:allowBackup="false"`): Android's Auto Backup and a move to a new phone
+  would copy the WebView's storage, the paired session's tokens and keys with it, and so clone
+  the session onto another device. A new phone pairs again.
+- **Full screen** is the stage filling the app's window: the WebView leaves an element's own
+  full screen at once (Capacitor hides its custom view), so the app doesn't ask for it.
 
 ## Build
 

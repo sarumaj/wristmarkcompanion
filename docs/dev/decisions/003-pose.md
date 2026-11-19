@@ -4,10 +4,12 @@ Status: accepted (milestone 2), to be checked against the device tests (mileston
 
 ## Camera intrinsics
 
-Browsers don't expose a camera's intrinsics. The viewer assumes a pinhole camera whose horizontal
-field of view is 65 degrees, a typical phone main camera, with the principal point at the
-image's center. The focal length in pixels is then `width / 2 / tan(fov / 2)`
-(`viewer/public/js/tracker.js`, `focalLength`).
+Browsers don't expose a camera's intrinsics. The viewer assumes a pinhole camera whose field of
+view across the sensor's longer side is 65 degrees, a typical phone main camera, with the
+principal point at the image's center. The focal length in pixels is then
+`max(width, height) / 2 / tan(fov / 2)` (`viewer/public/js/tracker.js`, `focalLength`): a phone
+held upright delivers its frames turned (720 wide, 1280 high), and the width alone would make
+every distance read about 44 % short.
 
 - **Effect of a wrong guess:** the distance scales with the focal length, so a camera with 75
   degrees instead of 65 shows about 20 % too far. Orientation is affected much less.

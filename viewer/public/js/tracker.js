@@ -7,11 +7,12 @@ import { DICTIONARY, MAX_HAMMING_DISTANCE, markerDictionary } from "./markers.js
 import { refinePose } from "./pose-refine.js";
 import { refineCorners } from "./refine.js";
 
-// The focal length in pixels of an image `width` pixels wide whose camera sees
-// `fovDegrees` across. Browsers don't expose the real intrinsics, so the viewer
-// assumes a typical phone main camera (docs/dev/decisions/003-pose.md).
-export function focalLength(width, fovDegrees) {
-  return width / 2 / Math.tan((fovDegrees * Math.PI) / 360);
+// The focal length in pixels of an image `width` by `height` pixels whose camera sees
+// `fovDegrees` across its longer side, the sensor's: a phone held upright delivers its
+// frames turned, 720 wide and 1280 high. Browsers don't expose the real intrinsics, so the
+// viewer assumes a typical phone main camera (docs/dev/decisions/003-pose.md).
+export function focalLength(width, fovDegrees, height = 0) {
+  return Math.max(width, height) / 2 / Math.tan((fovDegrees * Math.PI) / 360);
 }
 
 export class MarkerTracker {
@@ -21,7 +22,7 @@ export class MarkerTracker {
     this.markerSize = markerSize;
     this.fovDegrees = fovDegrees;
     this.posit = null;
-    this.positWidth = 0;
+    this.positFocal = 0;
   }
 
   // The markers in an ImageData: [{id, corners: [{x, y}] (clockwise from the
@@ -38,15 +39,15 @@ export class MarkerTracker {
   // frame: x right, y up, z away from the camera. The two are the planar marker's
   // ambiguity; the alternative is null when POSIT finds only one.
   pose(marker, width, height) {
-    if (!this.posit || this.positWidth !== width) {
-      this.posit = new POS.Posit(this.markerSize, focalLength(width, this.fovDegrees));
-      this.positWidth = width;
+    const focal = focalLength(width, this.fovDegrees, height);
+    if (!this.posit || this.positFocal !== focal) {
+      this.posit = new POS.Posit(this.markerSize, focal);
+      this.positFocal = focal;
     }
     // POSIT wants the corners around the image's center, y up; a pixel's center is half
     // a pixel past its index.
     const points = marker.corners.map((corner) => ({ x: corner.x + 0.5 - width / 2, y: height / 2 - corner.y - 0.5 }));
     const pose = this.posit.pose(points);
-    const focal = focalLength(width, this.fovDegrees);
     // Each of POSIT's solutions refined to fit the corners best (js/pose-refine.js);
     // its error is then the corners' distance in pixels.
     const solution = (rotation, translation, error) =>

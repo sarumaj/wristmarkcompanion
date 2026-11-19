@@ -29,7 +29,8 @@ export const MARGIN_MM = 10;
 // of `fovDegrees` across an image `width` by `height`. Null where no offset fits (the hand
 // would be behind the camera).
 export function placeHand(image, world, { width, height, fovDegrees }) {
-  const f = (0.5 * width) / Math.tan((fovDegrees * Math.PI) / 360);
+  // The field of view across the longer side, as the marker's (tracker.js, focalLength).
+  const f = (0.5 * Math.max(width, height)) / Math.tan((fovDegrees * Math.PI) / 360);
   // The normal equations of f*Tx - u*Tz = u*Z - f*X and f*Ty - v*Tz = v*Z - f*Y, in the
   // image's frame (x right, y down, z away), the image's center the origin.
   const a = [0, 0, 0, 0, 0, 0];
