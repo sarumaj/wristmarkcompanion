@@ -9,6 +9,16 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## 0.6.0 - 2026-11-19
+
+### Added
+
+- **channel:** a request log for the relay and the link's status on the pairing screen
+
+### Fixed
+
+- **relay:** 201 for a channel created again, which watch apps up to v0.5.0 need
+
 ## 0.5.1 - 2026-11-19
 
 ### Fixed
