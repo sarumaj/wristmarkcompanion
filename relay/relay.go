@@ -369,7 +369,10 @@ func (r *Relay) create(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 		c.used = r.now()
-		reply(w, http.StatusOK, struct{}{})
+		// 201 as for a new one: the watch apps up to v0.5.0 take only 201, 204 and 409
+		// here, and retry anything else for ever, which keeps them from their long-poll.
+		// In a pairing the viewer creates the channel first, so they would never pair.
+		reply(w, http.StatusCreated, struct{}{})
 		return
 	}
 	if len(r.channels) >= r.limit {

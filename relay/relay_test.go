@@ -90,7 +90,8 @@ type polled struct {
 func TestCreate(t *testing.T) {
 	_, base := setup(t)
 	same := fmt.Sprintf(`{"watch":%q,"viewer":%q}`, hashHex(watchToken+id), hashHex(viewerToken+id))
-	if status, _ := call(t, base, "PUT", "/channels/"+id, "", same); status != http.StatusOK {
+	// 201 again, which the watch apps up to v0.5.0 need (relay.go, create).
+	if status, _ := call(t, base, "PUT", "/channels/"+id, "", same); status != http.StatusCreated {
 		t.Errorf("the same hashes again: %d", status)
 	}
 	changed := fmt.Sprintf(`{"watch":%q,"viewer":%q}`, hashHex("x"), hashHex(viewerToken+id))
