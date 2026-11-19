@@ -9,6 +9,14 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## 0.5.1 - 2026-11-19
+
+### Fixed
+
+- **viewer:** hand tracking loads on the web, models free their GPU memory, and a stalled or switched camera is handled
+- **watch:** the type checker's casts for equals
+- **channel:** a pairing can be reset from either side, and the link survives a closed tab, a relay restart and a fifth viewer
+
 ## 0.5.0 - 2026-11-18
 
 ### Added
