@@ -83,8 +83,28 @@ jobs:
       - name: Install the viewer's packages
         run: npm ci --prefix viewer --ignore-scripts --no-audit --no-fund
 
+      # As JUnit too, for the report below: npm test's node --test takes its reporters
+      # from NODE_OPTIONS, the test files' own processes included.
       - name: Run the end-to-end tests
+        id: tests
         run: npm test --prefix viewer
+        env:
+          NODE_OPTIONS: >-
+            --test-reporter=spec --test-reporter-destination=stdout
+            --test-reporter=junit --test-reporter-destination=/tmp/node.xml
+
+      # The test report runs with Python, which the image may lack.
+      - name: Install Python for the test report
+        if: always() && steps.tests.outcome != 'skipped'
+        run: command -v python3 || { apt-get update -qq && apt-get install -y -qq --no-install-recommends python3 > /dev/null; }
+
+      # The results as one comment on the pull request (dawid/ci-actions), also when
+      # tests failed.
+      - name: Test report
+        if: always() && steps.tests.outcome != 'skipped'
+        uses: https://git.ciepiela.org/dawid/ci-actions/test-report@main
+        with:
+          junit: /tmp/node.xml
 
   # The control channel's relay (relay/, docs/dev/decisions/004-control-channel.md):
   # formatted, vetted, and its tests under the race detector.
@@ -109,9 +129,21 @@ jobs:
         working-directory: relay
         run: go vet ./...
 
+      # As JSON with the coverage, for the report below, which also prints the failed
+      # tests' output.
       - name: Run the tests
+        id: tests
         working-directory: relay
-        run: go test -race -count=1 ./...
+        run: go test -race -count=1 -json -coverprofile=/tmp/cover.out ./... > /tmp/go-test.json
+
+      # The results and the coverage as one comment on the pull request
+      # (dawid/ci-actions), also when tests failed.
+      - name: Test report
+        if: always() && steps.tests.outcome != 'skipped'
+        uses: https://git.ciepiela.org/dawid/ci-actions/test-report@main
+        with:
+          go-test-json: /tmp/go-test.json
+          coverage: /tmp/cover.out
 
   # The images are built and tested here, pushed nowhere (deployment: milestone 5).
   image:
