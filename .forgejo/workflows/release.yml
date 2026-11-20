@@ -25,9 +25,9 @@ env:
 
 jobs:
   release:
-    # The SDK is mounted only in the runner container ci (docs/dev/ci.md), which also
-    # has Docker for the viewer's files.
-    runs-on: ubuntu-latest
+    # The SDK is mounted only in the runner containers of one CI host, whose runners offer
+    # the label connectiq (docs/dev/ci.md); they also have Docker for the viewer's files.
+    runs-on: [ubuntu-latest, connectiq]
     timeout-minutes: 30
     steps:
       # X.Y.Z exactly, Y and Z below 100: the Android version code is X·10000 + Y·100 + Z

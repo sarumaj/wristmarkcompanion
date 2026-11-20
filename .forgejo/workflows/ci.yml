@@ -191,11 +191,12 @@ jobs:
 
   # The watch app compiled for every device in its manifest. The Connect IQ SDK
   # can't be downloaded here (its license, docs/dev/ci.md): it's installed by hand on
-  # the runner's host and mounted read-only at /opt/connectiq in the runner
-  # container `ci`, whose host label is ubuntu-latest. CONNECTIQ_SDK must be a
-  # version installed there (runbook connectiq-update); Renovate doesn't update it.
+  # the runners' host and mounted read-only at /opt/connectiq in its containers,
+  # whose runners offer the label connectiq (the CI broker hands every other
+  # ubuntu-latest job to either host). CONNECTIQ_SDK must be a version installed
+  # there (runbook connectiq-update); Renovate doesn't update it.
   watch:
-    runs-on: ubuntu-latest
+    runs-on: [ubuntu-latest, connectiq]
     # Every device of the manifest compiles: a hundred or more (docs/dev/watch.md#devices).
     timeout-minutes: 30
     env:
