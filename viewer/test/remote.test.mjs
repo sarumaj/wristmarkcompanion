@@ -156,7 +156,11 @@ test("pairing through the camera, then steering the watch, and connected again a
 });
 
 // A session kept from an earlier visit, as remote.js keeps it, with the vectors' secret.
+// Written from the marker page, of the same origin but without the viewer: the viewer,
+// still starting while it was written, read it at times and sent a hello of its own
+// before the next page did (a third POST, 4 runs in 25).
 async function keepSession(page) {
+  await page.goto(`${server.url}/markers.html`);
   await page.evaluate(async (hex) => {
     const { deriveSession } = await import("/js/channel.js");
     const derived = await deriveSession(Uint8Array.from(hex.match(/../g), (pair) => parseInt(pair, 16)));
@@ -193,9 +197,8 @@ test("a kept pairing the watch doesn't answer can be forgotten, which ends it at
     // The watch never answers.
     return route.fulfill({ status: 200, headers: { "Content-Type": "text/event-stream" }, body: ": quiet\n\n" });
   });
-  await page.goto(`${server.url}/index.html`);
   await keepSession(page);
-  await page.reload();
+  await page.goto(`${server.url}/index.html`);
   await page.waitForFunction(() => document.body.dataset.remote === "waiting");
   await page.getByRole("button", { name: "Watch", exact: true }).click();
   // Waiting at first, without a way out that would cut a slow watch short.
@@ -221,9 +224,8 @@ test("a pairing the watch ended (the relay's 410) is forgotten, and the viewer s
     if (route.request().url().endsWith("/healthz")) return route.fulfill({ json: { status: "ok" } });
     return route.fulfill({ status: 410, json: { detail: "the other side ended this pairing" } });
   });
-  await page.goto(`${server.url}/index.html`);
   await keepSession(page);
-  await page.reload();
+  await page.goto(`${server.url}/index.html`);
   await page.locator("#remote-text", { hasText: "The watch ended this pairing" }).waitFor({ state: "attached" });
   assert.equal(await page.evaluate(() => document.body.dataset.remote), "idle");
   await page.reload();
