@@ -15,7 +15,7 @@ jobs:
   checks:
     runs-on: docker
     timeout-minutes: 10
-    container: docker.io/library/node:24-bookworm
+    container: docker.io/library/node:24.22.3-bookworm@sha256:9d266751ca3d7fdbe651c878ffd5ad0a42fed49a18c283509267c97f025b7496
     steps:
       # The image has no git-lfs, which the checkout needs for the icons the checks
       # compare (docs/dev/ci.md#binary-files).
@@ -230,7 +230,7 @@ jobs:
     runs-on: docker
     timeout-minutes: 30
     container:
-      image: node:24-bookworm
+      image: node:24.22.3-bookworm@sha256:9d266751ca3d7fdbe651c878ffd5ad0a42fed49a18c283509267c97f025b7496
     env:
       ANDROID_HOME: /root/android-sdk
     steps:
