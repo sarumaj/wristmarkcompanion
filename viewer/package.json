@@ -9,7 +9,7 @@
     "test": "node --test test/"
   },
   "dependencies": {
-    "@mediapipe/tasks-vision": "1.2.2",
+    "@mediapipe/tasks-vision": "1.2.3",
     "js-aruco2": "2.0.0",
     "three": "0.187.0"
   },
@@ -17,7 +17,7 @@
     "@eslint/js": "10.0.1",
     "eslint": "10.15.0",
     "globals": "17.14.0",
-    "markdownlint-cli2": "0.24.0",
+    "markdownlint-cli2": "0.24.1",
     "playwright": "1.64.1",
     "qrcode": "1.5.4"
   }

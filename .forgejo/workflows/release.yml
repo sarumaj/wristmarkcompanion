@@ -41,7 +41,7 @@ jobs:
           fi
 
       - name: Check out the tag
-        uses: https://github.com/actions/checkout@v7
+        uses: https://github.com/actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           lfs: true
           ref: refs/tags/${{ env.TAG }}
@@ -62,17 +62,17 @@ jobs:
           cat "$RUNNER_TEMP/notes.md"
 
       - name: Set up Java
-        uses: https://github.com/actions/setup-java@v6
+        uses: https://github.com/actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: '21.0.13+9.0.LTS'
 
       # The viewer's packages: the QR code of WRISTMARK_ORIGIN for the watch, and the
       # Android app's web files.
       - name: Set up Node.js
-        uses: https://github.com/actions/setup-node@v5
+        uses: https://github.com/actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          node-version: '24'
+          node-version: '24.22.3'
 
       - name: Install the viewer's packages
         run: npm ci --prefix viewer --ignore-scripts --no-audit --no-fund
@@ -173,7 +173,7 @@ jobs:
 
       - name: Publish the release
         if: steps.existing.outputs.exists == 'false'
-        uses: https://code.forgejo.org/actions/forgejo-release@v2
+        uses: https://code.forgejo.org/actions/forgejo-release@98265452477dafb3f0f27ba9c462c90b18cb44fd # v2.13.4
         with:
           direction: upload
           url: ${{ github.server_url }}
