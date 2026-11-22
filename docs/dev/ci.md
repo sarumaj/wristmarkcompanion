@@ -1,7 +1,9 @@
 # CI
 
 Forgejo Actions on the homelab's runners (`.forgejo/workflows/ci.yml`), on every push to `main`
-and every pull request.
+and to `renovate/all-patch`, and every pull request. Renovate merges its patch updates from
+`renovate/all-patch` without a pull request once these checks pass there; without them it opens a
+pull request, which Forgejo merges at once (it has no required checks), as #67 did.
 
 | Job      | Runs on                             | What it checks                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 |----------|-------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
