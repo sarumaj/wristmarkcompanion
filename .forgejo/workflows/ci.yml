@@ -1,9 +1,12 @@
 # The checks of every push to main and of every pull request. No artifacts are
-# uploaded.
+# uploaded. Also of pushes to renovate/all-patch, which Renovate merges without a pull
+# request once these pass (dawid/renovate-config): without them it saw no checks, opened
+# a pull request after a day, and Forgejo merged it at once, with its android job still
+# to fail (Gradle 8.14.7 with the checksum of 8.14.3, #67, 2026-11-22).
 name: CI
 'on':
   push:
-    branches: [main]
+    branches: [main, renovate/all-patch]
   pull_request:
 
 concurrency:
