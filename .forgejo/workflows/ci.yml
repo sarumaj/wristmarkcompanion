@@ -114,7 +114,7 @@ jobs:
   relay:
     runs-on: docker
     timeout-minutes: 10
-    container: docker.io/library/golang:1.27-bookworm
+    container: docker.io/library/golang:1.27-bookworm@sha256:4fa7c968ba93f1635670522dbb01a2c78150443e1385746924566079f36570ea
     steps:
       # The Go image has no Node.js for actions/checkout: plain git, with the job's token.
       - name: Check out repository

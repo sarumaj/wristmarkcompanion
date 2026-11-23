@@ -19,7 +19,7 @@ RUN read -r url sha256 < hand-model.txt \
     && echo "$sha256  /vendor/mediapipe/hand_landmarker.task" | sha256sum -c -
 
 # The unprivileged image runs nginx as a non-root user on port 8080.
-FROM docker.io/nginxinc/nginx-unprivileged:1.31-alpine
+FROM docker.io/nginxinc/nginx-unprivileged:1.31-alpine@sha256:b5047b9b76845eac124358373c6852377c52e4b05834a47647e955dd91cb8f1e
 # The relay of the control channel beside the viewer (compose.yaml) or not: which of
 # nginx/relay-*.conf the server includes.
 ARG RELAY=off
