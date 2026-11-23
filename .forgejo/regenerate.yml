@@ -1,0 +1,23 @@
+# The regenerate bot (bots/regenerate, set up in HomeLab) commits these files on Renovate's
+# branches, so that the checks of ci.yml pass. It builds in the image of the CI job named here,
+# with no token in reach, and pushes only commits with these messages that change these paths
+# (docs/dev/ci.md#renovate-gradle).
+jobs:
+  # The Gradle wrapper's distributionSha256Sum for the distribution Renovate raised it to:
+  # Renovate updates only distributionUrl, as writing the checksum is part of its run of
+  # gradlew, which the homelab's Renovate may not run (allowedUnsafeExecutions). The checksum
+  # is Gradle's own (<distributionUrl>.sha256), the one Renovate would write; nothing of the
+  # repository runs. A branch whose URL did not change gets no commit.
+  gradle:
+    image_from: {file: .forgejo/workflows/ci.yml, job: android}
+    prepare: git --version && curl --version > /dev/null
+    steps:
+      - run: |
+          file=app/android/gradle/wrapper/gradle-wrapper.properties
+          url=$(sed -n 's/^distributionUrl=//p' "$file" | sed 's/\\:/:/g')
+          case "$url" in https://services.gradle.org/distributions/gradle-*.zip) ;; *) echo "unexpected distributionUrl: $url"; exit 1 ;; esac
+          sum=$(curl -fsSL "$url.sha256" | tr -d ' \n')
+          printf '%s' "$sum" | grep -Eq '^[0-9a-f]{64}$' || { echo "no checksum at $url.sha256"; exit 1; }
+          sed -i "s/^distributionSha256Sum=.*/distributionSha256Sum=$sum/" "$file"
+        paths: app/android/gradle/wrapper/gradle-wrapper.properties
+        message: "chore(deps): the Gradle wrapper's checksum of its new distribution"

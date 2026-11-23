@@ -32,6 +32,24 @@ docker build -t wristmark-viewer:test viewer && tools/smoke-test.sh wristmark-vi
 docker run --rm --ipc=host -v "$PWD:/w" -w /w/viewer mcr.microsoft.com/playwright:v1.64.1-noble npm test
 ```
 
+## Renovate's Gradle updates {#renovate-gradle}
+
+Renovate raises the Gradle wrapper (`app/android/gradle/wrapper/gradle-wrapper.properties`) by
+its `distributionUrl` alone. It writes `distributionSha256Sum` only in its run of `gradlew
+wrapper`, which runs the repository's build and which the homelab's Renovate may not do
+(`allowedUnsafeExecutions`). The old checksum then fails the `android` job ("Verification of
+Gradle distribution failed!"), as on #67 and #71.
+
+The regenerate bot (`.forgejo/regenerate.yml`, set up in HomeLab) commits the new distribution's
+checksum on Renovate's branches: Gradle's own, from `<distributionUrl>.sha256`, the one Renovate
+would write, without running anything of the repository. A pull request whose wrapper changed
+fails until the bot's commit is on its branch, and passes after it. By hand, the same:
+
+```sh
+url=$(sed -n 's/^distributionUrl=//p' app/android/gradle/wrapper/gradle-wrapper.properties | sed 's/\\:/:/g')
+curl -fsSL "$url.sha256"   # the value of distributionSha256Sum
+```
+
 ## Releases
 
 `.forgejo/workflows/release.yml`, on a version tag `vX.Y.Z` or by hand with a tag (rollback):
