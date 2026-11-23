@@ -9,6 +9,14 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## 0.6.1 - 2026-11-23
+
+### Dependencies
+
+- the Gradle 8.14.7 distribution's checksum, and CI on renovate/all-patch
+- update all patch dependencies
+- pin all patch dependencies
+
 ## 0.6.0 - 2026-11-19
 
 ### Added
