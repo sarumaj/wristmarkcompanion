@@ -65,7 +65,7 @@ jobs:
         uses: https://github.com/actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
         with:
           distribution: temurin
-          java-version: '21.0.13+9.0.LTS'
+          java-version: '21.0.13+100000002.0.LTS'
 
       # The viewer's packages: the QR code of WRISTMARK_ORIGIN for the watch, and the
       # Android app's web files.
